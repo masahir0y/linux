@@ -834,7 +834,7 @@ static int write_oob_data(struct mtd_info *mtd, uint8_t *buf, int page)
 
 	denali->page = page;
 
-	if (denali_send_pipeline_cmd(denali, false, false, SPARE_ACCESS,
+	if (denali_send_pipeline_cmd(denali, false, true, SPARE_ACCESS,
 							DENALI_WRITE) == PASS) {
 		write_data_to_flash_mem(denali, buf, mtd->oobsize);
 
