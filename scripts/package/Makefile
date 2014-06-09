@@ -51,7 +51,7 @@ rm -f $(objtree)/.scmversion
 # ---------------------------------------------------------------------------
 rpm-pkg: FORCE
 	$(MAKE) clean
-	$(CONFIG_SHELL) $(MKSPEC) >$(objtree)/kernel.spec
+	$(KBUILD_SHELL) $(MKSPEC) >$(objtree)/kernel.spec
 	$(call cmd,src_tar,$(KERNELPATH),kernel.spec)
 	+rpmbuild $(RPMOPTS) --target $(UTS_MACHINE) -ta $(KERNELPATH).tar.gz \
 	--define='_smp_mflags %{nil}'
@@ -103,7 +103,7 @@ clean-dirs += $(objtree)/snap/
 # ---------------------------------------------------------------------------
 tar%pkg: FORCE
 	$(MAKE) KBUILD_SRC=
-	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
+	$(KBUILD_SHELL) $(srctree)/scripts/package/buildtar $@
 
 clean-dirs += $(objtree)/tar-install/
 

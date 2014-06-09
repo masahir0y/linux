@@ -160,11 +160,24 @@ extra-$(CONFIG_ALTIVEC)		+= vector.o
 extra-$(CONFIG_PPC64)		+= entry_64.o
 extra-$(CONFIG_PPC_OF_BOOT_TRAMPOLINE)	+= prom_init.o
 
+<<<<<<< 9a39b29af79d69e8cd1387e1b6139be0a7ae76f7
+=======
+extra-y				+= systbl_chk.i
+$(obj)/systbl.o:		systbl_chk
+
+quiet_cmd_systbl_chk = CALL    $<
+      cmd_systbl_chk = $(KBUILD_SHELL) $< $(obj)/systbl_chk.i
+
+PHONY += systbl_chk
+systbl_chk: $(src)/systbl_chk.sh $(obj)/systbl_chk.i
+	$(call cmd,systbl_chk)
+
+>>>>>>> kbuild: rename CONFIG_SHELL to KBUILD_SHELL
 ifdef CONFIG_PPC_OF_BOOT_TRAMPOLINE
 $(obj)/built-in.a:		prom_init_check
 
 quiet_cmd_prom_init_check = CALL    $<
-      cmd_prom_init_check = $(CONFIG_SHELL) $< "$(NM)" "$(obj)/prom_init.o"
+      cmd_prom_init_check = $(KBUILD_SHELL) $< "$(NM)" "$(obj)/prom_init.o"
 
 PHONY += prom_init_check
 prom_init_check: $(src)/prom_init_check.sh $(obj)/prom_init.o

@@ -144,10 +144,10 @@ vmlinuz: vmlinux
 endif
 
 install:
-	$(CONFIG_SHELL) $(src)/arch/parisc/install.sh \
+	$(KBUILD_SHELL) $(src)/arch/parisc/install.sh \
 			$(KERNELRELEASE) vmlinux System.map "$(INSTALL_PATH)"
 zinstall:
-	$(CONFIG_SHELL) $(src)/arch/parisc/install.sh \
+	$(KBUILD_SHELL) $(src)/arch/parisc/install.sh \
 			$(KERNELRELEASE) vmlinuz System.map "$(INSTALL_PATH)"
 
 CLEAN_FILES	+= lifimage

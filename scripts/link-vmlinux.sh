@@ -146,7 +146,7 @@ kallsyms()
 # See mksymap for additional details
 mksysmap()
 {
-	${CONFIG_SHELL} "${srctree}/scripts/mksysmap" ${1} ${2}
+	${KBUILD_SHELL} "${srctree}/scripts/mksysmap" ${1} ${2}
 }
 
 sortextable()
