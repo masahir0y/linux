@@ -360,7 +360,7 @@ KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
 # SHELL used by kbuild
-KBUILD_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+KBUILD_SHELL ?= $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 

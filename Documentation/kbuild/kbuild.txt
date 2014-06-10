@@ -246,3 +246,8 @@ KBUILD_VMLINUX_LIBS
 All .a "lib" files for vmlinux.
 KBUILD_VMLINUX_INIT, KBUILD_VMLINUX_MAIN, and KBUILD_VMLINUX_LIBS together
 specify all the object files used to link vmlinux.
+
+KBUILD_SHELL
+--------------------------------------------------
+Specify which shell to use to run shell scripts in Kbuild.
+Assigned by the top-level Makefile.
