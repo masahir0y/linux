@@ -20,6 +20,13 @@ dot-target = $(dir $@).$(notdir $@)
 depfile = $(subst $(comma),_,$(dot-target).d)
 
 ###
+# Name of the included file in each directory
+# The filename "Kbuild" has precedence over "Makefile"
+kbuild-dir = $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+kbuild-file = $(if $(wildcard $(kbuild-dir)/Kbuild), \
+			$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)
+
+###
 # filename of target with directory and extension stripped
 basetarget = $(basename $(notdir $@))
 
