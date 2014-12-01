@@ -31,7 +31,7 @@ current architecture.  The linux/asm directory of the exported kernel headers
 is platform-specific, to see a complete list of supported architectures use
 the command:
 
-  ls -d include/asm-* | sed 's/.*-//'
+  for i in arch/*; do [ -e $i/include/uapi/asm/Kbuild ] && basename $i; done
 
 INSTALL_HDR_PATH indicates where to install the headers. It defaults to
 "./usr".
