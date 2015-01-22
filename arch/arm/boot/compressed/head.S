@@ -1202,15 +1202,9 @@ __armv6_mmu_cache_flush:
 __armv7_mmu_cache_flush:
 		tst	r4, #1
 		bne	iflush
-		mrc	p15, 0, r10, c0, c1, 5	@ read ID_MMFR1
-		tst	r10, #0xf << 16		@ hierarchical cache (ARMv7)
-		mov	r10, #0
-		beq	hierarchical
-		mcr	p15, 0, r10, c7, c14, 0	@ clean+invalidate D
-		b	iflush
-hierarchical:
-		mcr	p15, 0, r10, c7, c10, 5	@ DMB
 		stmfd	sp!, {r0-r7, r9-r11}
+		mov	r10, #0
+		mcr	p15, 0, r10, c7, c10, 5	@ DMB
 		mrc	p15, 1, r0, c0, c0, 1	@ read clidr
 		ands	r3, r0, #0x7000000	@ extract loc from clidr
 		mov	r3, r3, lsr #23		@ left align loc bit field
