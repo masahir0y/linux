@@ -159,8 +159,8 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
 
 	return 0;
 out:
-	if (info->clk)
-		clk_disable_unprepare(info->clk);
+	clk_disable_unprepare(info->clk);
+
 	return ret;
 }
 
@@ -251,8 +251,8 @@ static int of_platform_serial_remove(struct platform_device *ofdev)
 		break;
 	}
 
-	if (info->clk)
-		clk_disable_unprepare(info->clk);
+	clk_disable_unprepare(info->clk);
+
 	kfree(info);
 	return 0;
 }
@@ -264,7 +264,7 @@ static void of_serial_suspend_8250(struct of_serial_info *info)
 	struct uart_port *port = &port8250->port;
 
 	serial8250_suspend_port(info->line);
-	if (info->clk && (!uart_console(port) || console_suspend_enabled))
+	if (!uart_console(port) || console_suspend_enabled)
 		clk_disable_unprepare(info->clk);
 }
 
