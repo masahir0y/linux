@@ -1054,7 +1054,7 @@ static int zynq_pinconf_cfg_set(struct pinctrl_dev *pctldev,
 
 	ret = regmap_read(pctrl->syscon, pctrl->pctrl_offset + (4 * pin), &reg);
 	if (ret)
-		return -EIO;
+		return ret;
 
 	for (i = 0; i < num_configs; i++) {
 		unsigned int param = pinconf_to_config_param(configs[i]);
@@ -1109,7 +1109,7 @@ static int zynq_pinconf_cfg_set(struct pinctrl_dev *pctldev,
 
 	ret = regmap_write(pctrl->syscon, pctrl->pctrl_offset + (4 * pin), reg);
 	if (ret)
-		return -EIO;
+		return ret;
 
 	return 0;
 }
