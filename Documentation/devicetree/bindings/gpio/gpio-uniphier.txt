@@ -1,0 +1,26 @@
+UniPhier GPIO controller
+
+Required properties:
+- compatible: should be "socionext,uniphier-gpio".
+- reg: offset and length of the register set for the device.
+- gpio-controller: marks the device node as a GPIO controller.
+- #gpio-cells: should be three.
+    The 1st cell is the bank number.
+    The 2nd cell is the line number in the bank.
+    The 3rd cell is the flags.
+- gpio-banks: the number of GPIO banks.
+
+Optional properties:
+- gpio-ranges: interaction with the pinctrl device.  See gpio.txt
+- gpio-ranges-group-names: interaction with the pinctrl device.  See gpio.txt
+
+Example:
+	gpio: gpio@55000000 {
+		compatible = "socionext,uniphier-gpio";
+		reg = <0x55000000 0x200>;
+		gpio-controller;
+		#gpio-cells = <3>;
+		gpio-ranges = <&pinctrl 0 0 0>;
+		gpio-ranges-group-names = "port_range";
+		gpio-banks = <26>;
+	};
