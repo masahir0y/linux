@@ -894,6 +894,7 @@ config MMC_SDHCI_MICROCHIP_PIC32
           If you have a controller with this interface, say Y or M here.
 
           If unsure, say N.
+
 config MMC_SDHCI_BRCMSTB
 	tristate "Broadcom SDIO/SD/MMC support"
 	depends on ARCH_BRCMSTB || BMIPS_GENERIC
@@ -924,3 +925,9 @@ config MMC_SDHCI_OMAP
 	  If you have a controller with this interface, say Y or M here.
 
 	  If unsure, say N.
+
+config MMC_UNIPHIER
+	tristate "UniPhier SD/MMC Host Controller support"
+	depends on ARCH_UNIPHIER
+	help
+	  This selects support for the SD/MMC Host Controller on UniPhier SoCs.
