@@ -1033,4 +1033,10 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
 	 /* OTHER_WRITABLE?  Generally considered a bad idea. */		\
 	 BUILD_BUG_ON_ZERO((perms) & 2) +					\
 	 (perms))
+
+void uniphier_reg_dump(phys_addr_t base, size_t len);
+void uniphier_mem_dump(phys_addr_t base, size_t len);
+void uniphier_mmu_dump(phys_addr_t offset, size_t len);
+void uniphier_mmu_entry(void __iomem *virt);
+
 #endif
