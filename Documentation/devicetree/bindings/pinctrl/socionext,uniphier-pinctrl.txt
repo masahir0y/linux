@@ -1,0 +1,16 @@
+UniPhier SoCs pin controller
+
+Required properties:
+- compatible: should be one of the followings:
+	"socionext,ph1-ld4-pinctrl"	(PH1-LD4)
+	"socionext,ph1-ld6b-pinctrl"	(PH1-LD6b)
+	"socionext,ph1-pro4-pinctrl"	(PH1-Pro4)
+	"socionext,ph1-pro5-pinctrl"	(PH1-Pro5)
+	"socionext,ph1-sld8-pinctrl"	(PH1-sLD8)
+	"socionext,proxstream2-pinctrl"	(ProXstream2)
+- reg: offset and length of the register set for the device.
+
+	pinctrl: pinctrl@5f801000 {
+		compatible = "socionext,ph1-pro4-pinctrl", "syscon";
+		reg = <0x5f801000 0xe00>;
+	};
