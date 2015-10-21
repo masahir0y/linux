@@ -1900,7 +1900,7 @@ uart_get_console(struct uart_port *ports, int nr, struct console *co)
  *
  *	Returns 0 on success or -EINVAL on failure
  */
-int uart_parse_earlycon(char *p, unsigned char *iotype, resource_size_t *addr,
+int __init uart_parse_earlycon(char *p, unsigned char *iotype, resource_size_t *addr,
 			char **options)
 {
 	if (strncmp(p, "mmio,", 5) == 0) {
