@@ -1,7 +1,6 @@
 menuconfig ARCH_BERLIN
 	bool "Marvell Berlin SoCs"
 	depends on ARCH_MULTI_V7
-	select ARCH_HAS_RESET_CONTROLLER
 	select ARM_GIC
 	select DW_APB_ICTL
 	select DW_APB_TIMER_OF
@@ -9,6 +8,7 @@ menuconfig ARCH_BERLIN
 	select GPIOLIB
 	select MFD_SYSCON
 	select PINCTRL
+	select RESET_CONTROLLER
 
 if ARCH_BERLIN
 

@@ -110,7 +110,7 @@ config MACH_MMP_DT
 	select PINCTRL
 	select PINCTRL_SINGLE
 	select COMMON_CLK
-	select ARCH_HAS_RESET_CONTROLLER
+	select RESET_CONTROLLER
 	select CPU_MOHAWK
 	help
 	  Include support for Marvell MMP2 based platforms using
@@ -122,7 +122,7 @@ config MACH_MMP2_DT
 	depends on ARCH_MULTI_V7
 	select PINCTRL
 	select PINCTRL_SINGLE
-	select ARCH_HAS_RESET_CONTROLLER
+	select RESET_CONTROLLER
 	select CPU_PJ4
 	help
 	  Include support for Marvell MMP2 based platforms using

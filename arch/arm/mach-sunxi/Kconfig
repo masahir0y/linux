@@ -1,7 +1,11 @@
 menuconfig ARCH_SUNXI
 	bool "Allwinner SoCs"
+<<<<<<< 28ba113bc8f727aa80f270b2355afe884ff9c6ca
 	depends on ARCH_MULTI_V5 || ARCH_MULTI_V7
 	select ARCH_HAS_RESET_CONTROLLER
+=======
+	depends on ARCH_MULTI_V7
+>>>>>>> reset: drop ARCH_HAS_RESET_CONTROLLER
 	select CLKSRC_MMIO
 	select GENERIC_IRQ_CHIP
 	select GPIOLIB
