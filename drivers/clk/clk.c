@@ -3505,7 +3505,7 @@ EXPORT_SYMBOL_GPL(of_clk_get_parent_name);
 int of_clk_parent_fill(struct device_node *np, const char **parents,
 		       unsigned int size)
 {
-	unsigned int i = 0;
+	int i = 0;
 
 	while (i < size && (parents[i] = of_clk_get_parent_name(np, i)) != NULL)
 		i++;
