@@ -5,8 +5,8 @@ config PINCTRL_MVEBU
 
 config PINCTRL_DOVE
 	bool
+	depends on MFD_SYSCON
 	select PINCTRL_MVEBU
-	select MFD_SYSCON
 
 config PINCTRL_KIRKWOOD
 	bool
