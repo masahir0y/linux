@@ -73,7 +73,17 @@
 		function = "sd";
 	};
 
+	pinctrl_sd_uhs: sd-uhs {
+		groups = "sd";
+		function = "sd";
+	};
+
 	pinctrl_sd1: sd1 {
+		groups = "sd1";
+		function = "sd1";
+	};
+
+	pinctrl_sd1_uhs: sd1-uhs {
 		groups = "sd1";
 		function = "sd1";
 	};
