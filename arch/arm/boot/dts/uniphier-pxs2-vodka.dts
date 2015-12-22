@@ -77,3 +77,7 @@
 &i2c0 {
 	status = "okay";
 };
+
+&emmc {
+	status = "okay";
+};

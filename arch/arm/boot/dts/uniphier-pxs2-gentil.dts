@@ -88,3 +88,7 @@
 &i2c2 {
 	status = "okay";
 };
+
+&emmc {
+	status = "okay";
+};

@@ -43,6 +43,16 @@
  */
 
 &pinctrl {
+	pinctrl_emmc: emmc_grp {
+		groups = "emmc", "emmc_dat8";
+		function = "emmc";
+	};
+
+	pinctrl_emmc_1v8: emmc_grp_1v8 {
+		groups = "emmc", "emmc_dat8";
+		function = "emmc";
+	};
+
 	pinctrl_i2c0: i2c0_grp {
 		groups = "i2c0";
 		function = "i2c0";
@@ -76,6 +86,26 @@
 	pinctrl_nand2cs: nand2cs_grp {
 		groups = "nand", "nand_cs1";
 		function = "nand";
+	};
+
+	pinctrl_sd: sd_grp {
+		groups = "sd";
+		function = "sd";
+	};
+
+	pinctrl_sd_1v8: sd_grp_1v8 {
+		groups = "sd";
+		function = "sd";
+	};
+
+	pinctrl_sd1: sd1_grp {
+		groups = "sd1";
+		function = "sd1";
+	};
+
+	pinctrl_sd1_1v8: sd1_grp_1v8 {
+		groups = "sd1";
+		function = "sd1";
 	};
 
 	pinctrl_system_bus: system_bus_grp {
