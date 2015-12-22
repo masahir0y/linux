@@ -86,3 +86,7 @@
 		reg = <1>;
 	};
 };
+
+&emmc {
+	status = "okay";
+};
