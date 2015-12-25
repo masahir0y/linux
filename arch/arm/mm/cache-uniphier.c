@@ -189,13 +189,7 @@ static void __uniphier_cache_maint_range(struct uniphier_cache_data *data,
 {
 	unsigned long size;
 
-	/*
-	 * If the start address is not aligned,
-	 * perform a cache operation for the first cache-line
-	 */
-	start = start & ~(data->line_size - 1);
-
-	size = end - start;
+	size = end - (start & ~(data->line_size - 1));
 
 	if (unlikely(size >= (unsigned long)(-data->line_size))) {
 		/* this means cache operation for all range */
@@ -204,10 +198,26 @@ static void __uniphier_cache_maint_range(struct uniphier_cache_data *data,
 	}
 
 	/*
+	 * If the start address is not aligned,
+	 * perform a cache operation for the first cache-line
+	 */
+	if (start & (data->line_size - 1)) {
+		start = start & ~(data->line_size - 1);
+		__uniphier_cache_maint_common(data, start, data->line_size,
+				UNIPHIER_SSCOQM_S_RANGE | UNIPHIER_SSCOQM_CM_FLUSH);
+	}
+
+	/*
 	 * If the end address is not aligned,
 	 * perform a cache operation for the last cache-line
 	 */
 	size = ALIGN(size, data->line_size);
+
+	if (end & (data->line_size - 1)) {
+		end  = end & ~(data->line_size - 1);
+		__uniphier_cache_maint_common(data, end, data->line_size,
+				UNIPHIER_SSCOQM_S_RANGE | UNIPHIER_SSCOQM_CM_FLUSH);
+	}
 
 	while (size) {
 		unsigned long chunk_size = min_t(unsigned long, size,
