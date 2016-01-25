@@ -8,7 +8,7 @@ menuconfig ARCH_SOCFPGA
 	select DW_APB_TIMER_OF
 	select GPIO_PL061 if GPIOLIB
 	select HAVE_ARM_SCU
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_TWD
 	select MFD_SYSCON
 
 if ARCH_SOCFPGA
