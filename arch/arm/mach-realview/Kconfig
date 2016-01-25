@@ -7,8 +7,8 @@ menuconfig ARCH_REALVIEW
 	select CLK_SP810
 	select COMMON_CLK_VERSATILE
 	select GPIO_PL061 if GPIOLIB
-	select HAVE_ARM_SCU if SMP
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_SCU
+	select HAVE_ARM_TWD
 	select HAVE_PATA_PLATFORM
 	select HAVE_TCM
 	select ICST
