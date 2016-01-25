@@ -33,7 +33,7 @@ menuconfig ARCH_RENESAS
 	select ARM_GIC
 	select GPIOLIB
 	select HAVE_ARM_SCU if SMP
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_TWD
 	select NO_IOPORT_MAP
 	select PINCTRL
 	select SOC_BUS

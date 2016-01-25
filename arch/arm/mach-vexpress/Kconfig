@@ -10,7 +10,7 @@ menuconfig ARCH_VEXPRESS
 	select COMMON_CLK_VERSATILE
 	select GPIOLIB
 	select HAVE_ARM_SCU if SMP
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_TWD
 	select HAVE_PATA_PLATFORM
 	select ICST
 	select NO_IOPORT_MAP
