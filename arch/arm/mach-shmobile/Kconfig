@@ -4,6 +4,8 @@ menuconfig ARCH_RENESAS
 	depends on ARCH_MULTI_V7 && MMU
 	select ARM_GIC
 	select GPIOLIB
+	select HAVE_ARM_SCU
+	select HAVE_ARM_TWD
 	select NO_IOPORT_MAP
 	select PINCTRL
 	select SOC_BUS

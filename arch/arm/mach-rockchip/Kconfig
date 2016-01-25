@@ -11,7 +11,7 @@ config ARCH_ROCKCHIP
 	select GPIOLIB
 	select HAVE_ARM_ARCH_TIMER
 	select HAVE_ARM_SCU if SMP
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_TWD
 	select DW_APB_TIMER_OF
 	select REGULATOR if PM
 	select ROCKCHIP_TIMER

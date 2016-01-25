@@ -13,7 +13,7 @@ menuconfig ARCH_U8500
 	select CLKSRC_NOMADIK_MTU
 	select GPIOLIB
 	select HAVE_ARM_SCU if SMP
-	select HAVE_ARM_TWD if SMP
+	select HAVE_ARM_TWD
 	select I2C
 	select I2C_NOMADIK
 	select MFD_DB8500_PRCMU
