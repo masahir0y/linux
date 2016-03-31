@@ -292,5 +292,15 @@
 				#reset-cells = <1>;
 			};
 		};
+
+		nand: nand@f8000000 {
+			compatible = "denali,denali-nand-uniphier-v5a";
+			status = "disabled";
+			reg-names = "nand_data", "denali_reg";
+			reg = <0xf8000000 0x20>, <0xf8100000 0x1000>;
+			interrupts = <0 65 4>;
+			clocks = <&sys_clk 2>;
+			nand-ecc-strength = <8>;
+		};
 	};
 };

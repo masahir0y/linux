@@ -109,3 +109,7 @@
 &usb3 {
 	status = "okay";
 };
+
+&nand {
+	status = "okay";
+};
