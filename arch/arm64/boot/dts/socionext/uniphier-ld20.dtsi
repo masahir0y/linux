@@ -386,6 +386,20 @@
 			mmc-hs200-1_8v;
 		};
 
+		sd: sdhc@5a400000 {
+			compatible = "socionext,uniphier-sdhc";
+			status = "disabled";
+			reg = <0x5a400000 0x800>;
+			interrupts = <0 76 4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_sd>;
+			clocks = <&mio_clk 0>;
+			reset-names = "host";
+			resets = <&mio_rst 0>;
+			bus-width = <4>;
+			cap-sd-highspeed;
+		};
+
 		soc-glue@5f800000 {
 			compatible = "socionext,uniphier-ld20-soc-glue",
 				     "simple-mfd", "syscon";
