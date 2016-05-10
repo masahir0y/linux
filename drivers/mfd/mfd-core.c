@@ -33,7 +33,7 @@ int mfd_cell_enable(struct platform_device *pdev)
 	int err = 0;
 
 	/* only call enable hook if the cell wasn't previously enabled */
-	if (atomic_inc_return(cell->usage_count) == 1)
+	if (atomic_inc_return(cell->usage_count) == 1 && cell->enable)
 		err = cell->enable(pdev);
 
 	/* if the enable hook failed, decrement counter to allow retries */
@@ -50,7 +50,7 @@ int mfd_cell_disable(struct platform_device *pdev)
 	int err = 0;
 
 	/* only disable if no other clients are using it */
-	if (atomic_dec_return(cell->usage_count) == 0)
+	if (atomic_dec_return(cell->usage_count) == 0 && cell->disable)
 		err = cell->disable(pdev);
 
 	/* if the disable hook failed, increment to allow retries */
