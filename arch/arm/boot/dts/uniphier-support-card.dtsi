@@ -61,6 +61,7 @@
 
 		serialsc: uart@000b0000 {
 			compatible = "ns16550a";
+			status = "disabled";
 			reg = <0x000b0000 0x20>;
 			clock-frequency = <12288000>;
 			reg-shift = <1>;
