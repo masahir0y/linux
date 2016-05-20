@@ -14,49 +14,48 @@
  */
 
 #include <linux/gpio/driver.h>
-#include <linux/of_gpio.h>
+#include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/spinlock.h>
 
 #define UNIPHIER_GPIO_NR_PORTS		8
-#define UNIPHIER_GPIO_BANK_MASK		\
-				((1UL << (UNIPHIER_GPIO_PORTS_PER_BANK)) - 1)
 
 #define UNIPHIER_GPIO_REG_DATA		0	/* data */
 #define UNIPHIER_GPIO_REG_DIR		4	/* direction (1:in, 0:out) */
 
 struct uniphier_gpio_priv {
-	struct of_mm_gpio_chip mmchip;
+	struct gpio_chip chip;
+	void __iomem *regs;
 	spinlock_t lock;
 };
 
-static void uniphier_gpio_offset_write(struct gpio_chip *chip, unsigned offset,
-				       unsigned reg, int value)
+static void uniphier_gpio_bank_write(struct gpio_chip *chip, unsigned reg,
+				     unsigned mask, unsigned value)
 {
-	struct of_mm_gpio_chip *mmchip = to_of_mm_gpio_chip(chip);
-	struct uniphier_gpio_priv *priv;
+	struct uniphier_gpio_priv *priv = gpiochip_get_data(chip);
 	unsigned long flags;
-	u32 mask = BIT(offset);
 	u32 tmp;
 
-	priv = container_of(mmchip, struct uniphier_gpio_priv, mmchip);
-
 	spin_lock_irqsave(&priv->lock, flags);
-	tmp = readl(mmchip->regs + reg);
-	if (value)
-		tmp |= mask;
-	else
-		tmp &= ~mask;
-	writel(tmp, mmchip->regs + reg);
+	tmp = readl(priv->regs + reg);
+	tmp &= ~mask;
+	tmp |= mask & value;
+	writel(tmp, priv->regs + reg);
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
 
-static int uniphier_gpio_offset_read(struct gpio_chip *chip, unsigned offset,
-				     unsigned reg)
+static void uniphier_gpio_offset_write(struct gpio_chip *chip, unsigned reg,
+				       unsigned offset, int value)
 {
-	struct of_mm_gpio_chip *mmchip = to_of_mm_gpio_chip(chip);
+	uniphier_gpio_bank_write(chip, reg, BIT(offset), value << offset);
+}
 
-	return readl(mmchip->regs + reg) & BIT(offset) ? 1 : 0;
+static int uniphier_gpio_offset_read(struct gpio_chip *chip, unsigned reg,
+				     unsigned offset)
+{
+	struct uniphier_gpio_priv *priv = gpiochip_get_data(chip);
+
+	return !!(readl(priv->regs + reg) & BIT(offset));
 }
 
 static int uniphier_gpio_request(struct gpio_chip *chip, unsigned offset)
@@ -71,14 +70,13 @@ static void uniphier_gpio_free(struct gpio_chip *chip, unsigned offset)
 
 static int uniphier_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 {
-	return uniphier_gpio_offset_read(chip, offset, UNIPHIER_GPIO_REG_DIR) ?
-						GPIOF_DIR_IN : GPIOF_DIR_OUT;
+	return uniphier_gpio_offset_read(chip, UNIPHIER_GPIO_REG_DIR, offset);
 }
 
 static int uniphier_gpio_direction_input(struct gpio_chip *chip,
 					 unsigned offset)
 {
-	uniphier_gpio_offset_write(chip, offset, UNIPHIER_GPIO_REG_DIR, 1);
+	uniphier_gpio_offset_write(chip, UNIPHIER_GPIO_REG_DIR, offset, 1);
 
 	return 0;
 }
@@ -86,83 +84,64 @@ static int uniphier_gpio_direction_input(struct gpio_chip *chip,
 static int uniphier_gpio_direction_output(struct gpio_chip *chip,
 					  unsigned offset, int value)
 {
-	uniphier_gpio_offset_write(chip, offset, UNIPHIER_GPIO_REG_DATA, value);
-	uniphier_gpio_offset_write(chip, offset, UNIPHIER_GPIO_REG_DIR, 0);
+	uniphier_gpio_offset_write(chip, UNIPHIER_GPIO_REG_DATA, offset, value);
+	uniphier_gpio_offset_write(chip, UNIPHIER_GPIO_REG_DIR, offset, 0);
 
 	return 0;
 }
 
 static int uniphier_gpio_get(struct gpio_chip *chip, unsigned offset)
 {
-	return uniphier_gpio_offset_read(chip, offset, UNIPHIER_GPIO_REG_DATA);
+	return uniphier_gpio_offset_read(chip, UNIPHIER_GPIO_REG_DATA, offset);
 }
 
 static void uniphier_gpio_set(struct gpio_chip *chip,
 			      unsigned offset, int value)
 {
-	uniphier_gpio_offset_write(chip, offset, UNIPHIER_GPIO_REG_DATA, value);
+	uniphier_gpio_offset_write(chip, UNIPHIER_GPIO_REG_DATA, offset, value);
 }
-#if 0
+
 static void uniphier_gpio_set_multiple(struct gpio_chip *chip,
 				       unsigned long *mask,
 				       unsigned long *bits)
 {
-	unsigned bank, shift, bank_mask, bank_bits;
-	int i;
+	unsigned bank_mask = GENMASK(UNIPHIER_GPIO_NR_PORTS - 1, 0);
 
-	for (i = 0; i < chip->ngpio; i += UNIPHIER_GPIO_PORTS_PER_BANK) {
-		bank = i / UNIPHIER_GPIO_PORTS_PER_BANK;
-		shift = i % BITS_PER_LONG;
-		bank_mask = (mask[BIT_WORD(i)] >> shift) &
-						UNIPHIER_GPIO_BANK_MASK;
-		bank_bits = bits[BIT_WORD(i)] >> shift;
-
-		uniphier_gpio_bank_write(chip, bank, UNIPHIER_GPIO_REG_DATA,
-					 bank_mask, bank_bits);
-	}
+	uniphier_gpio_bank_write(chip, UNIPHIER_GPIO_REG_DATA,
+				 *mask & bank_mask, *bits & bank_mask);
 }
-#endif
+
 static int uniphier_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct uniphier_gpio_priv *priv;
-	int ret;
+	struct resource *regs;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	priv->regs = devm_ioremap_resource(dev, regs);
+	if (IS_ERR(priv->regs))
+		return PTR_ERR(priv->regs);
+
 	spin_lock_init(&priv->lock);
 
-	priv->mmchip.gc.parent = dev;
-	priv->mmchip.gc.request = uniphier_gpio_request;
-	priv->mmchip.gc.free = uniphier_gpio_free;
-	priv->mmchip.gc.get_direction = uniphier_gpio_get_direction;
-	priv->mmchip.gc.direction_input = uniphier_gpio_direction_input;
-	priv->mmchip.gc.direction_output = uniphier_gpio_direction_output;
-	priv->mmchip.gc.get = uniphier_gpio_get;
-	priv->mmchip.gc.set = uniphier_gpio_set;
-	//priv->mmchip.gc.set_multiple = uniphier_gpio_set_multiple;
-	priv->mmchip.gc.ngpio = UNIPHIER_GPIO_NR_PORTS;
+	priv->chip.label = dev->of_node->full_name;
+	priv->chip.parent = dev;
+	priv->chip.request = uniphier_gpio_request;
+	priv->chip.free = uniphier_gpio_free;
+	priv->chip.get_direction = uniphier_gpio_get_direction;
+	priv->chip.direction_input = uniphier_gpio_direction_input;
+	priv->chip.direction_output = uniphier_gpio_direction_output;
+	priv->chip.get = uniphier_gpio_get;
+	priv->chip.set = uniphier_gpio_set;
+	priv->chip.set_multiple = uniphier_gpio_set_multiple;
+	priv->chip.base = -1;
+	priv->chip.ngpio = UNIPHIER_GPIO_NR_PORTS;
 
-	ret = of_mm_gpiochip_add(dev->of_node, &priv->mmchip);
-	if (ret) {
-		dev_err(dev, "failed to add memory mapped gpiochip\n");
-		return ret;
-	}
-
-	platform_set_drvdata(pdev, priv);
-
-	return 0;
-}
-
-static int uniphier_gpio_remove(struct platform_device *pdev)
-{
-	struct uniphier_gpio_priv *priv = platform_get_drvdata(pdev);
-
-	of_mm_gpiochip_remove(&priv->mmchip);
-
-	return 0;
+	return devm_gpiochip_add_data(dev, &priv->chip, priv);
 }
 
 static const struct of_device_id uniphier_gpio_match[] = {
@@ -173,7 +152,6 @@ MODULE_DEVICE_TABLE(of, uniphier_gpio_match);
 
 static struct platform_driver uniphier_gpio_driver = {
 	.probe = uniphier_gpio_probe,
-	.remove = uniphier_gpio_remove,
 	.driver = {
 		.name = "uniphier-gpio",
 		.of_match_table = uniphier_gpio_match,
