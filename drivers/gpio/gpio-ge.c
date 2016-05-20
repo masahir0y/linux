@@ -76,8 +76,7 @@ static int __init gef_gpio_probe(struct platform_device *pdev)
 	}
 
 	/* Setup pointers to chip functions */
-	gc->label = devm_kstrdup(&pdev->dev, pdev->dev.of_node->full_name,
-				     GFP_KERNEL);
+	gc->label = pdev->dev.of_node->full_name;
 	if (!gc->label) {
 		ret = -ENOMEM;
 		goto err0;
