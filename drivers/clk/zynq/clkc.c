@@ -68,6 +68,18 @@ enum zynq_clk {
 	i2c0_aper, i2c1_aper, uart0_aper, uart1_aper, gpio_aper, lqspi_aper,
 	smc_aper, swdt, dbg_trc, dbg_apb, clk_max};
 
+static const char * const clk_output_name[] = {
+	"armpll", "ddrpll", "iopll",
+	"cpu_6or4x", "cpu_3or2x", "cpu_2x", "cpu_1x",
+	"ddr2x", "ddr3x", "dci",
+	"lqspi", "smc", "pcap", "gem0", "gem1", "fclk0", "fclk1", "fclk2", "fclk3", "can0", "can1",
+	"sdio0", "sdio1", "uart0", "uart1", "spi0", "spi1", "dma",
+	"usb0_aper", "usb1_aper", "gem0_aper", "gem1_aper",
+	"sdio0_aper", "sdio1_aper", "spi0_aper", "spi1_aper", "can0_aper", "can1_aper",
+	"i2c0_aper", "i2c1_aper", "uart0_aper", "uart1_aper", "gpio_aper", "lqspi_aper",
+	"smc_aper", "swdt", "dbg_trc", "dbg_apb"
+};
+
 static struct clk *ps_clk;
 static struct clk *clks[clk_max];
 static struct clk_onecell_data clk_data;
@@ -231,7 +243,6 @@ static void __init zynq_clk_setup(struct device_node *np)
 	struct clk *clk;
 	char *clk_name;
 	unsigned int fclk_enable = 0;
-	const char *clk_output_name[clk_max];
 	const char *cpu_parents[4];
 	const char *periph_parents[4];
 	const char *swdt_ext_clk_mux_parents[2];
@@ -240,14 +251,6 @@ static void __init zynq_clk_setup(struct device_node *np)
 
 	pr_info("Zynq clock init\n");
 
-	/* get clock output names from DT */
-	for (i = 0; i < clk_max; i++) {
-		if (of_property_read_string_index(np, "clock-output-names",
-				  i, &clk_output_name[i])) {
-			pr_err("%s: clock output name not in DT\n", __func__);
-			BUG();
-		}
-	}
 	cpu_parents[0] = clk_output_name[armpll];
 	cpu_parents[1] = clk_output_name[armpll];
 	cpu_parents[2] = clk_output_name[ddrpll];
