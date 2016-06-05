@@ -104,6 +104,7 @@ struct ftrace_likely_data {
 	unsigned long			constant;
 };
 
+<<<<<<< f4e88030c320426f29751c19ea867af456c1b26d
 #ifdef CONFIG_ENABLE_MUST_CHECK
 #define __must_check		__attribute__((__warn_unused_result__))
 #else
@@ -158,6 +159,20 @@ struct ftrace_likely_data {
  */
 #define noinline_for_stack noinline
 
+=======
+<<<<<<< 2bb9f25e3e38db0d52bc33ef38ce692241eb18e5
+=======
+/* Don't. Just don't. */
+#define __deprecated
+#define __deprecated_for_modules
+
+#define __used_if(x)		___used_if(x)
+#define ___used_if(x)		___used_if_##x
+#define ___used_if_1		__used
+#define ___used_if_0		__maybe_unused
+
+>>>>>>> compiler.h: add __used_if() macro for conditionally used symbols
+>>>>>>> compiler.h: add __used_if() macro for conditionally used symbols
 #endif /* __KERNEL__ */
 
 #endif /* __ASSEMBLY__ */
