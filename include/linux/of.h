@@ -1196,18 +1196,17 @@ static inline int of_get_available_child_count(const struct device_node *np)
 }
 
 #if defined(CONFIG_OF) && !defined(MODULE)
-#define _OF_DECLARE(table, name, compat, fn, fn_type)			\
-	static const struct of_device_id __of_table_##name		\
-		__used __section(__##table##_of_table)			\
-		 = { .compatible = compat,				\
-		     .data = (fn == (fn_type)NULL) ? fn : fn  }
+#define OF_DECLARE_USED_OR_UNUSED	__used
 #else
+#define OF_DECLARE_USED_OR_UNUSED	__maybe_unused
+#endif
+
 #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
 	static const struct of_device_id __of_table_##name		\
-		__attribute__((unused))					\
+		OF_DECLARE_USED_OR_UNUSED				\
+		__section(__##table##_of_table)				\
 		 = { .compatible = compat,				\
 		     .data = (fn == (fn_type)NULL) ? fn : fn }
-#endif
 
 typedef int (*of_init_fn_2)(struct device_node *, struct device_node *);
 typedef int (*of_init_fn_1_ret)(struct device_node *);
