@@ -105,4 +105,12 @@ config USB_DWC3_ST
 	  inside (i.e. STiH407).
 	  Say 'Y' or 'M' if you have one such device.
 
+config USB_DWC3_UNIPHIER
+	tristate "UniPhier Platforms"
+	depends on ARCH_UNIPHIER && OF || COMPILE_TEST
+	default USB_DWC3
+	help
+	  Recent Socionext UniPhier SoCs with one DesignWare Core USB3 IP inside,
+	  say 'Y' or 'M' if you have one such device.
+
 endif
