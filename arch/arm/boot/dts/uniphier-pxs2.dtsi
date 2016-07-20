@@ -424,6 +424,46 @@
 			};
 		};
 
+		usb3_0: usb3_0@65b00000 {
+			compatible = "socionext,proxstream2-dwc3";
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb0>, <&pinctrl_usb2>;
+			reg = <0x65b00000 0x1000>;
+			clocks = <&sys_clk 16>, <&sys_clk 18>;
+			clock-names = "u3clk0", "u3clk1";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			vbus-supply;
+			ranges;
+			dwc3@65a00000 {
+				compatible = "snps,dwc3";
+				reg = <0x65a00000 0x14100>;
+				interrupts = <0 134 4>;
+				dr_mode = "host";
+				tx-fifo-resize;
+			};
+		};
+
+		usb3_1: usb3_1@65d00000 {
+			compatible = "socionext,proxstream2-dwc3";
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb1>, <&pinctrl_usb3>;
+			reg = <0x65d00000 0x1000>;
+			clocks = <&sys_clk 20>, <&sys_clk 22>;
+			clock-names = "u3clk0", "u3clk1";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			vbus-supply;
+			ranges;
+			dwc3@65c00000 {
+				compatible = "snps,dwc3";
+				reg = <0x65c00000 0x14100>;
+				interrupts = <0 137 4>;
+				dr_mode = "host";
+				tx-fifo-resize;
+			};
+		};
+
 		nand: nand@68000000 {
 			compatible = "denali,denali-nand-uniphier-v5b";
 			status = "disabled";
