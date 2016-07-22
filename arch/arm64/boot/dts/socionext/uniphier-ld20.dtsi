@@ -435,6 +435,25 @@
 			};
 		};
 
+		usb: usb@65b00000 {
+			compatible = "socionext,uniphier-ld20-dwc3";
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_usb0>, <&pinctrl_usb1>,
+				    <&pinctrl_usb2>, <&pinctrl_usb3>;
+			reg = <0x65b00000 0x1000>;
+			clocks = <&sys_clk 14>, <&sys_clk 16>, <&sys_clk 17>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+			dwc3@65a00000 {
+				compatible = "snps,dwc3";
+				reg = <0x65a00000 0x14100>;
+				interrupts = <0 134 4>;
+				dr_mode = "host";
+				tx-fifo-resize;
+			};
+		};
+
 		nand: nand@68000000 {
 			compatible = "denali,denali-nand-uniphier-v5b";
 			status = "disabled";
