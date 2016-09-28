@@ -20,6 +20,8 @@
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
+#define UNIPHIER_I2C_LOG
+
 #define UNIPHIER_FI2C_CR	0x00	/* control register */
 #define     UNIPHIER_FI2C_CR_MST	BIT(3)	/* master mode */
 #define     UNIPHIER_FI2C_CR_STA	BIT(2)	/* start condition */
@@ -98,7 +100,125 @@ struct uniphier_fi2c_priv {
 	unsigned int flags;
 	unsigned int busy_cnt;
 	unsigned int clk_cycle;
+	char log_buf[SZ_8K];
+	int log_ptr;
+	spinlock_t log_lock;
+	atomic_t refcnt;
 };
+
+#ifdef UNIPHIER_I2C_LOG
+static void uniphier_fi2c_log_dump(struct uniphier_fi2c_priv *priv)
+{
+	int buf_size = sizeof(priv->log_buf);
+	char buf[256];
+	unsigned long flags;
+	int i = 0;
+	char c;
+
+	spin_lock_irqsave(&priv->log_lock, flags);
+
+	dev_info(&priv->adap.dev, "<<I2C_LOG_DUMP>>\n");
+
+	if (priv->log_buf[priv->log_ptr]) {
+		priv->log_buf[priv->log_ptr] = 0;
+		priv->log_ptr++;
+		if (priv->log_ptr >= buf_size)
+			priv->log_ptr = 0;
+	} else {
+		priv->log_ptr = 0;
+	}
+
+	while ((c = priv->log_buf[priv->log_ptr])) {
+		buf[i++] = c;
+
+		if (c == '\n' || i >= sizeof(buf) - 1) {
+			buf[i] = 0;
+			printk("        %s", buf);
+			i = 0;
+		}
+
+		priv->log_ptr++;
+		if (priv->log_ptr >= buf_size)
+			priv->log_ptr = 0;
+	}
+
+	printk("<<I2C_LOG_DUMP_END>>\n");
+
+	memset(priv->log_buf, 0, sizeof(priv->log_buf));
+	priv->log_ptr = 0;
+
+	spin_unlock_irqrestore(&priv->log_lock, flags);
+}
+
+static void uniphier_fi2c_log(struct uniphier_fi2c_priv *priv, char *buf)
+{
+	int buf_size = sizeof(priv->log_buf);
+	int len = strlen(buf);
+	int chunk;
+	unsigned long flags;
+
+	spin_lock_irqsave(&priv->log_lock, flags);
+
+	while (len) {
+		chunk = min(len, buf_size - priv->log_ptr);
+
+		memcpy(priv->log_buf + priv->log_ptr, buf, chunk);
+
+		len -= chunk;
+		buf += chunk;
+		priv->log_ptr += chunk;
+		if (priv->log_ptr >= buf_size)
+			priv->log_ptr = 0;
+	}
+
+	spin_unlock_irqrestore(&priv->log_lock, flags);
+}
+
+#define UNIPHIER_FI2C_LOG(priv, fmt, ...)		\
+do {							\
+	char buf[256];					\
+	snprintf(buf, sizeof(buf), fmt, ##__VA_ARGS__);	\
+	buf[sizeof(buf) - 1] = 0;			\
+	uniphier_fi2c_log(priv, buf);			\
+} while (0);
+
+static void uniphier_fi2c_log_init(struct uniphier_fi2c_priv *priv)
+{
+	spin_lock_init(&priv->log_lock);
+}
+
+#else
+static void uniphier_fi2c_log_dump(struct uniphier_fi2c_priv *priv)
+{
+}
+static void uniphier_fi2c_log(struct uniphier_fi2c_priv *priv, char *buf)
+{
+}
+static void UNIPHIER_FI2C_LOG(struct uniphier_fi2c_priv *priv,
+			      const char *fmt, ...)
+{
+}
+static void uniphier_fi2c_log_init(struct uniphier_fi2c_priv *priv)
+{
+}
+#endif
+
+static void uniphier_fi2c_reg_write(struct uniphier_fi2c_priv *priv,
+				    u32 val, unsigned int reg)
+{
+	UNIPHIER_FI2C_LOG(priv, "W: %02x: %x\n", reg, val);
+	writel(val, priv->membase + reg);
+}
+
+static u32 uniphier_fi2c_reg_read(struct uniphier_fi2c_priv *priv,
+				  unsigned int reg)
+{
+	u32 val;
+
+	val = readl(priv->membase + reg);
+	UNIPHIER_FI2C_LOG(priv, "R: %02x: %x\n", reg, val);
+	return val;
+}
 
 static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
 				      bool first)
@@ -117,7 +237,8 @@ static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
 			break;
 
 		dev_dbg(&priv->adap.dev, "write data: %02x\n", *priv->buf);
-		writel(*priv->buf++, priv->membase + UNIPHIER_FI2C_DTTX);
+		uniphier_fi2c_reg_write(priv, *priv->buf++,
+					UNIPHIER_FI2C_DTTX);
 		priv->len--;
 	}
 }
@@ -131,7 +252,8 @@ static void uniphier_fi2c_drain_rxfifo(struct uniphier_fi2c_priv *priv)
 		if (fifo_left-- <= 0)
 			break;
 
-		*priv->buf++ = readl(priv->membase + UNIPHIER_FI2C_DTRX);
+		*priv->buf++ = uniphier_fi2c_reg_read(priv,
+						      UNIPHIER_FI2C_DTRX);
 		dev_dbg(&priv->adap.dev, "read data: %02x\n", priv->buf[-1]);
 		priv->len--;
 	}
@@ -139,7 +261,7 @@ static void uniphier_fi2c_drain_rxfifo(struct uniphier_fi2c_priv *priv)
 
 static void uniphier_fi2c_set_irqs(struct uniphier_fi2c_priv *priv)
 {
-	writel(priv->enabled_irqs, priv->membase + UNIPHIER_FI2C_IE);
+	uniphier_fi2c_reg_write(priv, priv->enabled_irqs, UNIPHIER_FI2C_IE);
 }
 
 static void uniphier_fi2c_disable_all_irqs(struct uniphier_fi2c_priv *priv)
@@ -150,7 +272,7 @@ static void uniphier_fi2c_disable_all_irqs(struct uniphier_fi2c_priv *priv)
 
 static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv)
 {
-	writel(-1, priv->membase + UNIPHIER_FI2C_IC);
+	uniphier_fi2c_reg_write(priv, -1, UNIPHIER_FI2C_IC);
 }
 
 static void uniphier_fi2c_stop(struct uniphier_fi2c_priv *priv)
@@ -159,8 +281,9 @@ static void uniphier_fi2c_stop(struct uniphier_fi2c_priv *priv)
 
 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_STOP;
 	uniphier_fi2c_set_irqs(priv);
-	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STO,
-	       priv->membase + UNIPHIER_FI2C_CR);
+	uniphier_fi2c_reg_write(priv,
+				UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STO,
+				UNIPHIER_FI2C_CR);
 }
 
 static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
@@ -168,11 +291,14 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
 	struct uniphier_fi2c_priv *priv = dev_id;
 	u32 irq_status;
 
-	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
+	irq_status = uniphier_fi2c_reg_read(priv, UNIPHIER_FI2C_INT);
 
 	dev_dbg(&priv->adap.dev,
 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
 		priv->enabled_irqs, irq_status);
+
+	UNIPHIER_FI2C_LOG(priv, "IRQ: en=%02x, st=%02x\n", priv->enabled_irqs,
+			  irq_status);
 
 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
 		goto complete;
@@ -227,9 +353,9 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
 			}
 			if (priv->len <= 1) {
 				dev_dbg(&priv->adap.dev, "set NACK\n");
-				writel(UNIPHIER_FI2C_CR_MST |
-				       UNIPHIER_FI2C_CR_NACK,
-				       priv->membase + UNIPHIER_FI2C_CR);
+				uniphier_fi2c_reg_write(priv,
+							UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_NACK,
+							UNIPHIER_FI2C_CR);
 			}
 		}
 
@@ -258,10 +384,10 @@ static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
 {
 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_TE;
 	/* do not use TX byte counter */
-	writel(0, priv->membase + UNIPHIER_FI2C_TBC);
+	uniphier_fi2c_reg_write(priv, 0, UNIPHIER_FI2C_TBC);
 	/* set slave address */
-	writel(UNIPHIER_FI2C_DTTX_CMD | addr << 1,
-	       priv->membase + UNIPHIER_FI2C_DTTX);
+	uniphier_fi2c_reg_write(priv, UNIPHIER_FI2C_DTTX_CMD | addr << 1,
+				UNIPHIER_FI2C_DTTX);
 	/* first chunk of data */
 	uniphier_fi2c_fill_txfifo(priv, true);
 }
@@ -275,7 +401,7 @@ static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
 		 * If possible, use RX byte counter.
 		 * It can automatically handle NACK for the last byte.
 		 */
-		writel(priv->len, priv->membase + UNIPHIER_FI2C_RBC);
+		uniphier_fi2c_reg_write(priv, priv->len, UNIPHIER_FI2C_RBC);
 		priv->enabled_irqs |= UNIPHIER_FI2C_INT_RF |
 				      UNIPHIER_FI2C_INT_RB;
 	} else {
@@ -284,29 +410,33 @@ static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
 		 * do not use it at all.  Drain data when FIFO gets full,
 		 * but treat the last portion as a special case.
 		 */
-		writel(0, priv->membase + UNIPHIER_FI2C_RBC);
+		uniphier_fi2c_reg_write(priv, 0, UNIPHIER_FI2C_RBC);
 		priv->flags |= UNIPHIER_FI2C_MANUAL_NACK;
 		priv->enabled_irqs |= UNIPHIER_FI2C_INT_RF;
 	}
 
 	/* set slave address with RD bit */
-	writel(UNIPHIER_FI2C_DTTX_CMD | UNIPHIER_FI2C_DTTX_RD | addr << 1,
-	       priv->membase + UNIPHIER_FI2C_DTTX);
+	uniphier_fi2c_reg_write(priv,
+				UNIPHIER_FI2C_DTTX_CMD | UNIPHIER_FI2C_DTTX_RD | addr << 1,
+				UNIPHIER_FI2C_DTTX);
 }
 
 static void uniphier_fi2c_reset(struct uniphier_fi2c_priv *priv)
 {
-	writel(UNIPHIER_FI2C_RST_RST, priv->membase + UNIPHIER_FI2C_RST);
+	uniphier_fi2c_reg_write(priv, UNIPHIER_FI2C_RST_RST,
+				UNIPHIER_FI2C_RST);
 }
 
 static void uniphier_fi2c_prepare_operation(struct uniphier_fi2c_priv *priv)
 {
-	writel(UNIPHIER_FI2C_BRST_FOEN | UNIPHIER_FI2C_BRST_RSCL,
-	       priv->membase + UNIPHIER_FI2C_BRST);
+	uniphier_fi2c_reg_write(priv,
+				UNIPHIER_FI2C_BRST_FOEN | UNIPHIER_FI2C_BRST_RSCL,
+				UNIPHIER_FI2C_BRST);
 }
 
 static void uniphier_fi2c_recover(struct uniphier_fi2c_priv *priv)
 {
+	UNIPHIER_FI2C_LOG(priv, "recover start\n");
 	uniphier_fi2c_reset(priv);
 	i2c_recover_bus(&priv->adap);
 }
@@ -320,6 +450,8 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 
 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
 		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
+	UNIPHIER_FI2C_LOG(priv, "xfer_one(%s): addr=0x%02x, len=%d, stop=%d\n",
+			  is_read ? "RD" : "WR", msg->addr, msg->len, stop);
 
 	priv->len = msg->len;
 	priv->buf = msg->buf;
@@ -332,8 +464,9 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 
 	reinit_completion(&priv->comp);
 	uniphier_fi2c_clear_irqs(priv);
-	writel(UNIPHIER_FI2C_RST_TBRST | UNIPHIER_FI2C_RST_RBRST,
-	       priv->membase + UNIPHIER_FI2C_RST);	/* reset TX/RX FIFO */
+	uniphier_fi2c_reg_write(priv,
+				UNIPHIER_FI2C_RST_TBRST | UNIPHIER_FI2C_RST_RBRST,
+				UNIPHIER_FI2C_RST);	/* reset TX/RX FIFO */
 
 	if (is_read)
 		uniphier_fi2c_rx_init(priv, msg->addr);
@@ -343,8 +476,9 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 	uniphier_fi2c_set_irqs(priv);
 
 	dev_dbg(&adap->dev, "start condition\n");
-	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
-	       priv->membase + UNIPHIER_FI2C_CR);
+	uniphier_fi2c_reg_write(priv,
+				UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
+				UNIPHIER_FI2C_CR);
 
 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
 	if (!time_left) {
@@ -354,6 +488,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 			msg->addr, is_read, msg->len, stop,
 			readl(priv->membase + UNIPHIER_FI2C_IE),
 			readl(priv->membase + UNIPHIER_FI2C_INT));
+		uniphier_fi2c_log_dump(priv);
 		uniphier_fi2c_recover(priv);
 		return -ETIMEDOUT;
 	}
@@ -375,6 +510,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 				msg->addr, is_read, msg->len, stop,
 				readl(priv->membase + UNIPHIER_FI2C_IE),
 				readl(priv->membase + UNIPHIER_FI2C_INT));
+			uniphier_fi2c_log_dump(priv);
 			uniphier_fi2c_recover(priv);
 			return ret;
 		}
@@ -387,7 +523,7 @@ static int uniphier_fi2c_check_bus_busy(struct i2c_adapter *adap)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
 
-	if (readl(priv->membase + UNIPHIER_FI2C_SR) & UNIPHIER_FI2C_SR_DB) {
+	if (uniphier_fi2c_reg_read(priv, UNIPHIER_FI2C_SR) & UNIPHIER_FI2C_SR_DB) {
 		if (priv->busy_cnt++ > 3) {
 			/*
 			 * If bus busy continues too long, it is probably
@@ -408,11 +544,17 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
 				     struct i2c_msg *msgs, int num)
 {
 	struct i2c_msg *msg, *emsg = msgs + num;
+	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
 	int ret;
+
+	if (atomic_inc_return(&priv->refcnt) != 1)
+		dev_err(&adap->dev, "fatal lock problem\n");
+
+	UNIPHIER_FI2C_LOG(priv, "master_xfer: msg_num=%d\n", num);
 
 	ret = uniphier_fi2c_check_bus_busy(adap);
 	if (ret)
-		return ret;
+		goto out;
 
 	for (msg = msgs; msg < emsg; msg++) {
 		/* If next message is read, skip the stop condition */
@@ -423,10 +565,18 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
 
 		ret = uniphier_fi2c_master_xfer_one(adap, msg, stop);
 		if (ret)
-			return ret;
+			goto out;
 	}
 
-	return num;
+	ret = num;
+
+	UNIPHIER_FI2C_LOG(priv, "success\n");
+
+out:
+	if (atomic_dec_return(&priv->refcnt) != 0)
+		dev_err(&adap->dev, "fatal unlock problem\n");
+
+	return ret;
 }
 
 static u32 uniphier_fi2c_functionality(struct i2c_adapter *adap)
@@ -443,7 +593,7 @@ static int uniphier_fi2c_get_scl(struct i2c_adapter *adap)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
 
-	return !!(readl(priv->membase + UNIPHIER_FI2C_BM) &
+	return !!(uniphier_fi2c_reg_read(priv, UNIPHIER_FI2C_BM) &
 							UNIPHIER_FI2C_BM_SCLS);
 }
 
@@ -451,21 +601,25 @@ static void uniphier_fi2c_set_scl(struct i2c_adapter *adap, int val)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
 
-	writel(val ? UNIPHIER_FI2C_BRST_RSCL : 0,
-	       priv->membase + UNIPHIER_FI2C_BRST);
+	uniphier_fi2c_reg_write(priv, val ? UNIPHIER_FI2C_BRST_RSCL : 0,
+				UNIPHIER_FI2C_BRST);
 }
 
 static int uniphier_fi2c_get_sda(struct i2c_adapter *adap)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
 
-	return !!(readl(priv->membase + UNIPHIER_FI2C_BM) &
+	return !!(uniphier_fi2c_reg_read(priv, UNIPHIER_FI2C_BM) &
 							UNIPHIER_FI2C_BM_SDAS);
 }
 
 static void uniphier_fi2c_unprepare_recovery(struct i2c_adapter *adap)
 {
+	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
+
 	uniphier_fi2c_prepare_operation(i2c_get_adapdata(adap));
+
+	UNIPHIER_FI2C_LOG(priv, "recover end\n");
 }
 
 static struct i2c_bus_recovery_info uniphier_fi2c_bus_recovery_info = {
@@ -481,16 +635,16 @@ static void uniphier_fi2c_hw_init(struct uniphier_fi2c_priv *priv)
 	unsigned int cyc = priv->clk_cycle;
 	u32 tmp;
 
-	tmp = readl(priv->membase + UNIPHIER_FI2C_CR);
+	tmp = uniphier_fi2c_reg_read(priv, UNIPHIER_FI2C_CR);
 	tmp |= UNIPHIER_FI2C_CR_MST;
-	writel(tmp, priv->membase + UNIPHIER_FI2C_CR);
+	uniphier_fi2c_reg_write(priv, tmp, UNIPHIER_FI2C_CR);
 
 	uniphier_fi2c_reset(priv);
 
-	writel(cyc, priv->membase + UNIPHIER_FI2C_CYC);
-	writel(cyc / 2, priv->membase + UNIPHIER_FI2C_LCTL);
-	writel(cyc / 2, priv->membase + UNIPHIER_FI2C_SSUT);
-	writel(cyc / 16, priv->membase + UNIPHIER_FI2C_DSUT);
+	uniphier_fi2c_reg_write(priv, cyc, UNIPHIER_FI2C_CYC);
+	uniphier_fi2c_reg_write(priv, cyc / 2, UNIPHIER_FI2C_LCTL);
+	uniphier_fi2c_reg_write(priv, cyc / 2, UNIPHIER_FI2C_SSUT);
+	uniphier_fi2c_reg_write(priv, cyc / 16, UNIPHIER_FI2C_DSUT);
 
 	uniphier_fi2c_disable_all_irqs(priv);
 	uniphier_fi2c_prepare_operation(priv);
@@ -546,6 +700,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
 	}
 
 	priv->clk_cycle = clk_rate / bus_speed;
+	uniphier_fi2c_log_init(priv);
 	init_completion(&priv->comp);
 	priv->adap.owner = THIS_MODULE;
 	priv->adap.algo = &uniphier_fi2c_algo;
