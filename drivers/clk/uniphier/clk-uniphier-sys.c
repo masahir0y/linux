@@ -57,6 +57,19 @@
 #define UNIPHIER_PRO4_SYS_CLK_USB3(idx, ch)				\
 	UNIPHIER_CLK_GATE("usb3" #ch, (idx), NULL, 0x2104, 16 + (ch))
 
+#define UNIPHIER_PRO5_SYS_CPUGEARS					\
+	UNIPHIER_CLK_DIV8("cpll", 2, 3, 4, 6, 8, 12, 16, 24),		\
+	UNIPHIER_CLK_DIV8("spll", 2, 3, 4, 6, 8, 12, 16, 24),		\
+	UNIPHIER_CLK_DIV8("ippll", 2, 3, 4, 6, 8, 12, 16, 24),		\
+	UNIPHIER_CLK_CPUGEAR("cpu-ca9", 32, 0x8000, 0x1f, 16,		\
+			     "cpll/2", "spll/2", "cpll/3", "spll/3",	\
+			     "cpll/4", "spll/4", "cpll/6", "spll/6",	\
+			     "cpll/8", "spll/8", "cpll/12", "spll/12",	\
+			     "cpll/16", "spll/16", "cpll/24", "spll/24"),\
+	UNIPHIER_CLK_CPUGEAR("cpu-ipp", 34, 0x8100, 0xf, 8,		\
+			     "ippll/2", "spll/2", "ippll/3", "spll/3",	\
+			     "spll/4", "spll/8", "ippll/4", "ippll/8")
+
 #define UNIPHIER_LD11_SYS_CLK_AIO(idx)					\
 	UNIPHIER_CLK_FACTOR("aio-io200m", -1, "spll", 1, 10),		\
 	UNIPHIER_CLK_GATE("aio", (idx), "aio-io200m", 0x2108, 0)
@@ -121,6 +134,8 @@ const struct uniphier_clk_data uniphier_sld8_sys_clk_data[] = {
 };
 
 const struct uniphier_clk_data uniphier_pro5_sys_clk_data[] = {
+	UNIPHIER_CLK_FACTOR("cpll", -1, "ref", 140, 1),		/* 2800 MHz */
+	UNIPHIER_CLK_FACTOR("ippll", -1, "ref", 130, 1),	/* 2600 MHz */
 	UNIPHIER_CLK_FACTOR("spll", -1, "ref", 120, 1),		/* 2400 MHz */
 	UNIPHIER_CLK_FACTOR("dapll1", -1, "ref", 128, 1),	/* 2560 MHz */
 	UNIPHIER_CLK_FACTOR("dapll2", -1, "dapll1", 144, 125),	/* 2949.12 MHz */
@@ -132,10 +147,43 @@ const struct uniphier_clk_data uniphier_pro5_sys_clk_data[] = {
 	UNIPHIER_PRO4_SYS_CLK_GIO(12),				/* PCIe, USB3 */
 	UNIPHIER_PRO4_SYS_CLK_USB3(14, 0),
 	UNIPHIER_PRO4_SYS_CLK_USB3(15, 1),
+#if 1
+	/*
+	 * TODO:
+	 * The return type of .round_rate() is "long", which is 32 bit wide on
+	 * 32 bit systems.  Clock rate greater than LONG_MAX (~ 2.15 GHz) is
+	 * treated as an error.  Needs a workaround until the problem is fixed.
+	 */
+	UNIPHIER_CLK_FACTOR("cpll/2", -1, "ref", 70, 1),
+	UNIPHIER_CLK_FACTOR("cpll/3", -1, "ref", 140, 3),
+	UNIPHIER_CLK_FACTOR("cpll/4", -1, "ref", 35, 1),
+	UNIPHIER_CLK_FACTOR("cpll/6", -1, "ref", 70, 3),
+	UNIPHIER_CLK_FACTOR("cpll/8", -1, "ref", 35, 2),
+	UNIPHIER_CLK_FACTOR("cpll/12", -1, "ref", 35, 3),
+	UNIPHIER_CLK_FACTOR("cpll/16", -1, "ref", 35, 4),
+	UNIPHIER_CLK_FACTOR("cpll/24", -1, "ref", 35, 6),
+	UNIPHIER_CLK_FACTOR("spll/2", -1, "ref", 60, 1),
+	UNIPHIER_CLK_FACTOR("spll/3", -1, "ref", 40, 1),
+	UNIPHIER_CLK_FACTOR("spll/4", -1, "ref", 30, 1),
+	UNIPHIER_CLK_FACTOR("spll/6", -1, "ref", 20, 1),
+	UNIPHIER_CLK_FACTOR("spll/8", -1, "ref", 15, 1),
+	UNIPHIER_CLK_FACTOR("spll/12", -1, "ref", 10, 1),
+	UNIPHIER_CLK_FACTOR("spll/16", -1, "ref", 15, 2),
+	UNIPHIER_CLK_FACTOR("spll/24", -1, "ref", 5, 1),
+	UNIPHIER_CLK_CPUGEAR("cpu-ca9", 32, 0x8000, 0x1f, 16,
+			     "cpll/2", "spll/2", "cpll/3", "spll/3",
+			     "cpll/4", "spll/4", "cpll/6", "spll/6",
+			     "cpll/8", "spll/8", "cpll/12", "spll/12",
+			     "cpll/16", "spll/16", "cpll/24", "spll/24"),
+#else
+	UNIPHIER_PRO5_SYS_CPUGEARS,
+#endif
 	{ /* sentinel */ }
 };
 
 const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
+	UNIPHIER_CLK_FACTOR("cpll", -1, "ref", 96, 1),		/* 2400 MHz */
+	UNIPHIER_CLK_FACTOR("ippll", -1, "ref", 96, 1),		/* 2400 MHz */
 	UNIPHIER_CLK_FACTOR("spll", -1, "ref", 96, 1),		/* 2400 MHz */
 	UNIPHIER_CLK_FACTOR("uart", 0, "spll", 1, 27),
 	UNIPHIER_CLK_FACTOR("i2c", 1, "spll", 1, 48),
@@ -149,6 +197,37 @@ const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
 	/* The document mentions 0x2104 bit 18, but not functional */
 	UNIPHIER_CLK_GATE("usb30-phy", 16, NULL, 0x2104, 19),
 	UNIPHIER_CLK_GATE("usb31-phy", 20, NULL, 0x2104, 20),
+#if 1
+	/*
+	 * TODO:
+	 * The return type of .round_rate() is "long", which is 32 bit wide on
+	 * 32 bit systems.  Clock rate greater than LONG_MAX (~ 2.15 GHz) is
+	 * treated as an error.  Needs a workaround until the problem is fixed.
+	 */
+	UNIPHIER_CLK_FACTOR("cpll/2", -1, "ref", 48, 1),
+	UNIPHIER_CLK_FACTOR("cpll/3", -1, "ref", 32, 1),
+	UNIPHIER_CLK_FACTOR("cpll/4", -1, "ref", 24, 1),
+	UNIPHIER_CLK_FACTOR("cpll/6", -1, "ref", 16, 1),
+	UNIPHIER_CLK_FACTOR("cpll/8", -1, "ref", 12, 1),
+	UNIPHIER_CLK_FACTOR("cpll/12", -1, "ref", 8, 1),
+	UNIPHIER_CLK_FACTOR("cpll/16", -1, "ref", 6, 1),
+	UNIPHIER_CLK_FACTOR("cpll/24", -1, "ref", 4, 1),
+	UNIPHIER_CLK_FACTOR("spll/2", -1, "ref", 48, 1),
+	UNIPHIER_CLK_FACTOR("spll/3", -1, "ref", 32, 1),
+	UNIPHIER_CLK_FACTOR("spll/4", -1, "ref", 24, 1),
+	UNIPHIER_CLK_FACTOR("spll/6", -1, "ref", 16, 1),
+	UNIPHIER_CLK_FACTOR("spll/8", -1, "ref", 12, 1),
+	UNIPHIER_CLK_FACTOR("spll/12", -1, "ref", 8, 1),
+	UNIPHIER_CLK_FACTOR("spll/16", -1, "ref", 6, 1),
+	UNIPHIER_CLK_FACTOR("spll/24", -1, "ref", 4, 1),
+	UNIPHIER_CLK_CPUGEAR("cpu-ca9", 32, 0x8000, 0x1f, 16,
+			     "cpll/2", "spll/2", "cpll/3", "spll/3",
+			     "cpll/4", "spll/4", "cpll/6", "spll/6",
+			     "cpll/8", "spll/8", "cpll/12", "spll/12",
+			     "cpll/16", "spll/16", "cpll/24", "spll/24"),
+#else
+	UNIPHIER_PRO5_SYS_CPUGEARS,
+#endif
 	{ /* sentinel */ }
 };
 
