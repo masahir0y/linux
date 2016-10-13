@@ -286,7 +286,7 @@ static int mmp_clk_mix_set_rate_and_parent(struct clk_hw *hw,
 	return _set_rate(mix, mux_val, div_val, 1, 1);
 }
 
-static u8 mmp_clk_mix_get_parent(struct clk_hw *hw)
+static int mmp_clk_mix_get_parent(struct clk_hw *hw)
 {
 	struct mmp_clk_mix *mix = to_clk_mix(hw);
 	struct mmp_clk_mix_reg_info *ri = &mix->reg_info;

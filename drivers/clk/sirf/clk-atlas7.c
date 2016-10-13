@@ -560,7 +560,7 @@ static int dto_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 dto_clk_get_parent(struct clk_hw *hw)
+static int dto_clk_get_parent(struct clk_hw *hw)
 {
 	struct clk_dto *clk = to_dtoclk(hw);
 

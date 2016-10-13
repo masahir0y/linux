@@ -1000,7 +1000,7 @@ static const struct clk_ops lpc32xx_clk_divider_ops = {
 	.set_rate = clk_divider_set_rate,
 };
 
-static u8 clk_mux_get_parent(struct clk_hw *hw)
+static int clk_mux_get_parent(struct clk_hw *hw)
 {
 	struct lpc32xx_clk_mux *mux = to_lpc32xx_mux(hw);
 	u32 num_parents = clk_hw_get_num_parents(hw);

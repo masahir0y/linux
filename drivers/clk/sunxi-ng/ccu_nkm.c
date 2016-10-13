@@ -183,7 +183,7 @@ static int ccu_nkm_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 ccu_nkm_get_parent(struct clk_hw *hw)
+static int ccu_nkm_get_parent(struct clk_hw *hw)
 {
 	struct ccu_nkm *nkm = hw_to_ccu_nkm(hw);
 

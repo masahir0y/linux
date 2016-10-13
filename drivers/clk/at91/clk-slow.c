@@ -26,7 +26,7 @@ struct clk_sam9260_slow {
 
 #define to_clk_sam9260_slow(hw) container_of(hw, struct clk_sam9260_slow, hw)
 
-static u8 clk_sam9260_slow_get_parent(struct clk_hw *hw)
+static int clk_sam9260_slow_get_parent(struct clk_hw *hw)
 {
 	struct clk_sam9260_slow *slowck = to_clk_sam9260_slow(hw);
 	unsigned int status;

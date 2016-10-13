@@ -155,7 +155,7 @@ static int emc_determine_rate(struct clk_hw *hw, struct clk_rate_request *req)
 	return 0;
 }
 
-static u8 emc_get_parent(struct clk_hw *hw)
+static int emc_get_parent(struct clk_hw *hw)
 {
 	struct tegra_clk_emc *tegra;
 	u32 val;

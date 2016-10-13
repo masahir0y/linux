@@ -386,7 +386,7 @@ static int _si5351_pll_reparent(struct si5351_driver_data *drvdata,
 	return 0;
 }
 
-static unsigned char si5351_pll_get_parent(struct clk_hw *hw)
+static int si5351_pll_get_parent(struct clk_hw *hw)
 {
 	struct si5351_hw_data *hwdata =
 		container_of(hw, struct si5351_hw_data, hw);
@@ -579,7 +579,7 @@ static int _si5351_msynth_reparent(struct si5351_driver_data *drvdata,
 	return 0;
 }
 
-static unsigned char si5351_msynth_get_parent(struct clk_hw *hw)
+static int si5351_msynth_get_parent(struct clk_hw *hw)
 {
 	struct si5351_hw_data *hwdata =
 		container_of(hw, struct si5351_hw_data, hw);
@@ -955,7 +955,7 @@ static void si5351_clkout_unprepare(struct clk_hw *hw)
 			(1 << hwdata->num), (1 << hwdata->num));
 }
 
-static u8 si5351_clkout_get_parent(struct clk_hw *hw)
+static int si5351_clkout_get_parent(struct clk_hw *hw)
 {
 	struct si5351_hw_data *hwdata =
 		container_of(hw, struct si5351_hw_data, hw);

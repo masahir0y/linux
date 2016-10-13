@@ -77,7 +77,7 @@ static long rockchip_ddrclk_sip_round_rate(struct clk_hw *hw,
 	return res.a0;
 }
 
-static u8 rockchip_ddrclk_get_parent(struct clk_hw *hw)
+static int rockchip_ddrclk_get_parent(struct clk_hw *hw)
 {
 	struct rockchip_ddrclk *ddrclk = to_rockchip_ddrclk_hw(hw);
 	u32 val;

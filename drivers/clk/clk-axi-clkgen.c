@@ -379,7 +379,7 @@ static int axi_clkgen_set_parent(struct clk_hw *clk_hw, u8 index)
 	return 0;
 }
 
-static u8 axi_clkgen_get_parent(struct clk_hw *clk_hw)
+static int axi_clkgen_get_parent(struct clk_hw *clk_hw)
 {
 	struct axi_clkgen *axi_clkgen = clk_hw_to_axi_clkgen(clk_hw);
 	unsigned int parent;

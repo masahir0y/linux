@@ -220,7 +220,7 @@ static int ccu_mux_is_enabled(struct clk_hw *hw)
 	return ccu_gate_helper_is_enabled(&cm->common, cm->enable);
 }
 
-static u8 ccu_mux_get_parent(struct clk_hw *hw)
+static int ccu_mux_get_parent(struct clk_hw *hw)
 {
 	struct ccu_mux *cm = hw_to_ccu_mux(hw);
 

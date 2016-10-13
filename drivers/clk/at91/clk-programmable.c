@@ -109,7 +109,7 @@ static int clk_programmable_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 clk_programmable_get_parent(struct clk_hw *hw)
+static int clk_programmable_get_parent(struct clk_hw *hw)
 {
 	struct clk_programmable *prog = to_clk_programmable(hw);
 	const struct clk_programmable_layout *layout = prog->layout;

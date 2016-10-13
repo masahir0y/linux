@@ -378,7 +378,7 @@ static void cs2000_disable(struct clk_hw *hw)
 	cs2000_clk_out_enable(priv, false);
 }
 
-static u8 cs2000_get_parent(struct clk_hw *hw)
+static int cs2000_get_parent(struct clk_hw *hw)
 {
 	/* always return REF_CLK */
 	return REF_CLK;

@@ -178,7 +178,7 @@ static const char *wm831x_fll_parents[] = {
 	"clkin",
 };
 
-static u8 wm831x_fll_get_parent(struct clk_hw *hw)
+static int wm831x_fll_get_parent(struct clk_hw *hw)
 {
 	struct wm831x_clk *clkdata = container_of(hw, struct wm831x_clk,
 						  fll_hw);
@@ -299,7 +299,7 @@ static const char *wm831x_clkout_parents[] = {
 	"xtal",
 };
 
-static u8 wm831x_clkout_get_parent(struct clk_hw *hw)
+static int wm831x_clkout_get_parent(struct clk_hw *hw)
 {
 	struct wm831x_clk *clkdata = container_of(hw, struct wm831x_clk,
 						  clkout_hw);

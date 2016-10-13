@@ -222,7 +222,7 @@ static int ccu_mp_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 ccu_mp_get_parent(struct clk_hw *hw)
+static int ccu_mp_get_parent(struct clk_hw *hw)
 {
 	struct ccu_mp *cmp = hw_to_ccu_mp(hw);
 

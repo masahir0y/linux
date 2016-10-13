@@ -36,7 +36,7 @@
 /* SDMMC Group for System Manager defines */
 #define SYSMGR_SDMMCGRP_CTRL_OFFSET    0x108
 
-static u8 socfpga_clk_get_parent(struct clk_hw *hwclk)
+static int socfpga_clk_get_parent(struct clk_hw *hwclk)
 {
 	u32 l4_src;
 	u32 perpll_src;

@@ -58,7 +58,7 @@ static unsigned long clk_pll_recalc_rate(struct clk_hw *hwclk,
 	return (unsigned long)vco_freq;
 }
 
-static u8 clk_pll_get_parent(struct clk_hw *hwclk)
+static int clk_pll_get_parent(struct clk_hw *hwclk)
 {
 	struct socfpga_pll *socfpgaclk = to_socfpga_clk(hwclk);
 	u32 pll_src;

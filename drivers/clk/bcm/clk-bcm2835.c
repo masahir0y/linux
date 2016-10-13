@@ -1219,7 +1219,7 @@ static int bcm2835_clock_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 bcm2835_clock_get_parent(struct clk_hw *hw)
+static int bcm2835_clock_get_parent(struct clk_hw *hw)
 {
 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
 	struct bcm2835_cprman *cprman = clock->cprman;

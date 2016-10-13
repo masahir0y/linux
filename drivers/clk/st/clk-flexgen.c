@@ -85,7 +85,7 @@ static int flexgen_is_enabled(struct clk_hw *hw)
 	return 1;
 }
 
-static u8 flexgen_get_parent(struct clk_hw *hw)
+static int flexgen_get_parent(struct clk_hw *hw)
 {
 	struct flexgen *flexgen = to_flexgen(hw);
 	struct clk_hw *mux_hw = &flexgen->mux.hw;

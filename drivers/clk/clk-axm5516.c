@@ -121,7 +121,7 @@ struct axxia_clkmux {
 /**
  * axxia_clkmux_get_parent - Return the index of selected parent clock
  */
-static u8 axxia_clkmux_get_parent(struct clk_hw *hw)
+static int axxia_clkmux_get_parent(struct clk_hw *hw)
 {
 	struct axxia_clk *aclk = to_axxia_clk(hw);
 	struct axxia_clkmux *mux = to_axxia_clkmux(aclk);
@@ -130,7 +130,7 @@ static u8 axxia_clkmux_get_parent(struct clk_hw *hw)
 	regmap_read(aclk->regmap, mux->reg, &ctrl);
 	parent = (ctrl >> mux->shift) & ((1 << mux->width) - 1);
 
-	return (u8) parent;
+	return parent;
 }
 
 static const struct clk_ops axxia_clkmux_ops = {

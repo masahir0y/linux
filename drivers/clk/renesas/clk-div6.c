@@ -127,7 +127,7 @@ static int cpg_div6_clock_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 cpg_div6_clock_get_parent(struct clk_hw *hw)
+static int cpg_div6_clock_get_parent(struct clk_hw *hw)
 {
 	struct div6_clock *clock = to_div6_clock(hw);
 	unsigned int i;

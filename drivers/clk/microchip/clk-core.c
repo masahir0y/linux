@@ -279,7 +279,7 @@ static void roclk_init(struct clk_hw *hw)
 	roclk_disable(hw);
 }
 
-static u8 roclk_get_parent(struct clk_hw *hw)
+static int roclk_get_parent(struct clk_hw *hw)
 {
 	struct pic32_ref_osc *refo = clkhw_to_refosc(hw);
 	u32 v, i;
@@ -821,7 +821,7 @@ static int sclk_set_rate(struct clk_hw *hw,
 	return err;
 }
 
-static u8 sclk_get_parent(struct clk_hw *hw)
+static int sclk_get_parent(struct clk_hw *hw)
 {
 	struct pic32_sys_clk *sclk = clkhw_to_sys_clk(hw);
 	u32 i, v;

@@ -42,7 +42,7 @@ static u32 src_to_ns(struct src_sel *s, u8 src, u32 ns)
 	return ns;
 }
 
-static u8 clk_rcg_get_parent(struct clk_hw *hw)
+static int clk_rcg_get_parent(struct clk_hw *hw)
 {
 	struct clk_rcg *rcg = to_clk_rcg(hw);
 	int num_parents = clk_hw_get_num_parents(hw);
@@ -69,7 +69,7 @@ static int reg_to_bank(struct clk_dyn_rcg *rcg, u32 bank)
 	return !!bank;
 }
 
-static u8 clk_dyn_rcg_get_parent(struct clk_hw *hw)
+static int clk_dyn_rcg_get_parent(struct clk_hw *hw)
 {
 	struct clk_dyn_rcg *rcg = to_clk_dyn_rcg(hw);
 	int num_parents = clk_hw_get_num_parents(hw);

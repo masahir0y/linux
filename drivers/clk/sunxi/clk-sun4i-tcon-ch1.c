@@ -76,7 +76,7 @@ static int tcon_ch1_is_enabled(struct clk_hw *hw)
 	return reg & (TCON_CH1_SCLK2_GATE_BIT | TCON_CH1_SCLK1_GATE_BIT);
 }
 
-static u8 tcon_ch1_get_parent(struct clk_hw *hw)
+static int tcon_ch1_get_parent(struct clk_hw *hw)
 {
 	struct tcon_ch1_clk *tclk = hw_to_tclk(hw);
 	u32 reg;

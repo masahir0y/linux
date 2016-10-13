@@ -21,7 +21,7 @@
 
 #include "clk.h"
 
-static u8 clk_periph_get_parent(struct clk_hw *hw)
+static int clk_periph_get_parent(struct clk_hw *hw)
 {
 	struct tegra_clk_periph *periph = to_clk_periph(hw);
 	const struct clk_ops *mux_ops = periph->mux_ops;

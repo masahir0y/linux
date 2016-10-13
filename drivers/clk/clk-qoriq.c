@@ -721,7 +721,7 @@ static int mux_set_parent(struct clk_hw *hw, u8 idx)
 	return 0;
 }
 
-static u8 mux_get_parent(struct clk_hw *hw)
+static int mux_get_parent(struct clk_hw *hw)
 {
 	struct mux_hwclock *hwc = to_mux_hwclock(hw);
 	u32 clksel;

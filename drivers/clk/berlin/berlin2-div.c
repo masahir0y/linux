@@ -146,7 +146,7 @@ static int berlin2_div_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 berlin2_div_get_parent(struct clk_hw *hw)
+static int berlin2_div_get_parent(struct clk_hw *hw)
 {
 	struct berlin2_div *div = to_berlin2_div(hw);
 	struct berlin2_div_map *map = &div->map;

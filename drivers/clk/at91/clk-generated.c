@@ -204,7 +204,7 @@ static int clk_generated_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 clk_generated_get_parent(struct clk_hw *hw)
+static int clk_generated_get_parent(struct clk_hw *hw)
 {
 	struct clk_generated *gck = to_clk_generated(hw);
 

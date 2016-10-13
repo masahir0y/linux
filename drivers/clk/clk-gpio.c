@@ -66,7 +66,7 @@ EXPORT_SYMBOL_GPL(clk_gpio_gate_ops);
  * parent - parent is adjustable through clk_set_parent
  */
 
-static u8 clk_gpio_mux_get_parent(struct clk_hw *hw)
+static int clk_gpio_mux_get_parent(struct clk_hw *hw)
 {
 	struct clk_gpio *clk = to_clk_gpio(hw);
 

@@ -90,7 +90,7 @@ static unsigned long clk_master_recalc_rate(struct clk_hw *hw,
 	return rate;
 }
 
-static u8 clk_master_get_parent(struct clk_hw *hw)
+static int clk_master_get_parent(struct clk_hw *hw)
 {
 	struct clk_master *master = to_clk_master(hw);
 	unsigned int mckr;

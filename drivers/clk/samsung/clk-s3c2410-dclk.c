@@ -58,7 +58,7 @@ struct s3c24xx_clkout {
 
 #define to_s3c24xx_clkout(_hw) container_of(_hw, struct s3c24xx_clkout, hw)
 
-static u8 s3c24xx_clkout_get_parent(struct clk_hw *hw)
+static int s3c24xx_clkout_get_parent(struct clk_hw *hw)
 {
 	struct s3c24xx_clkout *clkout = to_s3c24xx_clkout(hw);
 	int num_parents = clk_hw_get_num_parents(hw);

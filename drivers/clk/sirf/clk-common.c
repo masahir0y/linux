@@ -294,7 +294,7 @@ static const char * const dmn_clk_parents[] = {
 	"pll3",
 };
 
-static u8 dmn_clk_get_parent(struct clk_hw *hw)
+static int dmn_clk_get_parent(struct clk_hw *hw)
 {
 	struct clk_dmn *clk = to_dmnclk(hw);
 	u32 cfg = clkc_readl(clk->regofs);

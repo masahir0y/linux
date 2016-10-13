@@ -448,7 +448,7 @@ static int clk_sam9x5_main_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 clk_sam9x5_main_get_parent(struct clk_hw *hw)
+static int clk_sam9x5_main_get_parent(struct clk_hw *hw)
 {
 	struct clk_sam9x5_main *clkmain = to_clk_sam9x5_main(hw);
 	unsigned int status;

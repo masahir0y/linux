@@ -150,7 +150,7 @@ static int cdce706_clkin_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 cdce706_clkin_get_parent(struct clk_hw *hw)
+static int cdce706_clkin_get_parent(struct clk_hw *hw)
 {
 	struct cdce706_hw_data *hwd = to_hw_data(hw);
 
@@ -270,7 +270,7 @@ static int cdce706_divider_set_parent(struct clk_hw *hw, u8 index)
 				  index << CDCE706_DIVIDER_PLL_SHIFT(hwd->idx));
 }
 
-static u8 cdce706_divider_get_parent(struct clk_hw *hw)
+static int cdce706_divider_get_parent(struct clk_hw *hw)
 {
 	struct cdce706_hw_data *hwd = to_hw_data(hw);
 
@@ -410,7 +410,7 @@ static int cdce706_clkout_set_parent(struct clk_hw *hw, u8 index)
 				  CDCE706_CLKOUT_ENABLE_MASK, index);
 }
 
-static u8 cdce706_clkout_get_parent(struct clk_hw *hw)
+static int cdce706_clkout_get_parent(struct clk_hw *hw)
 {
 	struct cdce706_hw_data *hwd = to_hw_data(hw);
 

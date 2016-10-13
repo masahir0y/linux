@@ -118,7 +118,7 @@ static int ccu_div_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 ccu_div_get_parent(struct clk_hw *hw)
+static int ccu_div_get_parent(struct clk_hw *hw)
 {
 	struct ccu_div *cd = hw_to_ccu_div(hw);
 

@@ -37,7 +37,7 @@ static inline struct clk_fixup_mux *to_clk_fixup_mux(struct clk_hw *hw)
 	return container_of(mux, struct clk_fixup_mux, mux);
 }
 
-static u8 clk_fixup_mux_get_parent(struct clk_hw *hw)
+static int clk_fixup_mux_get_parent(struct clk_hw *hw)
 {
 	struct clk_fixup_mux *fixup_mux = to_clk_fixup_mux(hw);
 

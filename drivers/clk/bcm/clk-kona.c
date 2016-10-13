@@ -1114,7 +1114,7 @@ static int kona_peri_clk_set_parent(struct clk_hw *hw, u8 index)
 	return ret;
 }
 
-static u8 kona_peri_clk_get_parent(struct clk_hw *hw)
+static int kona_peri_clk_get_parent(struct clk_hw *hw)
 {
 	struct kona_clk *bcm_clk = to_kona_clk(hw);
 	struct peri_clk_data *data = bcm_clk->u.peri;

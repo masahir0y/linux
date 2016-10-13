@@ -128,7 +128,7 @@ static inline struct clk_busy_mux *to_clk_busy_mux(struct clk_hw *hw)
 	return container_of(mux, struct clk_busy_mux, mux);
 }
 
-static u8 clk_busy_mux_get_parent(struct clk_hw *hw)
+static int clk_busy_mux_get_parent(struct clk_hw *hw)
 {
 	struct clk_busy_mux *busy = to_clk_busy_mux(hw);
 

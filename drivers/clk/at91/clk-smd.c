@@ -76,7 +76,7 @@ static int at91sam9x5_clk_smd_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
-static u8 at91sam9x5_clk_smd_get_parent(struct clk_hw *hw)
+static int at91sam9x5_clk_smd_get_parent(struct clk_hw *hw)
 {
 	struct at91sam9x5_clk_smd *smd = to_at91sam9x5_clk_smd(hw);
 	unsigned int smdr;

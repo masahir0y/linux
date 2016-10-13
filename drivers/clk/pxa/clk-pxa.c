@@ -74,7 +74,7 @@ static const struct clk_ops cken_rate_ops = {
 	.recalc_rate = cken_recalc_rate,
 };
 
-static u8 cken_get_parent(struct clk_hw *hw)
+static int cken_get_parent(struct clk_hw *hw)
 {
 	struct pxa_clk *pclk = to_pxa_clk(hw);
 

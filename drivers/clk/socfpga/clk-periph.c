@@ -44,7 +44,7 @@ static unsigned long clk_periclk_recalc_rate(struct clk_hw *hwclk,
 	return parent_rate / div;
 }
 
-static u8 clk_periclk_get_parent(struct clk_hw *hwclk)
+static int clk_periclk_get_parent(struct clk_hw *hwclk)
 {
 	u32 clk_src;
 

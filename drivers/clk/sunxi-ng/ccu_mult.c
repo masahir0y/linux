@@ -147,7 +147,7 @@ static int ccu_mult_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-static u8 ccu_mult_get_parent(struct clk_hw *hw)
+static int ccu_mult_get_parent(struct clk_hw *hw)
 {
 	struct ccu_mult *cm = hw_to_ccu_mult(hw);
 

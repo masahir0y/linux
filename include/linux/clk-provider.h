@@ -141,14 +141,14 @@ struct clk_duty {
  *		Returns 0 on success, -EERROR otherwise.
  *
  * @get_parent:	Queries the hardware to determine the parent of a clock.  The
- *		return value is a u8 which specifies the index corresponding to
- *		the parent clock.  This index can be applied to either the
- *		.parent_names or .parents arrays.  In short, this function
- *		translates the parent value read from hardware into an array
- *		index.  Currently only called when the clock is initialized by
- *		__clk_init.  This callback is mandatory for clocks with
- *		multiple parents.  It is optional (and unnecessary) for clocks
- *		with 0 or 1 parents.
+ *		return value is an integer which specifies the index to the
+ *		parent clock, or an error code if falied.  This index can be
+ *		applied to either the .parent_names or .parents arrays.  In
+ *		short, this function translates the parent value read from
+ *		hardware into an array index.  Currently only called when the
+ *		clock is initialized by __clk_core_init.  This callback is
+ *		mandatory for clocks with multiple parents.  It is optional
+ *		(and unnecessary) for clocks with 0 or 1 parents.
  *
  * @set_rate:	Change the rate of this clock. The requested rate is specified
  *		by the second argument, which should typically be the return
@@ -232,7 +232,7 @@ struct clk_ops {
 	int		(*determine_rate)(struct clk_hw *hw,
 					  struct clk_rate_request *req);
 	int		(*set_parent)(struct clk_hw *hw, u8 index);
-	u8		(*get_parent)(struct clk_hw *hw);
+	int		(*get_parent)(struct clk_hw *hw);
 	int		(*set_rate)(struct clk_hw *hw, unsigned long rate,
 				    unsigned long parent_rate);
 	int		(*set_rate_and_parent)(struct clk_hw *hw,

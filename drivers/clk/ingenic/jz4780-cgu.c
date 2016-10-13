@@ -97,7 +97,7 @@
 
 static struct ingenic_cgu *cgu;
 
-static u8 jz4780_otg_phy_get_parent(struct clk_hw *hw)
+static int jz4780_otg_phy_get_parent(struct clk_hw *hw)
 {
 	/* we only use CLKCORE, revisit if that ever changes */
 	return 0;

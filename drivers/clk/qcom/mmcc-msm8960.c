@@ -585,7 +585,7 @@ err:
 	return ret;
 }
 
-static u8 pix_rdi_get_parent(struct clk_hw *hw)
+static int pix_rdi_get_parent(struct clk_hw *hw)
 {
 	u32 val;
 	struct clk_pix_rdi *rdi = to_clk_pix_rdi(hw);
