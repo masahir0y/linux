@@ -1094,6 +1094,12 @@ config MFD_SKY81452
 	  This driver can also be built as a module.  If so, the module
 	  will be called sky81452.
 
+config MFD_UNIPHIER_MIO
+	bool "UniPhier Media I/O block"
+	depends on ARCH_UNIPHIER || COMPILE_TEST
+	default ARCH_UNIPHIER
+	help
+
 config MFD_SMSC
        bool "SMSC ECE1099 series chips"
        depends on I2C=y
