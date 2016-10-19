@@ -177,7 +177,7 @@ static int uniphier_i2c_stop(struct i2c_adapter *adap)
 static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
 					struct i2c_msg *msg, bool stop)
 {
-	bool is_read = msg->flags & I2C_M_RD;
+	bool is_read = !!(msg->flags & I2C_M_RD);
 	bool recovery = false;
 	int ret;
 

@@ -314,7 +314,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 					 struct i2c_msg *msg, bool stop)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
-	bool is_read = msg->flags & I2C_M_RD;
+	bool is_read = !!(msg->flags & I2C_M_RD);
 	unsigned long time_left;
 
 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
