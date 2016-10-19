@@ -393,9 +393,9 @@
 			interrupts = <0 76 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sd>;
-			clocks = <&mio_clk 0>;
+			clocks = <&sd_clk 0>;
 			reset-names = "host";
-			resets = <&mio_rst 0>;
+			resets = <&sd_rst 0>;
 			bus-width = <4>;
 			cap-sd-highspeed;
 		};
