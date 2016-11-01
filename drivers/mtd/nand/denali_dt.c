@@ -41,10 +41,33 @@ static const struct denali_dt_data denali_socfpga_data = {
 		DENALI_CAP_ECC_SIZE_512,
 };
 
+static const struct denali_dt_data denali_uniphier_v5a_data = {
+	.ecc_strength_avail = BIT(24) | BIT(16) | BIT(8),
+	.caps = DENALI_CAP_HW_ECC_FIXUP |
+		DENALI_CAP_DMA_64BIT |
+		DENALI_CAP_ECC_SIZE_1024,
+};
+
+static const struct denali_dt_data denali_uniphier_v5b_data = {
+	.revision = 0x0501,
+	.ecc_strength_avail = BIT(16) | BIT(8),
+	.caps = DENALI_CAP_HW_ECC_FIXUP |
+		DENALI_CAP_DMA_64BIT |
+		DENALI_CAP_ECC_SIZE_1024,
+};
+
 static const struct of_device_id denali_nand_dt_ids[] = {
 	{
 		.compatible = "altr,socfpga-denali-nand",
 		.data = &denali_socfpga_data,
+	},
+	{
+		.compatible = "socionext,uniphier-denali-nand-v5a",
+		.data = &denali_uniphier_v5a_data,
+	},
+	{
+		.compatible = "socionext,uniphier-denali-nand-v5b",
+		.data = &denali_uniphier_v5b_data,
 	},
 	{ /* sentinel */ }
 };
