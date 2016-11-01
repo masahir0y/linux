@@ -40,10 +40,33 @@ static const struct denali_dt_data denali_altera_data = {
 		DENALI_CAP_ECC_SIZE_512,
 };
 
+static const struct denali_dt_data denali_socionext_v5a_data = {
+	.ecc_strength_avail = BIT(24) | BIT(16) | BIT(8),
+	.caps = DENALI_CAP_HW_ECC_FIXUP |
+		DENALI_CAP_DMA_64BIT |
+		DENALI_CAP_ECC_SIZE_1024,
+};
+
+static const struct denali_dt_data denali_socionext_v5b_data = {
+	.ecc_strength_avail = BIT(24) | BIT(16) | BIT(8),
+	.caps = DENALI_CAP_HW_ECC_FIXUP |
+		DENALI_CAP_DMA_64BIT |
+		DENALI_CAP_NEW_N_BANKS_FORMAT |
+		DENALI_CAP_ECC_SIZE_1024,
+};
+
 static const struct of_device_id denali_nand_dt_ids[] = {
 	{
 		.compatible = "altera,denali-nand",
 		.data = &denali_altera_data,
+	},
+	{
+		.compatible = "socionext,denali-nand-v5a",
+		.data = &denali_socionext_v5a_data,
+	},
+	{
+		.compatible = "socionext,denali-nand-v5b",
+		.data = &denali_socionext_v5b_data,
 	},
 	{ /* sentinel */ }
 };

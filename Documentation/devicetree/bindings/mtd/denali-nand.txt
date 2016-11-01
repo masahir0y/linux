@@ -3,6 +3,8 @@
 Required properties:
   - compatible : should be one of the following:
       "altera,denali-nand"
+      "socionext,denali-nand-v5a"
+      "socionext,denali-nand-v5b"
   - reg : should contain registers location and length for data and reg.
   - reg-names: Should contain the reg names "nand_data" and "denali_reg"
   - interrupts : The interrupt number.
@@ -10,6 +12,8 @@ Required properties:
 Optional properties:
   - nand-ecc-step-size: must be 512 or 1024.  If not specified, default to:
       512  for "altera,denali-nand"
+      1024 for "socionext,denali-nand-v5a"
+      1024 for "socionext,denali-nand-v5b"
     see nand.txt for details.
   - nand-ecc-strength: see nand.txt for details
   - nand-ecc-maximize: see nand.txt for details
