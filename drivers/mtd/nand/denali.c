@@ -978,8 +978,30 @@ static void denali_enable_dma(struct denali_nand_info *denali, bool en)
 	ioread32(denali->flash_reg + DMA_ENABLE);
 }
 
-/* setups the HW to perform the data DMA */
-static void denali_setup_dma(struct denali_nand_info *denali, int op)
+static void denali_setup_dma64(struct denali_nand_info *denali, int op)
+{
+	u32 mode;
+	const int page_count = 1;
+	u64 addr = denali->buf.dma_buf;
+
+	mode = MODE_10 | BANK(denali->flash_bank) | denali->page;
+
+	/* DMA is a three step process */
+
+	/*
+	 * 1. setup transfer type, interrupt when complete,
+	 *    burst len = 64 bytes, the number of pages
+	 */
+	index_addr(denali, mode, 0x01002000 | (64 << 16) | op | page_count);
+
+	/* 2. set memory low address */
+	index_addr(denali, mode, addr);
+
+	/* 3. set memory high address */
+	index_addr(denali, mode, addr >> 32);
+}
+
+static void denali_setup_dma32(struct denali_nand_info *denali, int op)
 {
 	u32 mode;
 	const int page_count = 1;
@@ -1000,6 +1022,14 @@ static void denali_setup_dma(struct denali_nand_info *denali, int op)
 
 	/* 4. interrupt when complete, burst len = 64 bytes */
 	index_addr(denali, mode | 0x14000, 0x2400);
+}
+
+static void denali_setup_dma(struct denali_nand_info *denali, int op)
+{
+	if (denali->caps & DENALI_CAP_DMA_64BIT)
+		denali_setup_dma64(denali, op);
+	else
+		denali_setup_dma32(denali, op);
 }
 
 /*
@@ -1477,8 +1507,9 @@ int denali_init(struct denali_nand_info *denali)
 		goto failed_req_irq;
 	}
 
-	/* Is 32-bit DMA supported? */
-	ret = dma_set_mask(denali->dev, DMA_BIT_MASK(32));
+	ret = dma_set_mask(denali->dev,
+			   DMA_BIT_MASK(denali->caps & DENALI_CAP_DMA_64BIT ?
+					64 : 32));
 	if (ret) {
 		dev_err(denali->dev, "No usable DMA configuration\n");
 		goto failed_req_irq;
