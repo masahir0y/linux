@@ -436,6 +436,7 @@ struct denali_nand_info {
 	unsigned int caps;
 #define DENALI_CAP_HW_ECC_FIXUP			BIT(0)
 #define DENALI_CAP_DMA_64BIT			BIT(1)
+#define DENALI_CAP_NEW_N_BANKS_FORMAT		BIT(2)
 };
 
 extern int denali_init(struct denali_nand_info *denali);

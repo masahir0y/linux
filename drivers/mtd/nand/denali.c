@@ -448,17 +448,27 @@ static void find_valid_banks(struct denali_nand_info *denali)
 static void detect_max_banks(struct denali_nand_info *denali)
 {
 	u32 features = ioread32(denali->flash_reg + FEATURES);
+	bool old_format;
+
 	/*
-	 * Read the revision register, so we can calculate the max_banks
-	 * properly: the encoding changed from rev 5.0 to 5.1
+	 * There are some IP versions with different n_banks encoding.
+	 * Some people say the change happened from rev 5.0 to 5.1, while
+	 * there exist variants with revision older than 5.1 but new encoding.
+	 * The option flag is available in case the revision is useless.
 	 */
-	u32 revision = MAKE_COMPARABLE_REVISION(
+	if (denali->caps & DENALI_CAP_NEW_N_BANKS_FORMAT)
+		old_format = false;
+	else {
+		u32 revision = MAKE_COMPARABLE_REVISION(
 				ioread32(denali->flash_reg + REVISION));
 
-	if (revision < REVISION_5_1)
-		denali->max_banks = 2 << (features & FEATURES__N_BANKS);
-	else
-		denali->max_banks = 1 << (features & FEATURES__N_BANKS);
+		old_format = revision < REVISION_5_1;
+	}
+
+	denali->max_banks = 1 << (features & FEATURES__N_BANKS);
+
+	if (old_format)
+		denali->max_banks <<= 1;
 }
 
 static u16 denali_nand_timing_set(struct denali_nand_info *denali)
