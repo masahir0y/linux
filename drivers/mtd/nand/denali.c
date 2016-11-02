@@ -172,7 +172,7 @@ static void reset_bank(struct denali_nand_info *denali)
 }
 
 /* Reset the flash controller */
-static u16 denali_nand_reset(struct denali_nand_info *denali)
+static int denali_nand_reset(struct denali_nand_info *denali)
 {
 	int i;
 
@@ -195,7 +195,7 @@ static u16 denali_nand_reset(struct denali_nand_info *denali)
 		iowrite32(INTR_STATUS__RST_COMP | INTR_STATUS__TIME_OUT,
 			  denali->flash_reg + INTR_STATUS(i));
 
-	return PASS;
+	return 0;
 }
 
 /*
