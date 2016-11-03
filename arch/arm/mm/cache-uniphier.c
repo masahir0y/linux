@@ -328,7 +328,7 @@ static int __init __uniphier_cache_init(struct device_node *np,
 					unsigned int *cache_level)
 {
 	struct uniphier_cache_data *data;
-	u32 level, cache_size;
+	u32 level, line_size, nsets, cache_size;
 	struct device_node *next_np;
 	int ret = 0;
 
@@ -354,36 +354,34 @@ static int __init __uniphier_cache_init(struct device_node *np,
 		return -EINVAL;
 	}
 
+	if (of_property_read_u32(np, "cache-line-size", &line_size) |
+	    !is_power_of_2(line_size)) {
+		pr_err("L%d: cache-line-size is unspecified or invalid\n",
+		       *cache_level);
+		return -EINVAL;
+	}
+
+	if (of_property_read_u32(np, "cache-sets", &nsets) ||
+	    !is_power_of_2(nsets)) {
+		pr_err("L%d: cache-sets is unspecified or invalid\n",
+		       *cache_level);
+		return -EINVAL;
+	}
+
+	if (of_property_read_u32(np, "cache-size", &cache_size) ||
+	    cache_size == 0 || cache_size % (nsets * line_size)) {
+		pr_err("L%d: cache-size is unspecified or invalid\n",
+		       *cache_level);
+		return -EINVAL;
+	}
+
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
 
-	if (of_property_read_u32(np, "cache-line-size", &data->line_size) ||
-	    !is_power_of_2(data->line_size)) {
-		pr_err("L%d: cache-line-size is unspecified or invalid\n",
-		       *cache_level);
-		ret = -EINVAL;
-		goto err;
-	}
-
-	if (of_property_read_u32(np, "cache-sets", &data->nsets) ||
-	    !is_power_of_2(data->nsets)) {
-		pr_err("L%d: cache-sets is unspecified or invalid\n",
-		       *cache_level);
-		ret = -EINVAL;
-		goto err;
-	}
-
-	if (of_property_read_u32(np, "cache-size", &cache_size) ||
-	    cache_size == 0 || cache_size % (data->nsets * data->line_size)) {
-		pr_err("L%d: cache-size is unspecified or invalid\n",
-		       *cache_level);
-		ret = -EINVAL;
-		goto err;
-	}
-
-	data->way_present_mask =
-		((u32)1 << cache_size / data->nsets / data->line_size) - 1;
+	data->line_size = line_size;
+	data->nsets = nsets;
+	data->way_present_mask = ((u32)1 << cache_size / nsets / line_size) - 1;
 
 	data->ctrl_base = of_iomap(np, 0);
 	if (!data->ctrl_base) {
