@@ -991,6 +991,7 @@ config CACHE_TAUROS2
 config CACHE_UNIPHIER
 	bool "Enable the UniPhier outer cache controller"
 	depends on ARCH_UNIPHIER
+	default y
 	select ARM_L1_CACHE_SHIFT_7
 	select OUTER_CACHE
 	select OUTER_CACHE_SYNC
