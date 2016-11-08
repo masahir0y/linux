@@ -34,7 +34,8 @@ struct denali_dt_data {
 };
 
 static const struct denali_dt_data denali_altera_data = {
-	.caps = DENALI_CAP_HW_ECC_FIXUP,
+	.caps = DENALI_CAP_HW_ECC_FIXUP |
+		DENALI_CAP_ECC_SIZE_512,
 };
 
 static const struct of_device_id denali_nand_dt_ids[] = {

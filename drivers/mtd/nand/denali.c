@@ -880,8 +880,6 @@ static bool denali_hw_ecc_fixup(struct denali_nand_info *denali,
 	return false;
 }
 
-#define ECC_SECTOR_SIZE 512
-
 #define ECC_SECTOR(x)	(((x) & ECC_ERROR_ADDRESS__SECTOR_NR) >> 12)
 #define ECC_BYTE(x)	(((x) & ECC_ERROR_ADDRESS__OFFSET))
 #define ECC_CORRECTION_VALUE(x) ((x) & ERR_CORRECTION_INFO__BYTEMASK)
@@ -893,6 +891,7 @@ static bool denali_sw_ecc_fixup(struct denali_nand_info *denali, u8 *buf,
 				u32 irq_status, unsigned int *max_bitflips)
 {
 	struct mtd_info *mtd = nand_to_mtd(&denali->nand);
+	unsigned int ecc_size = denali->nand.ecc.size;
 	bool check_erased_page = false;
 	unsigned int bitflips = 0;
 	u32 err_addr, err_byte, err_sector;
@@ -915,16 +914,16 @@ static bool denali_sw_ecc_fixup(struct denali_nand_info *denali, u8 *buf,
 
 		if (ECC_ERROR_CORRECTABLE(err_cor_info)) {
 			/*
-			 * If err_byte is larger than ECC_SECTOR_SIZE, means error
+			 * If err_byte is larger than ecc_size, means error
 			 * happened in OOB, so we ignore it. It's no need for
 			 * us to correct it err_device is represented the NAND
 			 * error bits are happened in if there are more than
 			 * one NAND connected.
 			 */
-			if (err_byte < ECC_SECTOR_SIZE) {
+			if (err_byte < ecc_size) {
 				int offset;
 
-				offset = (err_sector * ECC_SECTOR_SIZE + err_byte) *
+				offset = (err_sector * ecc_size + err_byte) *
 					denali->devnum + err_device;
 				/* correct the ECC error */
 				buf[offset] ^= err_cor_value;
@@ -1576,22 +1575,37 @@ int denali_init(struct denali_nand_info *denali)
 	/* no subpage writes on denali */
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
+	if (!chip->ecc.size) {
+		if (denali->caps & DENALI_CAP_ECC_SIZE_512)
+			chip->ecc.size = 512;
+		if (denali->caps & DENALI_CAP_ECC_SIZE_1024)
+			chip->ecc.size = 1024;
+		if (WARN(!chip->ecc.size, "must support at least 512 or 1024 ECC size"))
+			goto failed_req_irq;
+	}
+
+	if ((chip->ecc.size != 512 && chip->ecc.size != 1024) ||
+	    (chip->ecc.size == 512 && !(denali->caps & DENALI_CAP_ECC_SIZE_512)) ||
+	    (chip->ecc.size == 1024 && !(denali->caps & DENALI_CAP_ECC_SIZE_1024))) {
+		dev_err(denali->dev, "specified ECC size %d in not supported",
+			chip->ecc.size);
+		goto failed_req_irq;
+	}
+
 	/*
 	 * Denali Controller only support 15bit and 8bit ECC in MRST,
 	 * so just let controller do 15bit ECC for MLC and 8bit ECC for
 	 * SLC if possible.
 	 * */
 	if (!nand_is_slc(chip) &&
-			(mtd->oobsize > (denali->bbtskipbytes +
-			ECC_15BITS * (mtd->writesize /
-			ECC_SECTOR_SIZE)))) {
+			mtd->oobsize > denali->bbtskipbytes +
+			ECC_15BITS * (mtd->writesize / chip->ecc.size)) {
 		/* if MLC OOB size is large enough, use 15bit ECC*/
 		chip->ecc.strength = 15;
 		chip->ecc.bytes = ECC_15BITS;
 		iowrite32(15, denali->flash_reg + ECC_CORRECTION);
-	} else if (mtd->oobsize < (denali->bbtskipbytes +
-			ECC_8BITS * (mtd->writesize /
-			ECC_SECTOR_SIZE))) {
+	} else if (mtd->oobsize <
+		   denali->bbtskipbytes + ECC_8BITS * (mtd->writesize / chip->ecc.size)) {
 		pr_err("Your NAND chip OOB is not large enough to contain 8bit ECC correction codes");
 		goto failed_req_irq;
 	} else {
@@ -1600,10 +1614,14 @@ int denali_init(struct denali_nand_info *denali)
 		iowrite32(8, denali->flash_reg + ECC_CORRECTION);
 	}
 
+	iowrite32(chip->ecc.size, denali->flash_reg + CFG_DATA_BLOCK_SIZE);
+	iowrite32(chip->ecc.size, denali->flash_reg + CFG_LAST_DATA_BLOCK_SIZE);
+	/* chip->ecc.steps is set by nand_scan_tail(); not available here */
+	iowrite32(mtd->writesize / chip->ecc.size,
+		  denali->flash_reg + CFG_NUM_DATA_BLOCKS);
+
 	mtd_set_ooblayout(mtd, &denali_ooblayout_ops);
 
-	/* override the default read operations */
-	chip->ecc.size = ECC_SECTOR_SIZE;
 	chip->ecc.read_page = denali_read_page;
 	chip->ecc.read_page_raw = denali_read_page_raw;
 	chip->ecc.write_page = denali_write_page;
