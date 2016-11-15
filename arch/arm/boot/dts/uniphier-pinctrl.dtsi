@@ -49,8 +49,20 @@
 	};
 
 	pinctrl_emmc_1v8: emmc_grp_1v8 {
-		groups = "emmc", "emmc_dat8";
-		function = "emmc";
+		mux {
+			groups = "emmc", "emmc_dat8";
+			function = "emmc";
+		};
+		drv {
+			groups = "emmc", "emmc_dat8";
+			drive-strength = <16>;
+		};
+		pull_up {
+			pins = "MMCCMD",
+			       "MMCDAT0", "MMCDAT1", "MMCDAT2", "MMCDAT3",
+			       "MMCDAT4", "MMCDAT5", "MMCDAT6", "MMCDAT7";
+			bias-pull-up;
+		};
 	};
 
 	pinctrl_i2c0: i2c0_grp {
