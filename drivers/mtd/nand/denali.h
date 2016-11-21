@@ -367,32 +367,15 @@
 #define     MIN_MAX_BANK__MIN_VALUE			0x0003
 #define     MIN_MAX_BANK__MAX_VALUE			0x000c
 
-
-/* ffsdefs.h */
-#define CLEAR 0                 /*use this to clear a field instead of "fail"*/
-#define SET   1                 /*use this to set a field instead of "pass"*/
 #define FAIL 1                  /*failed flag*/
 #define PASS 0                  /*success flag*/
 #define ERR -1                  /*error flag*/
 
-/* lld.h */
-#define GOOD_BLOCK 0
-#define DEFECTIVE_BLOCK 1
-#define READ_ERROR 2
-
 #define CLK_X  5
 #define CLK_MULTI 4
 
-/* KBV - Updated to LNW scratch register address */
-#define SCRATCH_REG_ADDR    CONFIG_MTD_NAND_DENALI_SCRATCH_REG_ADDR
-#define SCRATCH_REG_SIZE    64
-
-#define GLOB_HWCTL_DEFAULT_BLKS    2048
-
 #define SUPPORT_15BITECC        1
 #define SUPPORT_8BITECC         1
-
-#define CUSTOM_CONF_PARAMS      0
 
 #define ONFI_BLOOM_TIME         1
 #define MODE5_WORKAROUND        0
@@ -402,31 +385,6 @@
 #define MODE_01    0x04000000
 #define MODE_10    0x08000000
 #define MODE_11    0x0C000000
-
-
-#define DATA_TRANSFER_MODE              0
-#define PROTECTION_PER_BLOCK            1
-#define LOAD_WAIT_COUNT                 2
-#define PROGRAM_WAIT_COUNT              3
-#define ERASE_WAIT_COUNT                4
-#define INT_MONITOR_CYCLE_COUNT         5
-#define READ_BUSY_PIN_ENABLED           6
-#define MULTIPLANE_OPERATION_SUPPORT    7
-#define PRE_FETCH_MODE                  8
-#define CE_DONT_CARE_SUPPORT            9
-#define COPYBACK_SUPPORT                10
-#define CACHE_WRITE_SUPPORT             11
-#define CACHE_READ_SUPPORT              12
-#define NUM_PAGES_IN_BLOCK              13
-#define ECC_ENABLE_SELECT               14
-#define WRITE_ENABLE_2_READ_ENABLE      15
-#define ADDRESS_2_DATA                  16
-#define READ_ENABLE_2_WRITE_ENABLE      17
-#define TWO_ROW_ADDRESS_CYCLES          18
-#define MULTIPLANE_ADDRESS_RESTRICT     19
-#define ACC_CLOCKS                      20
-#define READ_WRITE_ENABLE_LOW_COUNT     21
-#define READ_WRITE_ENABLE_HIGH_COUNT    22
 
 #define ECC_SECTOR_SIZE     512
 
