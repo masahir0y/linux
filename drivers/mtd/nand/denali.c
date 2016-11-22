@@ -881,6 +881,24 @@ static void read_oob_data(struct mtd_info *mtd, u8 *buf, int page)
 	}
 }
 
+static bool denali_hw_ecc_fixup(struct denali_nand_info *denali,
+				unsigned int *max_bitflips)
+{
+	int bank = denali->flash_bank;
+	u32 ecc_cor;
+
+	ecc_cor = ioread32(denali->flash_reg + ECC_COR_INFO(bank));
+	ecc_cor >>= ECC_COR_INFO_SHIFT(bank);
+
+	if (ecc_cor & ECC_COR_INFO__UNCOR_ERR) {
+		*max_bitflips = 0;
+		return true;
+	}
+
+	*max_bitflips = ecc_cor & ECC_COR_INFO__MAX_ERRORS;
+	return false;
+}
+
 #define ECC_SECTOR_SIZE 512
 
 #define ECC_SECTOR(x)	(((x) & ECC_ERROR_ADDRESS__SECTOR_NR) >> 12)
@@ -933,11 +951,6 @@ static bool denali_sw_ecc_fixup(struct denali_nand_info *denali, u8 *buf,
 				bitflips++;
 			}
 		} else {
-			/*
-			 * if the error is not correctable, need to look at the
-			 * page to see if it is an erased page. if so, then
-			 * it's not a real ECC error
-			 */
 			check_erased_page = true;
 		}
 	} while (!ECC_LAST_ERR(err_cor_info));
@@ -1093,12 +1106,12 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 {
 	unsigned int max_bitflips;
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
-
 	dma_addr_t addr = denali->buf.dma_buf;
 	size_t size = mtd->writesize + mtd->oobsize;
-
 	u32 irq_status;
-	u32 irq_mask = INTR_STATUS__ECC_TRANSACTION_DONE | INTR_STATUS__ECC_ERR;
+	u32 irq_mask = denali->caps & DENALI_CAP_HW_ECC_FIXUP ?
+		INTR_STATUS__DMA_CMD_COMP | INTR_STATUS__ECC_UNCOR_ERR :
+		INTR_STATUS__ECC_TRANSACTION_DONE | INTR_STATUS__ECC_ERR;
 	bool check_erased_page = false;
 
 	if (page != denali->page) {
@@ -1123,11 +1136,20 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 	memcpy(buf, denali->buf.buf, mtd->writesize);
 
-	check_erased_page = denali_sw_ecc_fixup(denali, buf, irq_status,
-						&max_bitflips);
+	if (denali->caps & DENALI_CAP_HW_ECC_FIXUP)
+		check_erased_page = denali_hw_ecc_fixup(denali, &max_bitflips);
+	else
+		check_erased_page = denali_sw_ecc_fixup(denali, buf, irq_status,
+							&max_bitflips);
+
 	denali_enable_dma(denali, false);
 
 	if (check_erased_page) {
+		/*
+		 * If the error is not correctable, need to look at the page to
+		 * see if it is an erased page. If so, then it's not a real ECC
+		 * error.
+		 */
 		int stat;
 
 		read_oob_data(mtd, chip->oob_poi, denali->page);

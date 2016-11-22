@@ -20,6 +20,7 @@
 #ifndef __DENALI_H__
 #define __DENALI_H__
 
+#include <linux/bitops.h>
 #include <linux/mtd/nand.h>
 
 #define DEVICE_RESET				0x0
@@ -219,6 +220,13 @@
 #define INTR_STATUS(__bank)	(0x410 + ((__bank) * 0x50))
 #define INTR_EN(__bank)		(0x420 + ((__bank) * 0x50))
 
+/*
+ * Some versions of the IP have the ECC fixup handled in hardware.  In this
+ * configuration we only get interrupted when the error is uncorrectable.
+ * Unfortunately this bit replaces INTR_STATUS__ECC_TRANSACTION_DONE from the
+ * old IP.
+ */
+#define     INTR_STATUS__ECC_UNCOR_ERR			0x0001
 #define     INTR_STATUS__ECC_TRANSACTION_DONE		0x0001
 #define     INTR_STATUS__ECC_ERR			0x0002
 #define     INTR_STATUS__DMA_CMD_COMP			0x0004
@@ -296,6 +304,11 @@
 #define     ERR_CORRECTION_INFO__DEVICE_NR		0x0f00
 #define     ERR_CORRECTION_INFO__ERROR_TYPE		0x4000
 #define     ERR_CORRECTION_INFO__LAST_ERR_INFO		0x8000
+
+#define ECC_COR_INFO(__bank)	(0x650 + (__bank) / 2 * 0x10)
+#define ECC_COR_INFO_SHIFT(__bank)	((__bank) % 2 * 8)
+#define     ECC_COR_INFO__MAX_ERRORS			0x007f
+#define     ECC_COR_INFO__UNCOR_ERR			0x0080
 
 #define DMA_ENABLE				0x700
 #define     DMA_ENABLE__FLAG				0x0001
@@ -421,6 +434,7 @@ struct denali_nand_info {
 	int bbtskipbytes;
 	int max_banks;
 	unsigned int caps;
+#define DENALI_CAP_HW_ECC_FIXUP			BIT(0)
 };
 
 extern int denali_init(struct denali_nand_info *denali);
