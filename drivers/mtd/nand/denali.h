@@ -391,7 +391,7 @@
 struct nand_buf {
 	int head;
 	int tail;
-	uint8_t *buf;
+	u8 *buf;
 	dma_addr_t dma_buf;
 };
 
@@ -414,7 +414,7 @@ struct denali_nand_info {
 	/* elements used by ISR */
 	struct completion complete;
 	spinlock_t irq_lock;
-	uint32_t irq_status;
+	u32 irq_status;
 	int irq;
 
 	int devnum;	/* represent how many nands connected */
