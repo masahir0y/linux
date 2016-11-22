@@ -141,6 +141,12 @@ static void uniphier_fi2c_set_irqs(struct uniphier_fi2c_priv *priv)
 	writel(priv->enabled_irqs, priv->membase + UNIPHIER_FI2C_IE);
 }
 
+static void uniphier_fi2c_disable_all_irqs(struct uniphier_fi2c_priv *priv)
+{
+	priv->enabled_irqs = 0;
+	uniphier_fi2c_set_irqs(priv);
+}
+
 static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv)
 {
 	writel(-1, priv->membase + UNIPHIER_FI2C_IC);
@@ -237,8 +243,7 @@ stop:
 		uniphier_fi2c_stop(priv);
 	} else {
 complete:
-		priv->enabled_irqs = 0;
-		uniphier_fi2c_set_irqs(priv);
+		uniphier_fi2c_disable_all_irqs(priv);
 		complete(&priv->comp);
 	}
 
@@ -479,6 +484,7 @@ static void uniphier_fi2c_hw_init(struct uniphier_fi2c_priv *priv,
 	writel(tmp / 2, priv->membase + UNIPHIER_FI2C_SSUT);
 	writel(tmp / 16, priv->membase + UNIPHIER_FI2C_DSUT);
 
+	uniphier_fi2c_disable_all_irqs(priv);
 	uniphier_fi2c_prepare_operation(priv);
 }
 
