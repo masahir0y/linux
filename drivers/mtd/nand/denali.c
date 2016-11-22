@@ -889,19 +889,6 @@ static void read_oob_data(struct mtd_info *mtd, uint8_t *buf, int page)
 	}
 }
 
-/*
- * this function examines buffers to see if they contain data that
- * indicate that the buffer is part of an erased region of flash.
- */
-static bool is_erased(uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		if (buf[i] != 0xFF)
-			return false;
-	return true;
-}
 #define ECC_SECTOR_SIZE 512
 
 #define ECC_SECTOR(x)	(((x) & ECC_ERROR_ADDRESS__SECTOR_NR) >> 12)
@@ -1154,16 +1141,20 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 	denali_enable_dma(denali, false);
 
 	if (check_erased_page) {
+		int stat;
+
 		read_oob_data(mtd, chip->oob_poi, denali->page);
 
-		/* check ECC failures that may have occurred on erased pages */
-		if (check_erased_page) {
-			if (!is_erased(buf, mtd->writesize))
-				mtd->ecc_stats.failed++;
-			if (!is_erased(buf, mtd->oobsize))
-				mtd->ecc_stats.failed++;
-		}
+		stat = nand_check_erased_ecc_chunk(
+					buf, mtd->writesize,
+					chip->oob_poi, mtd->oobsize,
+					NULL, 0,
+					chip->ecc.strength * chip->ecc.steps);
+		if (stat < 0)
+			mtd->ecc_stats.failed++;
+		max_bitflips = 0;
 	}
+
 	return max_bitflips;
 }
 
