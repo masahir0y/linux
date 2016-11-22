@@ -407,7 +407,6 @@ struct denali_nand_info {
 	struct nand_buf buf;
 	struct device *dev;
 	int total_used_banks;
-	uint32_t block;  /* stored for future use */
 	uint16_t page;
 	void __iomem *flash_reg;  /* Mapped io reg base address */
 	void __iomem *flash_mem;  /* Mapped io reg base address */
@@ -416,7 +415,6 @@ struct denali_nand_info {
 	struct completion complete;
 	spinlock_t irq_lock;
 	uint32_t irq_status;
-	int irq_debug_array[32];
 	int irq;
 
 	uint32_t devnum;	/* represent how many nands connected */
