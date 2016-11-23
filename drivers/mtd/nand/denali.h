@@ -436,6 +436,7 @@ struct denali_nand_info {
 	int devnum;	/* represent how many nands connected */
 	int bbtskipbytes;
 	int max_banks;
+	unsigned long ecc_strength_avail;
 	unsigned int caps;
 #define DENALI_CAP_HW_ECC_FIXUP			BIT(0)
 #define DENALI_CAP_DMA_64BIT			BIT(1)

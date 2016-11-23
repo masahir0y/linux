@@ -1336,13 +1336,45 @@ static void denali_hw_init(struct denali_nand_info *denali)
 	denali_irq_init(denali);
 }
 
-/*
- * Althogh controller spec said SLC ECC is forceb to be 4bit,
- * but denali controller in MRST only support 15bit and 8bit ECC
- * correction
- */
-#define ECC_8BITS	14
-#define ECC_15BITS	26
+static int denali_calc_ecc_bytes(int ecc_size, int ecc_strength)
+{
+	WARN_ON(ecc_size != 512 && ecc_size != 1024);
+
+	return DIV_ROUND_UP(ecc_strength * (ecc_size == 512 ? 13 : 14), 16) * 2;
+}
+
+static int denali_set_max_ecc_strength(struct denali_nand_info *denali)
+{
+	struct nand_chip *chip = &denali->nand;
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	int oobsize = mtd->oobsize;
+	int ecc_size = chip->ecc.size;
+	int ecc_steps = mtd->writesize / chip->ecc.size;
+	int ecc_strength, ecc_bytes;
+	int max_strength = 0;
+
+	/* carve out the BBM area */
+	oobsize -= denali->bbtskipbytes;
+
+	for_each_set_bit(ecc_strength, &denali->ecc_strength_avail,
+			 sizeof(denali->ecc_strength_avail) * BITS_PER_BYTE) {
+		ecc_bytes = denali_calc_ecc_bytes(ecc_size, ecc_strength);
+		if (ecc_bytes * ecc_steps > oobsize)
+			break;
+
+		max_strength = ecc_strength;
+	}
+
+	if (!max_strength) {
+		dev_err(denali->dev,
+			"Your NAND chip OOB is too small. No available ECC strength.\n");
+		return -EINVAL;
+	}
+
+	chip->ecc.strength = max_strength;
+
+	return 0;
+}
 
 static int denali_ooblayout_ecc(struct mtd_info *mtd, int section,
 				struct mtd_oob_region *oobregion)
@@ -1592,27 +1624,14 @@ int denali_init(struct denali_nand_info *denali)
 		goto failed_req_irq;
 	}
 
-	/*
-	 * Denali Controller only support 15bit and 8bit ECC in MRST,
-	 * so just let controller do 15bit ECC for MLC and 8bit ECC for
-	 * SLC if possible.
-	 * */
-	if (!nand_is_slc(chip) &&
-			mtd->oobsize > denali->bbtskipbytes +
-			ECC_15BITS * (mtd->writesize / chip->ecc.size)) {
-		/* if MLC OOB size is large enough, use 15bit ECC*/
-		chip->ecc.strength = 15;
-		chip->ecc.bytes = ECC_15BITS;
-		iowrite32(15, denali->flash_reg + ECC_CORRECTION);
-	} else if (mtd->oobsize <
-		   denali->bbtskipbytes + ECC_8BITS * (mtd->writesize / chip->ecc.size)) {
-		pr_err("Your NAND chip OOB is not large enough to contain 8bit ECC correction codes");
+	ret = denali_set_max_ecc_strength(denali);
+	if (ret)
 		goto failed_req_irq;
-	} else {
-		chip->ecc.strength = 8;
-		chip->ecc.bytes = ECC_8BITS;
-		iowrite32(8, denali->flash_reg + ECC_CORRECTION);
-	}
+
+	chip->ecc.bytes = denali_calc_ecc_bytes(chip->ecc.size,
+						chip->ecc.strength);
+
+	iowrite32(chip->ecc.strength, denali->flash_reg + ECC_CORRECTION);
 
 	iowrite32(chip->ecc.size, denali->flash_reg + CFG_DATA_BLOCK_SIZE);
 	iowrite32(chip->ecc.size, denali->flash_reg + CFG_LAST_DATA_BLOCK_SIZE);
