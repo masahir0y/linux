@@ -348,6 +348,7 @@ struct denali_nand_info {
 	int bbtskipbytes;
 	int max_banks;
 	unsigned int revision;
+	unsigned long ecc_strength_avail;
 	unsigned int caps;
 };
 

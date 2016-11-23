@@ -31,10 +31,12 @@ struct denali_dt {
 
 struct denali_dt_data {
 	unsigned int revision;
+	unsigned long ecc_strength_avail;
 	unsigned int caps;
 };
 
 static const struct denali_dt_data denali_socfpga_data = {
+	.ecc_strength_avail = BIT(15) | BIT(8),
 	.caps = DENALI_CAP_HW_ECC_FIXUP |
 		DENALI_CAP_ECC_SIZE_512,
 };
@@ -64,6 +66,7 @@ static int denali_dt_probe(struct platform_device *pdev)
 	data = of_device_get_match_data(&pdev->dev);
 	if (data) {
 		denali->revision = data->revision;
+		denali->ecc_strength_avail = data->ecc_strength_avail;
 		denali->caps = data->caps;
 	}
 
