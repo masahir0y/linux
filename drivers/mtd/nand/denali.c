@@ -893,71 +893,67 @@ static void read_oob_data(struct mtd_info *mtd, u8 *buf, int page)
 static bool handle_ecc(struct denali_nand_info *denali, u8 *buf,
 		       u32 irq_status, unsigned int *max_bitflips)
 {
+	struct mtd_info *mtd = nand_to_mtd(&denali->nand);
 	bool check_erased_page = false;
 	unsigned int bitflips = 0;
+	u32 err_addr, err_byte, err_sector;
+	u32 err_cor_info, err_device, err_cor_value;
 
-	if (irq_status & INTR_STATUS__ECC_ERR) {
-		/* read the ECC errors. we'll ignore them for now */
-		u32 err_address, err_correction_info, err_byte,
-			err_sector, err_device, err_correction_value;
-		denali_set_intr_modes(denali, false);
+	if (!(irq_status & INTR_STATUS__ECC_ERR))
+		goto out;
 
-		do {
-			err_address = ioread32(denali->flash_reg +
-						ECC_ERROR_ADDRESS);
-			err_sector = ECC_SECTOR(err_address);
-			err_byte = ECC_BYTE(err_address);
+	/* read the ECC errors. we'll ignore them for now */
+	denali_set_intr_modes(denali, false);
 
-			err_correction_info = ioread32(denali->flash_reg +
-						ERR_CORRECTION_INFO);
-			err_correction_value =
-				ECC_CORRECTION_VALUE(err_correction_info);
-			err_device = ECC_ERR_DEVICE(err_correction_info);
+	do {
+		err_addr = ioread32(denali->flash_reg + ECC_ERROR_ADDRESS);
+		err_sector = ECC_SECTOR(err_addr);
+		err_byte = ECC_BYTE(err_addr);
 
-			if (ECC_ERROR_CORRECTABLE(err_correction_info)) {
-				/*
-				 * If err_byte is larger than ECC_SECTOR_SIZE,
-				 * means error happened in OOB, so we ignore
-				 * it. It's no need for us to correct it
-				 * err_device is represented the NAND error
-				 * bits are happened in if there are more
-				 * than one NAND connected.
-				 */
-				if (err_byte < ECC_SECTOR_SIZE) {
-					struct mtd_info *mtd =
-						nand_to_mtd(&denali->nand);
-					int offset;
+		err_cor_info = ioread32(denali->flash_reg + ERR_CORRECTION_INFO);
+		err_cor_value = ECC_CORRECTION_VALUE(err_cor_info);
+		err_device = ECC_ERR_DEVICE(err_cor_info);
 
-					offset = (err_sector *
-							ECC_SECTOR_SIZE +
-							err_byte) *
-							denali->devnum +
-							err_device;
-					/* correct the ECC error */
-					buf[offset] ^= err_correction_value;
-					mtd->ecc_stats.corrected++;
-					bitflips++;
-				}
-			} else {
-				/*
-				 * if the error is not correctable, need to
-				 * look at the page to see if it is an erased
-				 * page. if so, then it's not a real ECC error
-				 */
-				check_erased_page = true;
+		if (ECC_ERROR_CORRECTABLE(err_cor_info)) {
+			/*
+			 * If err_byte is larger than ECC_SECTOR_SIZE, means error
+			 * happened in OOB, so we ignore it. It's no need for
+			 * us to correct it err_device is represented the NAND
+			 * error bits are happened in if there are more than
+			 * one NAND connected.
+			 */
+			if (err_byte < ECC_SECTOR_SIZE) {
+				int offset;
+
+				offset = (err_sector * ECC_SECTOR_SIZE + err_byte) *
+					denali->devnum + err_device;
+				/* correct the ECC error */
+				buf[offset] ^= err_cor_value;
+				mtd->ecc_stats.corrected++;
+				bitflips++;
 			}
-		} while (!ECC_LAST_ERR(err_correction_info));
-		/*
-		 * Once handle all ecc errors, controller will triger
-		 * a ECC_TRANSACTION_DONE interrupt, so here just wait
-		 * for a while for this interrupt
-		 */
-		while (!(read_interrupt_status(denali) &
-				INTR_STATUS__ECC_TRANSACTION_DONE))
-			cpu_relax();
-		clear_interrupts(denali);
-		denali_set_intr_modes(denali, true);
-	}
+		} else {
+			/*
+			 * if the error is not correctable, need to look at the
+			 * page to see if it is an erased page. if so, then
+			 * it's not a real ECC error
+			 */
+			check_erased_page = true;
+		}
+	} while (!ECC_LAST_ERR(err_cor_info));
+
+	/*
+	 * Once handle all ecc errors, controller will triger a
+	 * ECC_TRANSACTION_DONE interrupt, so here just wait for
+	 * a while for this interrupt
+	 */
+	while (!(read_interrupt_status(denali) &
+		 INTR_STATUS__ECC_TRANSACTION_DONE))
+		cpu_relax();
+	clear_interrupts(denali);
+	denali_set_intr_modes(denali, true);
+
+ out:
 	*max_bitflips = bitflips;
 	return check_erased_page;
 }
