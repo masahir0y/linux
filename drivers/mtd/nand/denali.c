@@ -890,8 +890,8 @@ static void read_oob_data(struct mtd_info *mtd, u8 *buf, int page)
 #define ECC_ERR_DEVICE(x)	(((x) & ERR_CORRECTION_INFO__DEVICE_NR) >> 8)
 #define ECC_LAST_ERR(x)		((x) & ERR_CORRECTION_INFO__LAST_ERR_INFO)
 
-static bool handle_ecc(struct denali_nand_info *denali, u8 *buf,
-		       u32 irq_status, unsigned int *max_bitflips)
+static bool denali_sw_ecc_fixup(struct denali_nand_info *denali, u8 *buf,
+				u32 irq_status, unsigned int *max_bitflips)
 {
 	struct mtd_info *mtd = nand_to_mtd(&denali->nand);
 	bool check_erased_page = false;
@@ -1123,7 +1123,8 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 	memcpy(buf, denali->buf.buf, mtd->writesize);
 
-	check_erased_page = handle_ecc(denali, buf, irq_status, &max_bitflips);
+	check_erased_page = denali_sw_ecc_fixup(denali, buf, irq_status,
+						&max_bitflips);
 	denali_enable_dma(denali, false);
 
 	if (check_erased_page) {
