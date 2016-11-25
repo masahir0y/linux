@@ -1182,7 +1182,7 @@ static int denali_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 		BUG();
 	}
 
-	setup_ecc_for_xfer(denali, false, true);
+	setup_ecc_for_xfer(denali, false, oob_required ? true : false);
 	denali_enable_dma(denali, true);
 
 	dma_sync_single_for_device(denali->dev, addr, size, DMA_FROM_DEVICE);
@@ -1198,7 +1198,9 @@ static int denali_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	denali_enable_dma(denali, false);
 
 	memcpy(buf, denali->buf.buf, mtd->writesize);
-	memcpy(chip->oob_poi, denali->buf.buf + mtd->writesize, mtd->oobsize);
+	if (oob_required)
+		memcpy(chip->oob_poi, denali->buf.buf + mtd->writesize,
+		       mtd->oobsize);
 
 	return 0;
 }
