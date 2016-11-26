@@ -1624,9 +1624,23 @@ int denali_init(struct denali_nand_info *denali)
 		goto failed_req_irq;
 	}
 
-	ret = denali_set_max_ecc_strength(denali);
-	if (ret)
+	if (!chip->ecc.strength && !(chip->ecc.options & NAND_ECC_MAXIMIZE)) {
+		dev_info(denali->dev,
+			 "No ECC strength strategy is specified. Maximizing ECC strength\n");
+		chip->ecc.options |= NAND_ECC_MAXIMIZE;
+	}
+
+	if (chip->ecc.options & NAND_ECC_MAXIMIZE) {
+		ret = denali_set_max_ecc_strength(denali);
+		if (ret)
+			goto failed_req_irq;
+	} else if (!(denali->ecc_strength_avail & BIT(chip->ecc.strength))) {
+		dev_err(denali->dev,
+			"Specified ECC strength (%d) is not supported for this controller.\n",
+			chip->ecc.strength);
+		ret = -EINVAL;
 		goto failed_req_irq;
+	}
 
 	chip->ecc.bytes = denali_calc_ecc_bytes(chip->ecc.size,
 						chip->ecc.strength);

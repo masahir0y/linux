@@ -87,6 +87,7 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 
 	denali->ecc_strength_avail = BIT(15) | BIT(8);
 	denali->caps |= DENALI_CAP_ECC_SIZE_512;
+	denali->nand.ecc.options |= NAND_ECC_MAXIMIZE;
 
 	ret = denali_init(denali);
 	if (ret)
