@@ -407,7 +407,7 @@ struct denali_nand_info {
 	struct nand_buf buf;
 	struct device *dev;
 	int total_used_banks;
-	uint16_t page;
+	int page;
 	void __iomem *flash_reg;	/* Register Interface */
 	void __iomem *flash_mem;	/* Host Data/Command Interface */
 
@@ -417,9 +417,9 @@ struct denali_nand_info {
 	uint32_t irq_status;
 	int irq;
 
-	uint32_t devnum;	/* represent how many nands connected */
-	uint32_t bbtskipbytes;
-	uint32_t max_banks;
+	int devnum;	/* represent how many nands connected */
+	int bbtskipbytes;
+	int max_banks;
 	unsigned int caps;
 };
 
