@@ -196,7 +196,7 @@ static int uniphier_of_serial_setup(struct device *dev, struct uart_port *port,
 static int uniphier_uart_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
-	struct uart_8250_port up;
+	struct uart_8250_port up = {};
 	struct uniphier8250_priv *priv;
 	struct resource *regs;
 	void __iomem *membase;
@@ -222,8 +222,6 @@ static int uniphier_uart_probe(struct platform_device *pdev)
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
-
-	memset(&up, 0, sizeof(up));
 
 	ret = uniphier_of_serial_setup(dev, &up.port, priv);
 	if (ret < 0)

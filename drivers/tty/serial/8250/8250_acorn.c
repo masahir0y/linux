@@ -43,7 +43,7 @@ serial_card_probe(struct expansion_card *ec, const struct ecard_id *id)
 {
 	struct serial_card_info *info;
 	struct serial_card_type *type = id->data;
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	unsigned long bus_addr;
 	unsigned int i;
 
@@ -62,7 +62,6 @@ serial_card_probe(struct expansion_card *ec, const struct ecard_id *id)
 
 	ecard_set_drvdata(ec, info);
 
-	memset(&uart, 0, sizeof(struct uart_8250_port));
 	uart.port.irq	= ec->irq;
 	uart.port.flags	= UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
 	uart.port.uartclk	= type->uartclk;

@@ -26,7 +26,7 @@
 
 static int __init serial_init_chip(struct parisc_device *dev)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	unsigned long address;
 	int err;
 
@@ -53,7 +53,6 @@ static int __init serial_init_chip(struct parisc_device *dev)
 	if (dev->id.sversion != 0x8d)
 		address += 0x800;
 
-	memset(&uart, 0, sizeof(uart));
 	uart.port.iotype	= UPIO_MEM;
 	/* 7.272727MHz on Lasi.  Assumed the same for Dino, Wax and Timi. */
 	uart.port.uartclk	= (dev->id.sversion != 0xad) ?

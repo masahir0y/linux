@@ -241,7 +241,7 @@ static int mid8250_dma_setup(struct mid8250 *mid, struct uart_8250_port *port)
 
 static int mid8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct mid8250 *mid;
 	unsigned int bar;
 	int ret;
@@ -258,8 +258,6 @@ static int mid8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	mid->board = (struct mid8250_board *)id->driver_data;
 	bar = FL_GET_BASE(mid->board->flags);
-
-	memset(&uart, 0, sizeof(struct uart_8250_port));
 
 	uart.port.dev = &pdev->dev;
 	uart.port.irq = pdev->irq;

@@ -342,10 +342,9 @@ static void serial_detach(struct pcmcia_device *link)
 static int setup_serial(struct pcmcia_device *handle, struct serial_info *info,
 			unsigned int iobase, int irq)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	int line;
 
-	memset(&uart, 0, sizeof(uart));
 	uart.port.iobase = iobase;
 	uart.port.irq = irq;
 	uart.port.flags = UPF_BOOT_AUTOCONF | UPF_SKIP_TEST | UPF_SHARE_IRQ;

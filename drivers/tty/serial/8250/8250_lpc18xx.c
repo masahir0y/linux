@@ -105,7 +105,7 @@ static void lpc18xx_uart_serial_out(struct uart_port *p, int offset, int value)
 static int lpc18xx_serial_probe(struct platform_device *pdev)
 {
 	struct lpc18xx_uart_data *data;
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct resource *res;
 	int irq, ret;
 
@@ -120,8 +120,6 @@ static int lpc18xx_serial_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "memory resource not found");
 		return -EINVAL;
 	}
-
-	memset(&uart, 0, sizeof(uart));
 
 	uart.port.membase = devm_ioremap(&pdev->dev, res->start,
 					 resource_size(res));

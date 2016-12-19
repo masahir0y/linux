@@ -3834,7 +3834,7 @@ serial_pci_matches(const struct pciserial_board *board,
 struct serial_private *
 pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct serial_private *priv;
 	struct pci_serial_quirk *quirk;
 	int rc, nr_ports, i;
@@ -3874,7 +3874,6 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
 	priv->dev = dev;
 	priv->quirk = quirk;
 
-	memset(&uart, 0, sizeof(uart));
 	uart.port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
 	uart.port.uartclk = board->base_baud * 16;
 	uart.port.irq = get_pci_irq(dev, board);

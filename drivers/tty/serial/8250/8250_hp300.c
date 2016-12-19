@@ -90,9 +90,7 @@ extern int hp300_uart_scode;
 int __init hp300_setup_serial_console(void)
 {
 	int scode;
-	struct uart_port port;
-
-	memset(&port, 0, sizeof(port));
+	struct uart_port port = {};
 
 	if (hp300_uart_scode < 0 || hp300_uart_scode > DIO_SCMAX)
 		return 0;
@@ -156,7 +154,7 @@ int __init hp300_setup_serial_console(void)
 static int hpdca_init_one(struct dio_dev *d,
 				const struct dio_device_id *ent)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	int line;
 
 #ifdef CONFIG_SERIAL_8250_CONSOLE
@@ -165,7 +163,6 @@ static int hpdca_init_one(struct dio_dev *d,
 		return 0;
 	}
 #endif
-	memset(&uart, 0, sizeof(uart));
 
 	/* Memory mapped I/O */
 	uart.port.iotype = UPIO_MEM;
@@ -205,7 +202,7 @@ static int __init hp300_8250_init(void)
 #ifdef CONFIG_HPAPCI
 	int line;
 	unsigned long base;
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct hp300_port *port;
 	int i;
 #endif
@@ -242,8 +239,6 @@ static int __init hp300_8250_init(void)
 		port = kmalloc(sizeof(struct hp300_port), GFP_KERNEL);
 		if (!port)
 			return -ENOMEM;
-
-		memset(&uart, 0, sizeof(uart));
 
 		base = (FRODO_BASE + FRODO_APCI_OFFSET(i));
 

@@ -49,7 +49,7 @@ static struct moxa8250_board moxa8250_boards[] = {
 
 static int moxa8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct moxa8250_board *brd;
 	void __iomem *ioaddr;
 	resource_size_t baseaddr;
@@ -68,8 +68,6 @@ static int moxa8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 			   sizeof(unsigned int) * nr_ports, GFP_KERNEL);
 	if (!brd)
 		return -ENOMEM;
-
-	memset(&uart, 0, sizeof(struct uart_8250_port));
 
 	uart.port.dev = &pdev->dev;
 	uart.port.irq = pdev->irq;

@@ -92,7 +92,7 @@ static int serial8250_em_probe(struct platform_device *pdev)
 	struct resource *regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct resource *irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	struct serial8250_em_priv *priv;
-	struct uart_8250_port up;
+	struct uart_8250_port up = {};
 	int ret;
 
 	if (!regs || !irq) {
@@ -110,7 +110,6 @@ static int serial8250_em_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->sclk);
 	}
 
-	memset(&up, 0, sizeof(up));
 	up.port.mapbase = regs->start;
 	up.port.irq = irq->start;
 	up.port.type = PORT_UNKNOWN;

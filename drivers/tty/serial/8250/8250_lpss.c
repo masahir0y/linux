@@ -275,7 +275,7 @@ static int lpss8250_dma_setup(struct lpss8250 *lpss, struct uart_8250_port *port
 
 static int lpss8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
-	struct uart_8250_port uart;
+	struct uart_8250_port uart = {};
 	struct lpss8250 *lpss;
 	int ret;
 
@@ -288,8 +288,6 @@ static int lpss8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return -ENOMEM;
 
 	lpss->board = (struct lpss8250_board *)id->driver_data;
-
-	memset(&uart, 0, sizeof(struct uart_8250_port));
 
 	uart.port.dev = &pdev->dev;
 	uart.port.irq = pdev->irq;
