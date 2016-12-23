@@ -70,7 +70,7 @@ quiet_cmd_cxx_o_c = CXX      $@
       cmd_cxx_o_c = $(CXX) $(cxx_flags) -c -o $@ $<
 
 quiet_cmd_cpp_i_c = CPP      $@
-      cmd_cpp_i_c = $(CC) $(c_flags) -E -o $@ $<
+      cmd_cpp_i_c = $(CPP) $(c_flags) -o $@ $<
 
 quiet_cmd_cc_s_c = AS       $@
       cmd_cc_s_c = $(CC) $(c_flags) -S -o $@ $<
