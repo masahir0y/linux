@@ -255,6 +255,16 @@
 			clocks = <&peri_clk 3>;
 		};
 
+		gpio: gpio@55000000 {
+			compatible = "socionext,uniphier-gpio";
+			reg = <0x55000000 0x200>;
+			gpio-controller;
+			#gpio-cells = <3>;
+			gpio-ranges = <&pinctrl 0 0 0>;
+			gpio-ranges-group-names = "port_range";
+			gpio-banks = <26>;
+		};
+
 		i2c0: i2c@58780000 {
 			compatible = "socionext,uniphier-fi2c";
 			status = "disabled";
