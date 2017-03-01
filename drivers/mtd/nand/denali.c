@@ -85,28 +85,6 @@ static void index_addr(struct denali_nand_info *denali,
 	iowrite32(data, denali->flash_mem + 0x10);
 }
 
-/* Perform an indexed read of the device */
-static void index_addr_read_data(struct denali_nand_info *denali,
-				 uint32_t address, uint32_t *pdata)
-{
-	iowrite32(address, denali->flash_mem);
-	*pdata = ioread32(denali->flash_mem + 0x10);
-}
-
-/*
- * We need to buffer some data for some of the NAND core routines.
- * The operations manage buffering that data.
- */
-static void reset_buf(struct denali_nand_info *denali)
-{
-	denali->buf.head = denali->buf.tail = 0;
-}
-
-static void write_byte_to_buf(struct denali_nand_info *denali, uint8_t byte)
-{
-	denali->buf.buf[denali->buf.tail++] = byte;
-}
-
 /* Reset the flash controller */
 static uint16_t denali_nand_reset(struct denali_nand_info *denali)
 {
@@ -284,6 +262,15 @@ static void setup_ecc_for_xfer(struct denali_nand_info *denali, bool ecc_en,
 	/* Enable spare area/ECC per user's request. */
 	iowrite32(ecc_en_flag, denali->flash_reg + ECC_ENABLE);
 	iowrite32(transfer_spare_flag, denali->flash_reg + TRANSFER_SPARE_REG);
+}
+
+static uint8_t denali_read_byte(struct mtd_info *mtd)
+{
+	struct denali_nand_info *denali = mtd_to_denali(mtd);
+
+	iowrite32(MODE_11 | BANK(denali->flash_bank) | 2, denali->flash_mem);
+
+	return ioread32(denali->flash_mem + 0x10);
 }
 
 /*
@@ -828,17 +815,6 @@ static int denali_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	return 0;
 }
 
-static uint8_t denali_read_byte(struct mtd_info *mtd)
-{
-	struct denali_nand_info *denali = mtd_to_denali(mtd);
-	uint8_t result = 0xff;
-
-	if (denali->buf.head < denali->buf.tail)
-		result = denali->buf.buf[denali->buf.head++];
-
-	return result;
-}
-
 static void denali_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
@@ -873,43 +849,40 @@ static void denali_cmdfunc(struct mtd_info *mtd, unsigned int cmd, int col,
 			   int page)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
-	uint32_t addr, id;
-	int i;
+	uint32_t addr, irq_status;
+	int wait_ready = 0;
 
 	switch (cmd) {
-	case NAND_CMD_STATUS:
-		reset_buf(denali);
-		addr = MODE_11 | BANK(denali->flash_bank);
-		index_addr(denali, addr | 0, cmd);
-		index_addr_read_data(denali, addr | 2, &id);
-		write_byte_to_buf(denali, id);
-		break;
-	case NAND_CMD_READID:
 	case NAND_CMD_PARAM:
-		reset_buf(denali);
-		/*
-		 * sometimes ManufactureId read from register is not right
-		 * e.g. some of Micron MT29F32G08QAA MLC NAND chips
-		 * So here we send READID cmd to NAND insteand
-		 */
-		addr = MODE_11 | BANK(denali->flash_bank);
-		index_addr(denali, addr | 0, 0x90);
-		index_addr(denali, addr | 1, col);
-		for (i = 0; i < 8; i++) {
-			index_addr_read_data(denali, addr | 2, &id);
-			write_byte_to_buf(denali, id);
-		}
+		wait_ready = 1;
+		break;
+	case NAND_CMD_STATUS:
+	case NAND_CMD_READID:
 		break;
 	case NAND_CMD_RESET:
 		reset_bank(denali);
 		break;
 	case NAND_CMD_READOOB:
 		/* TODO: Read OOB data */
-		break;
+		return;
 	default:
 		pr_err(": unsupported command received 0x%x\n", cmd);
-		break;
+		return;
 	}
+
+	denali_reset_irq(denali);
+
+	addr = MODE_11 | BANK(denali->flash_bank);
+	index_addr(denali, addr | 0, cmd);
+	if (col != -1)
+		index_addr(denali, addr | 1, col);
+
+	if (!wait_ready)
+		return;
+
+	irq_status = denali_wait_for_irq(denali, INTR__INT_ACT);
+	if (!(irq_status & INTR__INT_ACT))
+		dev_err(denali->dev, "failed to issue command 0x%x\n", cmd);
 }
 
 #define DIV_ROUND_DOWN_ULL(ll, d) \
@@ -1234,12 +1207,6 @@ int denali_init(struct denali_nand_info *denali)
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	int ret;
 
-	/* allocate a temporary buffer for nand_scan_ident() */
-	denali->buf.buf = devm_kzalloc(denali->dev, PAGE_SIZE,
-					GFP_DMA | GFP_KERNEL);
-	if (!denali->buf.buf)
-		return -ENOMEM;
-
 	mtd->dev.parent = denali->dev;
 	denali_hw_init(denali);
 	denali_drv_init(denali);
@@ -1279,8 +1246,6 @@ int denali_init(struct denali_nand_info *denali)
 	if (ret)
 		goto disable_irq;
 
-	/* allocate the right size buffer now */
-	devm_kfree(denali->dev, denali->buf.buf);
 	denali->buf.buf = devm_kzalloc(denali->dev,
 			     mtd->writesize + mtd->oobsize,
 			     GFP_KERNEL);
