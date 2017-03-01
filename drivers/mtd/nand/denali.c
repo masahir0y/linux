@@ -107,21 +107,6 @@ static void write_byte_to_buf(struct denali_nand_info *denali, uint8_t byte)
 	denali->buf.buf[denali->buf.tail++] = byte;
 }
 
-/* reads the status of the device */
-static void read_status(struct denali_nand_info *denali)
-{
-	uint32_t cmd;
-
-	/* initialize the data buffer to store status */
-	reset_buf(denali);
-
-	cmd = ioread32(denali->flash_reg + WRITE_PROTECT);
-	if (cmd)
-		write_byte_to_buf(denali, NAND_STATUS_WP);
-	else
-		write_byte_to_buf(denali, 0);
-}
-
 /* Reset the flash controller */
 static uint16_t denali_nand_reset(struct denali_nand_info *denali)
 {
@@ -893,7 +878,11 @@ static void denali_cmdfunc(struct mtd_info *mtd, unsigned int cmd, int col,
 
 	switch (cmd) {
 	case NAND_CMD_STATUS:
-		read_status(denali);
+		reset_buf(denali);
+		addr = MODE_11 | BANK(denali->flash_bank);
+		index_addr(denali, addr | 0, cmd);
+		index_addr_read_data(denali, addr | 2, &id);
+		write_byte_to_buf(denali, id);
 		break;
 	case NAND_CMD_READID:
 	case NAND_CMD_PARAM:
