@@ -1005,6 +1005,7 @@ static int write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	size_t size = mtd->writesize + mtd->oobsize;
 	uint32_t irq_status;
 	uint32_t irq_mask = INTR__DMA_CMD_COMP | INTR__PROGRAM_FAIL;
+	int ret = 0;
 
 	denali->page = page;
 
@@ -1038,13 +1039,13 @@ static int write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	if (irq_status == 0) {
 		dev_err(denali->dev, "timeout on write_page (type = %d)\n",
 			raw_xfer);
-		denali->status = NAND_STATUS_FAIL;
+		ret = -EIO;
 	}
 
 	denali_enable_dma(denali, false);
 	dma_sync_single_for_cpu(denali->dev, addr, size, DMA_TO_DEVICE);
 
-	return 0;
+	return ret;
 }
 
 /* NAND core entry points */
@@ -1196,12 +1197,7 @@ static void denali_select_chip(struct mtd_info *mtd, int chip)
 
 static int denali_waitfunc(struct mtd_info *mtd, struct nand_chip *chip)
 {
-	struct denali_nand_info *denali = mtd_to_denali(mtd);
-	int status = denali->status;
-
-	denali->status = 0;
-
-	return status;
+	return 0;
 }
 
 static int denali_erase(struct mtd_info *mtd, int page)
