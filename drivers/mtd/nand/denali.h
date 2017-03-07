@@ -323,6 +323,7 @@ struct denali_nand_info {
 
 	void *buf;
 	dma_addr_t dma_addr;
+	int dma_avail;
 	int devnum;	/* represent how many nands connected */
 	int bbtskipbytes;
 	int max_banks;
