@@ -317,7 +317,6 @@ struct denali_nand_info {
 	int flash_bank; /* currently selected chip */
 	struct nand_buf buf;
 	struct device *dev;
-	int page;
 	void __iomem *flash_reg;	/* Register Interface */
 	void __iomem *flash_mem;	/* Host Data/Command Interface */
 
