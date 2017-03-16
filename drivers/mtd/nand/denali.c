@@ -646,12 +646,16 @@ static int denali_pio_xfer(struct denali_nand_info *denali, void *buf,
 static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 			   size_t size, int page, int raw, int write)
 {
-	dma_addr_t dma_addr = denali->dma_addr;
+	dma_addr_t dma_addr;
 	uint32_t irq_mask, irq_status, ecc_err_mask;
 	enum dma_data_direction dir = write ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 	int ret = 0;
 
-	dma_sync_single_for_device(denali->dev, dma_addr, size, dir);
+	dma_addr = dma_map_single(denali->dev, buf, size, dir);
+	if (dma_mapping_error(denali->dev, dma_addr)) {
+		dev_dbg(denali->dev, "Failed to DMA-map buffer. Trying PIO.\n");
+		return denali_pio_xfer(denali, buf, size, page, raw, write);
+	}
 
 	if (write) {
 		irq_mask = INTR__DMA_CMD_COMP | INTR__PROGRAM_FAIL;
@@ -677,7 +681,7 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 		ret = -EBADMSG;
 
 	denali_enable_dma(denali, false);
-	dma_sync_single_for_cpu(denali->dev, dma_addr, size, dir);
+	dma_unmap_single(denali->dev, dma_addr, size, dir);
 
 	if (irq_status & INTR__ERASED_PAGE)
 		memset(buf, 0xff, size);
@@ -863,11 +867,9 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 	int stat = 0;
 	int ret;
 
-	ret = denali_data_xfer(denali, denali->buf, mtd->writesize, page, 0, 0);
+	ret = denali_data_xfer(denali, buf, mtd->writesize, page, 0, 0);
 	if (ret && ret != -EBADMSG)
 		return ret;
-
-	memcpy(buf, denali->buf, mtd->writesize);
 
 	if (denali->caps & DENALI_CAP_HW_ECC_FIXUP)
 		stat = denali_hw_ecc_fixup(mtd, denali, &uncor_ecc_flags);
@@ -972,10 +974,8 @@ static int denali_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 
-	memcpy(denali->buf, buf, mtd->writesize);
-
-	return denali_data_xfer(denali, denali->buf, mtd->writesize, page,
-				0, 1);
+	return denali_data_xfer(denali, (void *)buf, mtd->writesize,
+				page, 0, 1);
 }
 
 static void denali_select_chip(struct mtd_info *mtd, int chip)
@@ -1419,13 +1419,8 @@ int denali_init(struct denali_nand_info *denali)
 	}
 
 	if (denali->dma_avail) {
-		denali->dma_addr = dma_map_single(denali->dev, denali->buf,
-						  mtd->writesize + mtd->oobsize,
-						  DMA_BIDIRECTIONAL);
-		if (dma_mapping_error(denali->dev, denali->dma_addr)) {
-			dev_info(denali->dev, "Failed to map DMA buffer. Disabling DMA.\n");
-			denali->dma_avail = 0;
-		};
+		chip->options |= NAND_USE_BOUNCE_BUFFER;
+		chip->buf_align = 16;
 	}
 
 	/*
