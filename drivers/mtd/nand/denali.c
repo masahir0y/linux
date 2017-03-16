@@ -23,6 +23,7 @@
 #include <linux/mutex.h>
 #include <linux/mtd/mtd.h>
 #include <linux/module.h>
+#include <linux/slab.h>
 
 #include "denali.h"
 
@@ -1398,13 +1399,6 @@ int denali_init(struct denali_nand_info *denali)
 	if (ret)
 		goto disable_irq;
 
-	denali->buf = devm_kzalloc(denali->dev, mtd->writesize + mtd->oobsize,
-				   GFP_KERNEL);
-	if (!denali->buf) {
-		ret = -ENOMEM;
-		goto disable_irq;
-	}
-
 	if (ioread32(denali->flash_reg + FEATURES) & FEATURES__DMA)
 		denali->dma_avail = 1;
 
@@ -1524,17 +1518,30 @@ int denali_init(struct denali_nand_info *denali)
 	if (ret)
 		goto disable_irq;
 
+	/*
+	 * This buffer is DMA-mapped by denali_{read,write}_page_raw.  Do not
+	 * use devm_kmalloc() because the memory allocated by devm_ does not
+	 * guarantee DMA-safe alignment.
+	 */
+	denali->buf = kmalloc(mtd->writesize + mtd->oobsize, GFP_KERNEL);
+	if (!denali->buf) {
+		ret = -ENOMEM;
+		goto disable_irq;
+	}
+
 	ret = nand_scan_tail(mtd);
 	if (ret)
-		goto disable_irq;
+		goto free_buf;
 
 	ret = mtd_device_register(mtd, NULL, 0);
 	if (ret) {
 		dev_err(denali->dev, "Failed to register MTD: %d\n", ret);
-		goto disable_irq;
+		goto free_buf;
 	}
 	return 0;
 
+free_buf:
+	kfree(denali->buf);
 disable_irq:
 	denali_disable_irq(denali);
 
@@ -1554,6 +1561,7 @@ void denali_remove(struct denali_nand_info *denali)
 	int bufsize = mtd->writesize + mtd->oobsize;
 
 	nand_release(mtd);
+	kfree(denali->buf);
 	denali_disable_irq(denali);
 	dma_unmap_single(denali->dev, denali->dma_addr, bufsize,
 			 DMA_BIDIRECTIONAL);
