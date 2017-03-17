@@ -128,6 +128,11 @@ endif
         KBUILD_CFLAGS += $(call cc-option,-maccumulate-outgoing-args)
 endif
 
+ifeq ($(cc-name),clang)
+# Suppress clang warnings about potential unaligned accesses.
+KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+endif
+
 ifdef CONFIG_X86_X32
 	x32_ld_ok := $(call try-run,\
 			/bin/echo -e '1: .quad 1b' | \
