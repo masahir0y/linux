@@ -6,8 +6,21 @@
 #undef memset
 #undef memcmp
 
+/*
+ * Use normal ABI calling conventions - i.e. regparm(0) -
+ * for memcpy() and memset() if we are building the real
+ * mode setup code with clang since clang may make implicit
+ * calls to these functions that assume regparm(0).
+ */
+#if defined(_SETUP) && defined(__clang__)
+void __attribute__((regparm(0))) *memcpy(void *dst, const void *src,
+					 size_t len);
+void __attribute__((regparm(0))) *memset(void *dst, int c, size_t len);
+#else
 void *memcpy(void *dst, const void *src, size_t len);
 void *memset(void *dst, int c, size_t len);
+#endif
+
 int memcmp(const void *s1, const void *s2, size_t len);
 
 /*

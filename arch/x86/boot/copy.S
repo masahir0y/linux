@@ -18,6 +18,12 @@
 	.text
 
 GLOBAL(memcpy)
+#ifdef	__clang__	/* Use normal ABI calling conventions */
+	movw	4(%esp), %ax
+	movw	8(%esp), %dx
+	movw	12(%esp), %cx
+#endif
+_memcpy:
 	pushw	%si
 	pushw	%di
 	movw	%ax, %di
@@ -34,6 +40,11 @@ GLOBAL(memcpy)
 ENDPROC(memcpy)
 
 GLOBAL(memset)
+#ifdef	__clang__	/* Use normal ABI calling conventions */
+	movw	4(%esp), %ax
+	movw	8(%esp), %dx
+	movw	12(%esp), %cx
+#endif
 	pushw	%di
 	movw	%ax, %di
 	movzbl	%dl, %eax
@@ -52,7 +63,7 @@ GLOBAL(copy_from_fs)
 	pushw	%ds
 	pushw	%fs
 	popw	%ds
-	calll	memcpy
+	calll	_memcpy
 	popw	%ds
 	retl
 ENDPROC(copy_from_fs)
@@ -61,7 +72,7 @@ GLOBAL(copy_to_fs)
 	pushw	%es
 	pushw	%fs
 	popw	%es
-	calll	memcpy
+	calll	_memcpy
 	popw	%es
 	retl
 ENDPROC(copy_to_fs)
