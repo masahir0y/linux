@@ -4682,11 +4682,10 @@ static int handle_reshape_read_error(struct mddev *mddev,
 	/* Use sync reads to get the blocks from somewhere else */
 	int sectors = r10_bio->sectors;
 	struct r10conf *conf = mddev->private;
-	struct {
-		struct r10bio r10_bio;
-		struct r10dev devs[conf->copies];
-	} on_stack;
-	struct r10bio *r10b = &on_stack.r10_bio;
+	char on_stack_r10_bio[sizeof(struct r10bio) +
+			      conf->copies * sizeof(struct r10dev)]
+			      __aligned(__alignof__(struct r10bio));
+	struct r10bio *r10b = (struct r10bio *)on_stack_r10_bio;
 	int slot = 0;
 	int idx = 0;
 	struct bio_vec *bvec = r10_bio->master_bio->bi_io_vec;
