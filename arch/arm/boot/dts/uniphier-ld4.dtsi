@@ -333,6 +333,32 @@
 			pinctrl-0 = <&pinctrl_nand2cs>;
 			clocks = <&sys_clk 2>;
 			resets = <&sys_rst 2>;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				parition@0 {
+					label = "u-boot";
+					reg = <0 0x200000>;
+				};
+
+				parition@100000 {
+					label = "u-boot-env";
+					reg = <0x200000 0x100000>;
+				};
+
+				parition@300000 {
+					label = "kernel";
+					reg = <0x300000 0x400000>;
+				};
+
+				parition@400000 {
+					label = "rootfs";
+					reg = <0x800000 0x1000000>;
+				};
+			};
 		};
 	};
 };
