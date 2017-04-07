@@ -448,6 +448,12 @@
 				compatible = "socionext,uniphier-ld20-reset";
 				#reset-cells = <1>;
 			};
+
+			thermal: thermal {
+				compatible = "socionext,uniphier-ld20-thermal";
+				interrupts = <0 3 1>;
+				#thermal-sensor-cells = <0>;
+			};
 		};
 
 		usb: usb@65b00000 {
