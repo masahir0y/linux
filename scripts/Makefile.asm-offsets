@@ -1,10 +1,8 @@
 # Default sed regexp - multiline due to syntax constraints
 define sed-asm-offsets-to-c
-	"s:[[:space:]]*\.ascii[[:space:]]*\"\(.*\)\":\1:; \
-	/^->/{s:->#\(.*\):/* \1 */:; \
-	s:^->\([^ ]*\) [\$$#]*\([-0-9]*\) \(.*\):#define \1 \2 /* \3 */:; \
-	s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; \
-	s:->::; p;}"
+	'/^\.ascii/{s:^\.ascii "\(.*\)":\1:; \
+	s:^\([^ /]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; \
+	p;}'
 endef
 
 define gen_header_from_asm_offsets
