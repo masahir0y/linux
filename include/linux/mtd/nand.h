@@ -486,6 +486,28 @@ static inline void nand_hw_control_init(struct nand_hw_control *nfc)
 }
 
 /**
+ * struct nand_ecc_setting - information of ECC step supported by ECC engine
+ * @step: data bytes per ECC step
+ * @bytes: ECC bytes per step
+ */
+struct nand_ecc_setting {
+	int step;
+	int strength;
+};
+
+/**
+ * struct nand_ecc_engine_caps - capability of ECC engine
+ * @ecc_settings: array of (step, strength) supported by this ECC engine
+ * @calc_ecc_bytes: driver's hook to calculate ECC bytes per step
+ * @avail_oobsize: OOB size that the ECC engine can use for ECC correction
+ */
+struct nand_ecc_engine_caps {
+	const struct nand_ecc_setting *ecc_settings;
+	int (*calc_ecc_bytes)(const struct nand_ecc_setting *ecc_setting);
+	int avail_oobsize;
+};
+
+/**
  * struct nand_ecc_ctrl - Control structure for ECC
  * @mode:	ECC mode
  * @algo:	ECC algorithm
@@ -1207,6 +1229,15 @@ int nand_check_erased_ecc_chunk(void *data, int datalen,
 				void *ecc, int ecclen,
 				void *extraoob, int extraooblen,
 				int threshold);
+
+int nand_check_ecc_caps(struct mtd_info *mtd, struct nand_chip *chip,
+			const struct nand_ecc_engine_caps *caps);
+
+int nand_try_to_match_ecc_req(struct mtd_info *mtd, struct nand_chip *chip,
+			      const struct nand_ecc_engine_caps *caps);
+
+int nand_try_to_maximize_ecc(struct mtd_info *mtd, struct nand_chip *chip,
+			     const struct nand_ecc_engine_caps *caps);
 
 /* Default write_oob implementation */
 int nand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip, int page);
