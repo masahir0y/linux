@@ -31,29 +31,44 @@ struct denali_dt {
 
 struct denali_dt_data {
 	unsigned int revision;
-	unsigned long ecc_strength_avail;
 	unsigned int caps;
+	const struct nand_ecc_step_caps *ecc_step_caps;
+};
+
+static const int denali_socfpga_ecc_strengths[] = {8, 15, 0};
+static const struct nand_ecc_step_caps denali_socfpga_ecc_step_caps[] = {
+	{ .step_size = 512, .strengths = denali_socfpga_ecc_strengths, },
+	{},
 };
 
 static const struct denali_dt_data denali_socfpga_data = {
-	.ecc_strength_avail = BIT(15) | BIT(8),
-	.caps = DENALI_CAP_HW_ECC_FIXUP |
-		DENALI_CAP_ECC_SIZE_512,
+	.caps = DENALI_CAP_HW_ECC_FIXUP,
+	.ecc_step_caps = denali_socfpga_ecc_step_caps,
+};
+
+static const int denali_uniphier_v5a_strengths[] = {8, 16, 24, 0};
+static const struct nand_ecc_step_caps denali_uniphier_v5a_ecc_step_caps[] = {
+	{ .step_size = 1024, .strengths = denali_uniphier_v5a_strengths, },
+	{},
 };
 
 static const struct denali_dt_data denali_uniphier_v5a_data = {
-	.ecc_strength_avail = BIT(24) | BIT(16) | BIT(8),
 	.caps = DENALI_CAP_HW_ECC_FIXUP |
-		DENALI_CAP_DMA_64BIT |
-		DENALI_CAP_ECC_SIZE_1024,
+		DENALI_CAP_DMA_64BIT,
+	.ecc_step_caps = denali_uniphier_v5a_ecc_step_caps,
+};
+
+static const int denali_uniphier_v5b_strengths[] = {8, 16, 0};
+static const struct nand_ecc_step_caps denali_uniphier_v5b_ecc_step_caps[] = {
+	{ .step_size = 1024, .strengths = denali_uniphier_v5b_strengths, },
+	{},
 };
 
 static const struct denali_dt_data denali_uniphier_v5b_data = {
 	.revision = 0x0501,
-	.ecc_strength_avail = BIT(16) | BIT(8),
 	.caps = DENALI_CAP_HW_ECC_FIXUP |
-		DENALI_CAP_DMA_64BIT |
-		DENALI_CAP_ECC_SIZE_1024,
+		DENALI_CAP_DMA_64BIT,
+	.ecc_step_caps = denali_uniphier_v5b_ecc_step_caps,
 };
 
 static const struct of_device_id denali_nand_dt_ids[] = {
@@ -89,8 +104,8 @@ static int denali_dt_probe(struct platform_device *pdev)
 	data = of_device_get_match_data(&pdev->dev);
 	if (data) {
 		denali->revision = data->revision;
-		denali->ecc_strength_avail = data->ecc_strength_avail;
 		denali->caps = data->caps;
+		denali->ecc_step_caps = data->ecc_step_caps;
 	}
 
 	denali->dev = &pdev->dev;

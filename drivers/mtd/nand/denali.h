@@ -335,12 +335,11 @@ struct denali_nand_info {
 	unsigned int revision;
 	unsigned long ecc_strength_avail;
 	unsigned int caps;
+	const struct nand_ecc_step_caps *ecc_step_caps;
 };
 
 #define DENALI_CAP_HW_ECC_FIXUP			BIT(0)
 #define DENALI_CAP_DMA_64BIT			BIT(1)
-#define DENALI_CAP_ECC_SIZE_512			BIT(2)
-#define DENALI_CAP_ECC_SIZE_1024		BIT(3)
 
 extern int denali_init(struct denali_nand_info *denali);
 extern void denali_remove(struct denali_nand_info *denali);

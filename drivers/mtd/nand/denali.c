@@ -1191,39 +1191,6 @@ static int denali_calc_ecc_bytes(int ecc_size, int ecc_strength)
 	return DIV_ROUND_UP(ecc_strength * (ecc_size == 512 ? 13 : 14), 16) * 2;
 }
 
-static int denali_set_max_ecc_strength(struct denali_nand_info *denali)
-{
-	struct nand_chip *chip = &denali->nand;
-	struct mtd_info *mtd = nand_to_mtd(chip);
-	int oobsize = mtd->oobsize;
-	int ecc_size = chip->ecc.size;
-	int ecc_steps = mtd->writesize / chip->ecc.size;
-	int ecc_strength, ecc_bytes;
-	int max_strength = 0;
-
-	/* carve out the BBM area */
-	oobsize -= denali->bbtskipbytes;
-
-	for_each_set_bit(ecc_strength, &denali->ecc_strength_avail,
-			 sizeof(denali->ecc_strength_avail) * BITS_PER_BYTE) {
-		ecc_bytes = denali_calc_ecc_bytes(ecc_size, ecc_strength);
-		if (ecc_bytes * ecc_steps > oobsize)
-			break;
-
-		max_strength = ecc_strength;
-	}
-
-	if (!max_strength) {
-		dev_err(denali->dev,
-			"Your NAND chip OOB is too small. No available ECC strength.\n");
-		return -EINVAL;
-	}
-
-	chip->ecc.strength = max_strength;
-
-	return 0;
-}
-
 static int denali_ooblayout_ecc(struct mtd_info *mtd, int section,
 				struct mtd_oob_region *oobregion)
 {
@@ -1330,6 +1297,7 @@ int denali_init(struct denali_nand_info *denali)
 {
 	struct nand_chip *chip = &denali->nand;
 	struct mtd_info *mtd = nand_to_mtd(chip);
+	struct nand_ecc_engine_caps ecc_engine_caps;
 	int ret;
 
 	mtd->dev.parent = denali->dev;
@@ -1408,50 +1376,39 @@ int denali_init(struct denali_nand_info *denali)
 	/* no subpage writes on denali */
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
+	ecc_engine_caps.step_caps = denali->ecc_step_caps;
+	ecc_engine_caps.calc_ecc_bytes = denali_calc_ecc_bytes;
+	ecc_engine_caps.avail_oobsize = mtd->oobsize - denali->bbtskipbytes;
+
+	ret = -ENOTSUPP;
+
+	/* If both .size and .strength are set (by DT), we check if supported */
+	ret = nand_check_ecc_caps(mtd, chip, &ecc_engine_caps);
+	if (ret && ret != -ENODATA)
+		dev_info(denali->dev, "try to find other ECC settings\n");
+
 	/*
-	 * If the controller supports both 512B and 1024B ECC, and DT does not
-	 * specify "nand-ecc-step-size", use the chip's requirement for a hint
-	 * to choose ECC size.
+	 * We want .size and .strength closest to the chip's requirement
+	 * unless NAND_ECC_MAXIMIZE is requested.
 	 */
-	if (!chip->ecc.size &&
-	    denali->caps & DENALI_CAP_ECC_SIZE_512 &&
-	    denali->caps & DENALI_CAP_ECC_SIZE_1024)
-		chip->ecc.size = chip->ecc_step_ds;
-
-	if (!chip->ecc.size) {
-		if (denali->caps & DENALI_CAP_ECC_SIZE_512)
-			chip->ecc.size = 512;
-		if (denali->caps & DENALI_CAP_ECC_SIZE_1024)
-			chip->ecc.size = 1024;
-	}
-
-	if (!(chip->ecc.size == 512 && denali->caps & DENALI_CAP_ECC_SIZE_512) &&
-	    !(chip->ecc.size == 1024 && denali->caps & DENALI_CAP_ECC_SIZE_1024)) {
-		dev_err(denali->dev, "ECC size %d is not supported on this controller",
-			chip->ecc.size);
-		goto disable_irq;
-	}
-
-	if (!chip->ecc.strength && !(chip->ecc.options & NAND_ECC_MAXIMIZE)) {
-		dev_info(denali->dev,
-			 "No ECC strength strategy is specified. Maximizing ECC strength\n");
-		chip->ecc.options |= NAND_ECC_MAXIMIZE;
-	}
-
-	if (chip->ecc.options & NAND_ECC_MAXIMIZE) {
-		ret = denali_set_max_ecc_strength(denali);
+	if (ret && !(chip->ecc.options & NAND_ECC_MAXIMIZE)) {
+		ret = nand_try_to_match_ecc_req(mtd, chip, &ecc_engine_caps);
 		if (ret)
-			goto disable_irq;
-	} else if (!(denali->ecc_strength_avail & BIT(chip->ecc.strength))) {
-		dev_err(denali->dev,
-			"ECC strength %d is not supported on this controller.\n",
-			chip->ecc.strength);
-		ret = -EINVAL;
+			dev_info(denali->dev, "try to maximize ECC setting\n");
+	}
+
+	/* The last thing we can do is to try the max ECC strength */
+	if (ret)
+		ret = nand_try_to_maximize_ecc(mtd, chip, &ecc_engine_caps);
+
+	if (ret) {
+		dev_err(denali->dev, "failed to choose ECC size/strength\n");
 		goto disable_irq;
 	}
 
-	chip->ecc.bytes = denali_calc_ecc_bytes(chip->ecc.size,
-						chip->ecc.strength);
+	dev_dbg(denali->dev,
+		"chosen ECC settings: step=%d, strength=%d, bytes=%d\n",
+		chip->ecc.size, chip->ecc.strength, chip->ecc.bytes);
 
 	iowrite32(MAKE_ECC_CORRECTION(chip->ecc.strength,
 				      chip->ecc.strength + 1),
