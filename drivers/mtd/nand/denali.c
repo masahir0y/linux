@@ -1184,11 +1184,22 @@ static void denali_hw_init(struct denali_nand_info *denali)
 	iowrite32(1, denali->flash_reg + ECC_ENABLE);
 }
 
-static int denali_calc_ecc_bytes(int ecc_size, int ecc_strength)
+static int denali_calc_ecc_bytes(const struct nand_ecc_setting *setting)
 {
-	WARN_ON(ecc_size != 512 && ecc_size != 1024);
+	int coef;
 
-	return DIV_ROUND_UP(ecc_strength * (ecc_size == 512 ? 13 : 14), 16) * 2;
+	switch (setting->step) {
+	case 512:
+		coef = 13;
+		break;
+	case 1024:
+		coef = 14;
+		break;
+	default:
+		return -ENOTSUPP;
+	}
+
+	return DIV_ROUND_UP(setting->strength * coef, 16) * 2;
 }
 
 static int denali_ooblayout_ecc(struct mtd_info *mtd, int section,
@@ -1376,7 +1387,7 @@ int denali_init(struct denali_nand_info *denali)
 	/* no subpage writes on denali */
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
-	ecc_engine_caps.step_caps = denali->ecc_step_caps;
+	ecc_engine_caps.ecc_settings = denali->avail_ecc_settings;
 	ecc_engine_caps.calc_ecc_bytes = denali_calc_ecc_bytes;
 	ecc_engine_caps.avail_oobsize = mtd->oobsize - denali->bbtskipbytes;
 
