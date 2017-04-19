@@ -488,18 +488,17 @@ static inline void nand_hw_control_init(struct nand_hw_control *nfc)
 /**
  * struct nand_ecc_step_caps - information of ECC step supported by ECC engine
  */
-struct nand_ecc_step_caps {
-	int step_size;
-	const int *strengths;
+struct nand_ecc_setting {
+	int step;
+	int strength;
 };
 
 /**
  * struct nand_ecc_engine_caps - capability of ECC engine
- * @
  */
 struct nand_ecc_engine_caps {
-	const struct nand_ecc_step_caps *step_caps;
-	int (*calc_ecc_bytes)(int step_size, int strength);
+	const struct nand_ecc_setting *ecc_settings;
+	int (*calc_ecc_bytes)(const struct nand_ecc_setting *ecc_setting);
 	int avail_oobsize;
 };
 

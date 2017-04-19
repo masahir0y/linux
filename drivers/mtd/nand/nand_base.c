@@ -4550,112 +4550,101 @@ static int nand_set_ecc_soft_ops(struct mtd_info *mtd)
 int nand_check_ecc_caps(struct mtd_info *mtd, struct nand_chip *chip,
 			const struct nand_ecc_engine_caps *caps)
 {
-	const struct nand_ecc_step_caps *step_caps;
-	const int *strength;
-	int preset_step_size = chip->ecc.size;
+	const struct nand_ecc_setting *setting;
+	int preset_step = chip->ecc.size;
 	int preset_strength = chip->ecc.strength;
 	int ecc_bytes;
 
-	if (!preset_step_size || !preset_strength)
+	if (!preset_step || !preset_strength)
 		return -ENODATA;
 
-	for (step_caps = caps->step_caps; step_caps; step_caps++) {
-		if (step_caps->step_size != preset_step_size)
+	for (setting = caps->ecc_settings; setting->step; setting++) {
+		if (setting->step != preset_step ||
+		    setting->strength != preset_strength)
 			continue;
 
-		for (strength = step_caps->strengths; *strength; strength++) {
-			if (*strength == preset_strength)
-				goto found;
+		ecc_bytes = caps->calc_ecc_bytes(setting);
+		if (WARN_ON_ONCE(ecc_bytes < 0))
+			continue;
+
+		if (ecc_bytes * mtd->writesize / setting->step >
+		    caps->avail_oobsize) {
+			pr_err("ECC (step, strength) = (%d, %d) does not fit in OOB",
+			       setting->step, setting->strength);
+			return -ENOSPC;
 		}
+
+		chip->ecc.bytes = ecc_bytes;
+		return 0;
 	}
 
 	pr_err("ECC (step, strength) = (%d, %d) not supported on this controller",
-	       preset_step_size, preset_strength);
+	       preset_step, preset_strength);
 
 	return -ENOTSUPP;
-
-found:
-	ecc_bytes = caps->calc_ecc_bytes(preset_step_size, preset_strength);
-	if (ecc_bytes * mtd->writesize / preset_step_size >
-	    caps->avail_oobsize) {
-		pr_err("ECC (step, strength) = (%d, %d) does not fit in OOB",
-		       preset_step_size, preset_strength);
-		return -ENOSPC;
-	}
-
-	chip->ecc.bytes = ecc_bytes;
-
-	return 0;
 }
 
 int nand_try_to_match_ecc_req(struct mtd_info *mtd, struct nand_chip *chip,
 			      const struct nand_ecc_engine_caps *caps)
 {
-	const struct nand_ecc_step_caps *step_caps;
-	const int *strength;
-	int req_step_size = chip->ecc_step_ds;
+	const struct nand_ecc_setting *setting, *best_setting = NULL;
+	int req_step = chip->ecc_step_ds;
 	int req_strength = chip->ecc_strength_ds;
-	int req_corr;
-	int step_size, steps, ecc_bytes, ecc_bytes_total;
-	int best_step_size, best_ecc_bytes, best_strength;
-	int best_ecc_bytes_total = INT_MAX;
-	int force_step_size = 0;
+	int req_corr, steps, ecc_bytes, ecc_bytes_total;
+	int best_ecc_bytes, best_ecc_bytes_total = INT_MAX;
 
 	/* No information provided by the NAND chip */
-	if (!req_step_size || !req_strength)
+	if (!req_step || !req_strength)
 		return -ENOTSUPP;
 
 	/* number of correctable bits the chip requires in a page */
-	req_corr = mtd->writesize / req_step_size * req_strength;
+	req_corr = mtd->writesize / req_step * req_strength;
 
-	if (chip->ecc.size) {
+	for (setting = caps->ecc_settings; setting->step; setting++) {
 		/* If chip->ecc.size is already set, respect it. */
-		req_step_size = chip->ecc.size;
-		force_step_size = 1;
-	}
+		if (chip->ecc.size && setting->step != chip->ecc.size)
+			continue;
 
-	for (step_caps = caps->step_caps; step_caps; step_caps++) {
-		step_size = step_caps->step_size;
-
-		if (force_step_size && step_size != req_step_size)
+		/* If chip->ecc.strength is already set, respect it. */
+		if (chip->ecc.strength &&
+		    setting->strength != chip->ecc.strength)
 			continue;
 
 		/*
 		 * If the controller's step size is smaller than the chip's
 		 * requirement, comparison of the strength is not simple.
 		 */
-		if (step_size < req_step_size)
+		if (setting->step < req_step)
 			continue;
 
-		steps = mtd->writesize / step_size;
+		steps = mtd->writesize / setting->step;
 
-		for (strength = step_caps->strengths; *strength; strength++) {
-			ecc_bytes = caps->calc_ecc_bytes(step_size, *strength);
-			ecc_bytes_total = ecc_bytes * steps;
+		ecc_bytes = caps->calc_ecc_bytes(setting);
+		if (WARN_ON_ONCE(ecc_bytes < 0))
+			continue;
+		ecc_bytes_total = ecc_bytes * steps;
 
-			if (ecc_bytes_total > caps->avail_oobsize ||
-			    *strength * steps < req_corr)
+		if (ecc_bytes_total > caps->avail_oobsize ||
+		    setting->strength * steps < req_corr)
 				continue;
 
-			/*
-			 * We assume the best is to meet the chip's requrement
-			 * with the least number of ECC bytes.
-			 */
-			if (ecc_bytes_total < best_ecc_bytes_total) {
-				best_ecc_bytes_total = ecc_bytes_total;
-				best_step_size = step_size;
-				best_ecc_bytes = ecc_bytes;
-				best_strength = *strength;
-			}
+		/*
+		 * We assume the best is to meet the chip's requrement
+		 * with the least number of ECC bytes.
+		 */
+		if (ecc_bytes_total < best_ecc_bytes_total) {
+			best_ecc_bytes_total = ecc_bytes_total;
+			best_setting = setting;
+			best_ecc_bytes = ecc_bytes;
 		}
 	}
 
-	if (best_ecc_bytes_total == INT_MAX)
+	if (!best_setting)
 		return -ENOTSUPP;
 
-	chip->ecc.size = best_step_size;
+	chip->ecc.size = best_setting->step;
+	chip->ecc.strength = best_setting->strength;
 	chip->ecc.bytes = best_ecc_bytes;
-	chip->ecc.strength = best_strength;
 
 	return 0;
 }
@@ -4664,50 +4653,44 @@ EXPORT_SYMBOL_GPL(nand_try_to_match_ecc_req);
 int nand_try_to_maximize_ecc(struct mtd_info *mtd, struct nand_chip *chip,
 			     const struct nand_ecc_engine_caps *caps)
 {
-	const struct nand_ecc_step_caps *step_caps;
-	const int *strength;
-	int step_size, steps, ecc_bytes, corr;
+	const struct nand_ecc_setting *setting, *best_setting = NULL;
+	int steps, ecc_bytes, corr;
 	int best_corr = 0;
-	int best_step_size = 0;
-	int best_ecc_bytes, best_strength;
+	int best_ecc_bytes;
 
-	for (step_caps = caps->step_caps; step_caps; step_caps++) {
-		step_size = step_caps->step_size;
-
+	for (setting = caps->ecc_settings; setting->step; setting++) {
 		/* If chip->ecc.size is already set, respect it. */
-		if (chip->ecc.size && step_size != chip->ecc.size)
+		if (chip->ecc.size && setting->step != chip->ecc.size)
 			continue;
 
-		steps = mtd->writesize / step_size;
+		steps = mtd->writesize / setting->step;
+		ecc_bytes = caps->calc_ecc_bytes(setting);
+		if (WARN_ON_ONCE(ecc_bytes < 0))
+			continue;
 
-		for (strength = step_caps->strengths; *strength; strength++) {
-			ecc_bytes = caps->calc_ecc_bytes(step_size, *strength);
+		if (ecc_bytes * steps > caps->avail_oobsize)
+			continue;
 
-			if (ecc_bytes * steps > caps->avail_oobsize)
-				continue;
+		corr = setting->strength * steps;
 
-			corr = *strength * steps;
-
-			/*
-			 * If the number of correctable bits is the same,
-			 * bigger ecc_step has more reliability.
-			 */
-			if (corr > best_corr ||
-			    (corr == best_corr && step_size > best_step_size)) {
-				best_corr = corr;
-				best_step_size = step_size;
-				best_ecc_bytes = ecc_bytes;
-				best_strength = *strength;
-			}
+		/*
+		 * If the number of correctable bits is the same,
+		 * bigger ecc_step has more reliability.
+		 */
+		if (corr > best_corr ||
+		    (corr == best_corr && setting->step > best_setting->step)) {
+			best_corr = corr;
+			best_setting = setting;
+			best_ecc_bytes = ecc_bytes;
 		}
 	}
 
-	if (best_corr == 0)
+	if (!best_setting)
 		return -ENOTSUPP;
 
-	chip->ecc.size = best_step_size;
+	chip->ecc.size = best_setting->step;
+	chip->ecc.strength = best_setting->strength;
 	chip->ecc.bytes = best_ecc_bytes;
-	chip->ecc.strength = best_strength;
 
 	return 0;
 }
