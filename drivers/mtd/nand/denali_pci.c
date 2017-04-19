@@ -30,10 +30,8 @@ static const struct pci_device_id denali_pci_ids[] = {
 };
 MODULE_DEVICE_TABLE(pci, denali_pci_ids);
 
-static const int denali_pci_ecc_strengths[] = {8, 15, 0};
-static const struct nand_ecc_step_caps denali_pci_ecc_step_caps[] = {
-	{ .step_size = 512, .strengths = denali_pci_ecc_strengths, },
-	{},
+static const struct nand_ecc_setting denali_pci_avail_ecc_settings[] = {
+	{512, 8}, {512, 15}, {/* sentinel */}
 };
 
 static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
@@ -73,6 +71,7 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	denali->dev = &dev->dev;
 	denali->irq = dev->irq;
 	denali->clk_x_rate = 200000000;		/* 200 MHz */
+	denali->avail_ecc_settings = denali_pci_avail_ecc_settings;
 
 	ret = pci_request_regions(dev, DENALI_NAND_NAME);
 	if (ret) {
@@ -92,9 +91,6 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		ret = -ENOMEM;
 		goto failed_remap_reg;
 	}
-
-	denali->ecc_strength_avail = BIT(15) | BIT(8);
-	denali->ecc_step_caps = denali_pci_ecc_step_caps;
 
 	ret = denali_init(denali);
 	if (ret)

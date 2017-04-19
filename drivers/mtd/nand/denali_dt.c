@@ -29,46 +29,30 @@ struct denali_dt {
 	struct clk		*clk;
 };
 
+#define DENALI_MAX_ECC_SETTINGS		4
+
 struct denali_dt_data {
 	unsigned int revision;
 	unsigned int caps;
-	const struct nand_ecc_step_caps *ecc_step_caps;
-};
-
-static const int denali_socfpga_ecc_strengths[] = {8, 15, 0};
-static const struct nand_ecc_step_caps denali_socfpga_ecc_step_caps[] = {
-	{ .step_size = 512, .strengths = denali_socfpga_ecc_strengths, },
-	{},
+	struct nand_ecc_setting avail_ecc_settings[DENALI_MAX_ECC_SETTINGS];
 };
 
 static const struct denali_dt_data denali_socfpga_data = {
 	.caps = DENALI_CAP_HW_ECC_FIXUP,
-	.ecc_step_caps = denali_socfpga_ecc_step_caps,
-};
-
-static const int denali_uniphier_v5a_strengths[] = {8, 16, 24, 0};
-static const struct nand_ecc_step_caps denali_uniphier_v5a_ecc_step_caps[] = {
-	{ .step_size = 1024, .strengths = denali_uniphier_v5a_strengths, },
-	{},
+	.avail_ecc_settings = {{512, 8}, {512, 15}},
 };
 
 static const struct denali_dt_data denali_uniphier_v5a_data = {
 	.caps = DENALI_CAP_HW_ECC_FIXUP |
 		DENALI_CAP_DMA_64BIT,
-	.ecc_step_caps = denali_uniphier_v5a_ecc_step_caps,
-};
-
-static const int denali_uniphier_v5b_strengths[] = {8, 16, 0};
-static const struct nand_ecc_step_caps denali_uniphier_v5b_ecc_step_caps[] = {
-	{ .step_size = 1024, .strengths = denali_uniphier_v5b_strengths, },
-	{},
+	.avail_ecc_settings = {{1024, 8}, {1024, 16}, {1024, 24}},
 };
 
 static const struct denali_dt_data denali_uniphier_v5b_data = {
 	.revision = 0x0501,
 	.caps = DENALI_CAP_HW_ECC_FIXUP |
 		DENALI_CAP_DMA_64BIT,
-	.ecc_step_caps = denali_uniphier_v5b_ecc_step_caps,
+	.avail_ecc_settings = {{1024, 8}, {1024, 16}},
 };
 
 static const struct of_device_id denali_nand_dt_ids[] = {
@@ -105,7 +89,7 @@ static int denali_dt_probe(struct platform_device *pdev)
 	if (data) {
 		denali->revision = data->revision;
 		denali->caps = data->caps;
-		denali->ecc_step_caps = data->ecc_step_caps;
+		denali->avail_ecc_settings = data->avail_ecc_settings;
 	}
 
 	denali->dev = &pdev->dev;
