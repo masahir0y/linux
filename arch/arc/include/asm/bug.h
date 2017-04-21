@@ -22,7 +22,7 @@ void show_kernel_fault_diag(const char *str, struct pt_regs *regs,
 void die(const char *str, struct pt_regs *regs, unsigned long address);
 
 #define BUG()	do {								\
-	pr_warn("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
+	pr_warn("BUG: failure at %s:%d/%s()!\n", KBUILD_FILE, __LINE__, __func__); \
 	dump_stack();								\
 } while (0)
 

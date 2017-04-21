@@ -25,7 +25,7 @@ do {								\
 		"	.long 0b,%0,%1			\n"	\
 		"	.previous			\n"	\
 		:						\
-		: "i"(__FILE__), "i"(__LINE__)			\
+		: "i"(KBUILD_FILE), "i"(__LINE__)			\
 		);						\
 } while (1)
 

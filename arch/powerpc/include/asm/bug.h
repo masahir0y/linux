@@ -66,7 +66,7 @@
 	__asm__ __volatile__(					\
 		"1:	twi 31,0,0\n"				\
 		_EMIT_BUG_ENTRY					\
-		: : "i" (__FILE__), "i" (__LINE__),		\
+		: : "i" (KBUILD_FILE), "i" (__LINE__),		\
 		    "i" (0), "i"  (sizeof(struct bug_entry)));	\
 	unreachable();						\
 } while (0)
@@ -79,7 +79,7 @@
 		__asm__ __volatile__(				\
 		"1:	"PPC_TLNEI"	%4,0\n"			\
 		_EMIT_BUG_ENTRY					\
-		: : "i" (__FILE__), "i" (__LINE__), "i" (0),	\
+		: : "i" (KBUILD_FILE), "i" (__LINE__), "i" (0),	\
 		  "i" (sizeof(struct bug_entry)),		\
 		  "r" ((__force long)(x)));			\
 	}							\
@@ -89,7 +89,7 @@
 	__asm__ __volatile__(					\
 		"1:	twi 31,0,0\n"				\
 		_EMIT_BUG_ENTRY					\
-		: : "i" (__FILE__), "i" (__LINE__),		\
+		: : "i" (KBUILD_FILE), "i" (__LINE__),		\
 		  "i" (BUGFLAG_TAINT(taint)),			\
 		  "i" (sizeof(struct bug_entry)));		\
 } while (0)
@@ -103,7 +103,7 @@
 		__asm__ __volatile__(				\
 		"1:	"PPC_TLNEI"	%4,0\n"			\
 		_EMIT_BUG_ENTRY					\
-		: : "i" (__FILE__), "i" (__LINE__),		\
+		: : "i" (KBUILD_FILE), "i" (__LINE__),		\
 		  "i" (BUGFLAG_TAINT(TAINT_WARN)),		\
 		  "i" (sizeof(struct bug_entry)),		\
 		  "r" (__ret_warn_on));				\

@@ -46,7 +46,7 @@ struct bug_entry {
  */
 #ifndef HAVE_ARCH_BUG
 #define BUG() do { \
-	printk("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
+	printk("BUG: failure at %s:%d/%s()!\n", KBUILD_FILE, __LINE__, __func__); \
 	panic("BUG!"); \
 } while (0)
 #endif
@@ -70,10 +70,10 @@ void warn_slowpath_fmt_taint(const char *file, const int line, unsigned taint,
 			     const char *fmt, ...);
 extern void warn_slowpath_null(const char *file, const int line);
 #define WANT_WARN_ON_SLOWPATH
-#define __WARN()		warn_slowpath_null(__FILE__, __LINE__)
-#define __WARN_printf(arg...)	warn_slowpath_fmt(__FILE__, __LINE__, arg)
+#define __WARN()		warn_slowpath_null(KBUILD_FILE, __LINE__)
+#define __WARN_printf(arg...)	warn_slowpath_fmt(KBUILD_FILE, __LINE__, arg)
 #define __WARN_printf_taint(taint, arg...)				\
-	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
+	warn_slowpath_fmt_taint(KBUILD_FILE, __LINE__, taint, arg)
 #else
 #define __WARN()		__WARN_TAINT(TAINT_WARN)
 #define __WARN_printf(arg...)	do { printk(arg); __WARN(); } while (0)

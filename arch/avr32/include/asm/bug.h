@@ -29,7 +29,7 @@
 		"	.org	2b + %4\n"				\
 		"	.previous"					\
 		:							\
-		: "i"(AVR32_BUG_OPCODE), "i"(__FILE__),			\
+		: "i"(AVR32_BUG_OPCODE), "i"(KBUILD_FILE),			\
 		  "i"(__LINE__), "i"(flags),				\
 		  "i"(sizeof(struct bug_entry)))
 

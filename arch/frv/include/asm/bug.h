@@ -23,7 +23,7 @@ extern asmlinkage void __debug_bug_trap(int signr);
 #define	_debug_bug_printk()
 #else
 extern void __debug_bug_printk(const char *file, unsigned line);
-#define	_debug_bug_printk() __debug_bug_printk(__FILE__, __LINE__)
+#define	_debug_bug_printk() __debug_bug_printk(KBUILD_FILE, __LINE__)
 #endif
 
 #define _debug_bug_trap(signr)			\

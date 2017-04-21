@@ -22,7 +22,7 @@ do {									\
 			      ".section __ex_table,\"a\"\n\t"		\
 			      ".dword 0b, 1b\n\t"			\
 			      ".previous\n\t"				\
-			      : : "ri" (__FILE__), "i" (__LINE__));	\
+			      : : "ri" (KBUILD_FILE), "i" (__LINE__));	\
 	unreachable();				\
 } while (0)
 #else

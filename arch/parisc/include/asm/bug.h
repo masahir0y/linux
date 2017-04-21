@@ -32,7 +32,7 @@
 			     "\t.short %c1, %c2\n"			\
 			     "\t.org 2b+%c3\n"				\
 			     "\t.popsection"				\
-			     : : "i" (__FILE__), "i" (__LINE__),	\
+			     : : "i" (KBUILD_FILE), "i" (__LINE__),	\
 			     "i" (0), "i" (sizeof(struct bug_entry)) ); \
 		unreachable();						\
 	} while(0)
@@ -55,7 +55,7 @@
 			     "\t.short %c1, %c2\n"			\
 			     "\t.org 2b+%c3\n"				\
 			     "\t.popsection"				\
-			     : : "i" (__FILE__), "i" (__LINE__),	\
+			     : : "i" (KBUILD_FILE), "i" (__LINE__),	\
 			     "i" (BUGFLAG_TAINT(taint)), 		\
 			     "i" (sizeof(struct bug_entry)) );		\
 	} while(0)

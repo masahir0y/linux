@@ -19,13 +19,13 @@
 #endif
 
 
-#define BUG() _BUG(__FILE__, __LINE__, BUG_INSTR_VALUE)
+#define BUG() _BUG(KBUILD_FILE, __LINE__, BUG_INSTR_VALUE)
 #define _BUG(file, line, value) __BUG(file, line, value)
 
 #ifdef CONFIG_DEBUG_BUGVERBOSE
 
 /*
- * The extra indirection is to ensure that the __FILE__ string comes through
+ * The extra indirection is to ensure that the KBUILD_FILE string comes through
  * OK. Many version of gcc do not support the asm %c parameter which would be
  * preferable to this unpleasantness. We use mergeable string sections to
  * avoid multiple copies of the string appearing in the kernel image.

@@ -12,7 +12,7 @@
 
 /**
  * _EMIT_BUG_ENTRY
- * %1 - __FILE__
+ * %1 - KBUILD_FILE
  * %2 - __LINE__
  * %3 - trap type
  * %4 - sizeof(struct bug_entry)
@@ -45,7 +45,7 @@ do {							\
 		_EMIT_BUG_ENTRY				\
 		 :					\
 		 : "n" (TRAPA_BUG_OPCODE),		\
-		   "i" (__FILE__),			\
+		   "i" (KBUILD_FILE),			\
 		   "i" (__LINE__), "i" (0),		\
 		   "i" (sizeof(struct bug_entry)));	\
 } while (0)
@@ -57,7 +57,7 @@ do {							\
 		 _EMIT_BUG_ENTRY			\
 		 :					\
 		 : "n" (TRAPA_BUG_OPCODE),		\
-		   "i" (__FILE__),			\
+		   "i" (KBUILD_FILE),			\
 		   "i" (__LINE__),			\
 		   "i" (BUGFLAG_TAINT(taint)),		\
 		   "i" (sizeof(struct bug_entry)));	\
@@ -82,7 +82,7 @@ do {							\
 		_EMIT_BUG_ENTRY				\
 		 :					\
 		 : "n" (TRAPA_BUG_OPCODE),		\
-		   "i" (__FILE__),			\
+		   "i" (KBUILD_FILE),			\
 		   "i" (__LINE__),			\
 		   "i" (BUGFLAG_UNWINDER),		\
 		   "i" (sizeof(struct bug_entry)));	\

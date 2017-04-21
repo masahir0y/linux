@@ -35,11 +35,11 @@ struct bug_frame {
 	__asm__ __volatile__ ("clear.d [" __stringify(BUG_MAGIC) "]\n\t"\
 				"movu.w %0,$r0\n\t"			\
 				"jump %1\n\t"				\
-				: : "i" (__LINE__), "i" (__FILE__))
+				: : "i" (__LINE__), "i" (KBUILD_FILE))
 #else
 /* This version will have to do for now, until the compiler is fixed.
  * The drawbacks of this version are that the file name will appear multiple
- * times in the .rodata section, and that __LINE__ and __FILE__ can probably
+ * times in the .rodata section, and that __LINE__ and KBUILD_FILE can probably
  * not be used like this with newer versions of gcc.
  */
 #define BUG()								\
@@ -47,7 +47,7 @@ struct bug_frame {
 			      "movu.w " __stringify(__LINE__) ",$r0\n\t"\
 			      "jump 0f\n\t"				\
 			      ".section .rodata\n"			\
-			      "0:\t.string \"" __FILE__ "\"\n\t"	\
+			      "0:\t.string \"" KBUILD_FILE "\"\n\t"	\
 			      ".previous")
 #endif
 

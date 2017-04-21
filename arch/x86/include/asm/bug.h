@@ -19,7 +19,7 @@ do {								\
 		     "\t.word %c1, 0\n"				\
 		     "\t.org 2b+%c2\n"				\
 		     ".popsection"				\
-		     : : "i" (__FILE__), "i" (__LINE__),	\
+		     : : "i" (KBUILD_FILE), "i" (__LINE__),	\
 		     "i" (sizeof(struct bug_entry)));		\
 	unreachable();						\
 } while (0)

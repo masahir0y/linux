@@ -10,8 +10,8 @@ extern void __die_if_kernel(const char *, struct pt_regs *, const char *,
 	const char *, unsigned long);
 
 #define die(msg, regs)							\
-	__die(msg, regs, __FILE__ ":", __func__, __LINE__)
+	__die(msg, regs, KBUILD_FILE ":", __func__, __LINE__)
 #define die_if_kernel(msg, regs)					\
-	__die_if_kernel(msg, regs, __FILE__ ":", __func__, __LINE__)
+	__die_if_kernel(msg, regs, KBUILD_FILE ":", __func__, __LINE__)
 
 #endif /* _ASM_SCORE_BUG_H */

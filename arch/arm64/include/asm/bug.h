@@ -42,7 +42,7 @@
 		".pushsection __bug_table,\"a\"\n\t"	\
 		".align 2\n\t"				\
 	"0:	.long 1f - 0b\n\t"			\
-_BUGVERBOSE_LOCATION(__FILE__, __LINE__)		\
+_BUGVERBOSE_LOCATION(KBUILD_FILE, __LINE__)		\
 		".short " #flags "\n\t"			\
 		".popsection\n"				\
 							\

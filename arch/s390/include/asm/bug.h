@@ -12,7 +12,7 @@
 		"0:	j	0b+2\n"				\
 		"1:\n"						\
 		".section .rodata.str,\"aMS\",@progbits,1\n"	\
-		"2:	.asciz	\""__FILE__"\"\n"		\
+		"2:	.asciz	\""KBUILD_FILE"\"\n"		\
 		".previous\n"					\
 		".section __bug_table,\"a\"\n"			\
 		"3:	.long	1b-3b,2b-3b\n"			\
