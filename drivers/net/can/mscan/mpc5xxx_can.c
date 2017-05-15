@@ -270,8 +270,7 @@ static void mpc512x_can_put_clock(struct platform_device *ofdev)
 	struct mscan_priv *priv;
 
 	priv = netdev_priv(dev_get_drvdata(&ofdev->dev));
-	if (priv->clk_ipg)
-		clk_disable_unprepare(priv->clk_ipg);
+	clk_disable_unprepare(priv->clk_ipg);
 }
 #else /* !CONFIG_PPC_MPC512x */
 static u32 mpc512x_can_get_clock(struct platform_device *ofdev,

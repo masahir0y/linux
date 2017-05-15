@@ -742,8 +742,7 @@ static int stmmac_init_ptp(struct stmmac_priv *priv)
 
 static void stmmac_release_ptp(struct stmmac_priv *priv)
 {
-	if (priv->plat->clk_ptp_ref)
-		clk_disable_unprepare(priv->plat->clk_ptp_ref);
+	clk_disable_unprepare(priv->plat->clk_ptp_ref);
 	stmmac_ptp_unregister(priv);
 }
 

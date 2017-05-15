@@ -884,8 +884,7 @@ out_netif_api:
 out_mdio:
 	arc_mdio_remove(priv);
 out_clken:
-	if (priv->clk)
-		clk_disable_unprepare(priv->clk);
+	clk_disable_unprepare(priv->clk);
 out_put_node:
 	of_node_put(phy_node);
 

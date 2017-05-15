@@ -1877,11 +1877,9 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
 	return 0;
 
 failed_clk_ref:
-	if (fep->clk_ref)
-		clk_disable_unprepare(fep->clk_ref);
+	clk_disable_unprepare(fep->clk_ref);
 failed_clk_ptp:
-	if (fep->clk_enet_out)
-		clk_disable_unprepare(fep->clk_enet_out);
+	clk_disable_unprepare(fep->clk_enet_out);
 failed_clk_enet_out:
 		clk_disable_unprepare(fep->clk_ahb);
 

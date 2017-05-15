@@ -176,8 +176,7 @@ static int pxa_irda_set_speed(struct pxa_irda *si, int speed);
 
 static inline void pxa_irda_disable_clk(struct pxa_irda *si)
 {
-	if (si->cur_clk)
-		clk_disable_unprepare(si->cur_clk);
+	clk_disable_unprepare(si->cur_clk);
 	si->cur_clk = NULL;
 }
 
