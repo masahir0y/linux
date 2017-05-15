@@ -386,8 +386,7 @@ static int ufs_qcom_phy_enable_ref_clk(struct ufs_qcom_phy *phy)
 	goto out;
 
 out_disable_parent:
-	if (phy->ref_clk_parent)
-		clk_disable_unprepare(phy->ref_clk_parent);
+	clk_disable_unprepare(phy->ref_clk_parent);
 out_disable_src:
 	clk_disable_unprepare(phy->ref_clk_src);
 out:
@@ -424,8 +423,7 @@ static void ufs_qcom_phy_disable_ref_clk(struct ufs_qcom_phy *phy)
 		 * "ref_clk_parent" is optional clock hence make sure that clk
 		 * reference is available before trying to disable the clock.
 		 */
-		if (phy->ref_clk_parent)
-			clk_disable_unprepare(phy->ref_clk_parent);
+		clk_disable_unprepare(phy->ref_clk_parent);
 		clk_disable_unprepare(phy->ref_clk_src);
 		phy->is_ref_clk_enabled = false;
 	}
