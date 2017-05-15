@@ -324,8 +324,7 @@ static inline void mxsfb_enable_axi_clk(struct mxsfb_info *host)
 
 static inline void mxsfb_disable_axi_clk(struct mxsfb_info *host)
 {
-	if (host->clk_axi)
-		clk_disable_unprepare(host->clk_axi);
+	clk_disable_unprepare(host->clk_axi);
 }
 
 static void mxsfb_enable_controller(struct fb_info *fb_info)
@@ -394,8 +393,7 @@ static void mxsfb_disable_controller(struct fb_info *fb_info)
 	mxsfb_disable_axi_clk(host);
 
 	clk_disable_unprepare(host->clk);
-	if (host->clk_disp_axi)
-		clk_disable_unprepare(host->clk_disp_axi);
+	clk_disable_unprepare(host->clk_disp_axi);
 
 	host->enabled = 0;
 
