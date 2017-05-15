@@ -893,11 +893,10 @@ static int _disable_clocks(struct omap_hwmod *oh)
 
 	pr_debug("omap_hwmod: %s: disabling clocks\n", oh->name);
 
-	if (oh->_clk)
-		clk_disable(oh->_clk);
+	clk_disable(oh->_clk);
 
 	list_for_each_entry(os, &oh->slave_ports, node) {
-		if (os->_clk && (os->flags & OCPIF_SWSUP_IDLE))
+		if (os->flags & OCPIF_SWSUP_IDLE)
 			clk_disable(os->_clk);
 	}
 
