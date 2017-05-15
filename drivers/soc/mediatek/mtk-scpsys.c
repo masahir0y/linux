@@ -228,8 +228,7 @@ static int scpsys_power_on(struct generic_pm_domain *genpd)
 
 err_pwr_ack:
 	for (i = MAX_CLKS - 1; i >= 0; i--) {
-		if (scpd->clk[i])
-			clk_disable_unprepare(scpd->clk[i]);
+		clk_disable_unprepare(scpd->clk[i]);
 	}
 err_clk:
 	if (scpd->supply)
