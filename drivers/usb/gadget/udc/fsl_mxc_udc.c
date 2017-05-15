@@ -118,8 +118,7 @@ ioremap_err:
 
 void fsl_udc_clk_release(void)
 {
-	if (mxc_per_clk)
-		clk_disable_unprepare(mxc_per_clk);
+	clk_disable_unprepare(mxc_per_clk);
 	clk_disable_unprepare(mxc_ahb_clk);
 	clk_disable_unprepare(mxc_ipg_clk);
 }
