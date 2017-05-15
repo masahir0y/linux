@@ -1237,8 +1237,7 @@ static int omap_hsmmc_switch_opcond(struct omap_hsmmc_host *host, int vdd)
 	int ret;
 
 	/* Disable the clocks */
-	if (host->dbclk)
-		clk_disable_unprepare(host->dbclk);
+	clk_disable_unprepare(host->dbclk);
 
 	/* Turn the power off */
 	ret = omap_hsmmc_set_power(host, 0, 0);
@@ -2195,8 +2194,7 @@ err_irq:
 	pm_runtime_dont_use_autosuspend(host->dev);
 	pm_runtime_put_sync(host->dev);
 	pm_runtime_disable(host->dev);
-	if (host->dbclk)
-		clk_disable_unprepare(host->dbclk);
+	clk_disable_unprepare(host->dbclk);
 err1:
 err_gpio:
 	mmc_free_host(mmc);
@@ -2218,8 +2216,7 @@ static int omap_hsmmc_remove(struct platform_device *pdev)
 	pm_runtime_put_sync(host->dev);
 	pm_runtime_disable(host->dev);
 	device_init_wakeup(&pdev->dev, false);
-	if (host->dbclk)
-		clk_disable_unprepare(host->dbclk);
+	clk_disable_unprepare(host->dbclk);
 
 	mmc_free_host(host->mmc);
 
@@ -2244,8 +2241,7 @@ static int omap_hsmmc_suspend(struct device *dev)
 				OMAP_HSMMC_READ(host->base, HCTL) & ~SDBP);
 	}
 
-	if (host->dbclk)
-		clk_disable_unprepare(host->dbclk);
+	clk_disable_unprepare(host->dbclk);
 
 	pm_runtime_put_sync(host->dev);
 	return 0;
