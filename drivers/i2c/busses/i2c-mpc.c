@@ -743,8 +743,7 @@ static int fsl_i2c_probe(struct platform_device *op)
 	return result;
 
  fail_add:
-	if (i2c->clk_per)
-		clk_disable_unprepare(i2c->clk_per);
+	clk_disable_unprepare(i2c->clk_per);
 	free_irq(i2c->irq, i2c);
  fail_request:
 	irq_dispose_mapping(i2c->irq);
@@ -760,8 +759,7 @@ static int fsl_i2c_remove(struct platform_device *op)
 
 	i2c_del_adapter(&i2c->adap);
 
-	if (i2c->clk_per)
-		clk_disable_unprepare(i2c->clk_per);
+	clk_disable_unprepare(i2c->clk_per);
 
 	if (i2c->irq)
 		free_irq(i2c->irq, i2c);
