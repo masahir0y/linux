@@ -155,8 +155,7 @@ err_add:
 	if (pdata && pdata->exit)
 		pdata->exit(pdev);
 err_init:
-	if (priv->phyclk)
-		clk_disable_unprepare(priv->phyclk);
+	clk_disable_unprepare(priv->phyclk);
 
 	clk_disable_unprepare(priv->ahbclk);
 err_clk_ahb:
@@ -184,8 +183,7 @@ static int ehci_mxc_drv_remove(struct platform_device *pdev)
 	clk_disable_unprepare(priv->usbclk);
 	clk_disable_unprepare(priv->ahbclk);
 
-	if (priv->phyclk)
-		clk_disable_unprepare(priv->phyclk);
+	clk_disable_unprepare(priv->phyclk);
 
 	usb_put_hcd(hcd);
 	return 0;
