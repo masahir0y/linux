@@ -1630,8 +1630,7 @@ static int da7219_set_bias_level(struct snd_soc_codec *codec,
 
 		if (snd_soc_codec_get_bias_level(codec) == SND_SOC_BIAS_PREPARE) {
 			/* Remove MCLK */
-			if (da7219->mclk)
-				clk_disable_unprepare(da7219->mclk);
+			clk_disable_unprepare(da7219->mclk);
 		}
 		break;
 	case SND_SOC_BIAS_OFF:

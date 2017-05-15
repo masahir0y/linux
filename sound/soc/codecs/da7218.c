@@ -2611,8 +2611,7 @@ static int da7218_set_bias_level(struct snd_soc_codec *codec,
 					    DA7218_LDO_EN_MASK);
 		} else {
 			/* Remove MCLK */
-			if (da7218->mclk)
-				clk_disable_unprepare(da7218->mclk);
+			clk_disable_unprepare(da7218->mclk);
 		}
 		break;
 	case SND_SOC_BIAS_OFF:

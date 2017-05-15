@@ -199,7 +199,7 @@ static int platform_clock_control(struct snd_soc_dapm_widget *w,
 					     48000 * 512,
 					     SND_SOC_CLOCK_IN);
 		if (!ret) {
-			if ((byt_rt5640_quirk & BYT_RT5640_MCLK_EN) && priv->mclk)
+			if (byt_rt5640_quirk & BYT_RT5640_MCLK_EN)
 				clk_disable_unprepare(priv->mclk);
 		}
 	}

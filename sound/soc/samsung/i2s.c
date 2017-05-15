@@ -1122,8 +1122,7 @@ static int i2s_runtime_suspend(struct device *dev)
 	i2s->suspend_i2scon = readl(i2s->addr + I2SCON);
 	i2s->suspend_i2spsr = readl(i2s->addr + I2SPSR);
 
-	if (i2s->op_clk)
-		clk_disable_unprepare(i2s->op_clk);
+	clk_disable_unprepare(i2s->op_clk);
 	clk_disable_unprepare(i2s->clk);
 
 	return 0;

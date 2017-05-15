@@ -1516,8 +1516,7 @@ static int da7213_set_bias_level(struct snd_soc_codec *codec,
 					    DA7213_VMID_EN | DA7213_BIAS_EN);
 		} else {
 			/* Remove MCLK */
-			if (da7213->mclk)
-				clk_disable_unprepare(da7213->mclk);
+			clk_disable_unprepare(da7213->mclk);
 		}
 		break;
 	case SND_SOC_BIAS_OFF:

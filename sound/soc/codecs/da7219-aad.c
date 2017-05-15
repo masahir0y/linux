@@ -302,9 +302,8 @@ static void da7219_aad_hptest_work(struct work_struct *work)
 	snd_soc_update_bits(codec, DA7219_HP_R_CTRL, DA7219_HP_R_AMP_OE_MASK,
 			    DA7219_HP_R_AMP_OE_MASK);
 
-	/* Remove MCLK, if previously enabled */
-	if (da7219->mclk)
-		clk_disable_unprepare(da7219->mclk);
+	/* Remove MCLK */
+	clk_disable_unprepare(da7219->mclk);
 
 	mutex_unlock(&da7219->lock);
 	snd_soc_dapm_mutex_unlock(dapm);

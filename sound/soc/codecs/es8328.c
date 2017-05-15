@@ -812,8 +812,7 @@ static int es8328_remove(struct snd_soc_codec *codec)
 
 	es8328 = snd_soc_codec_get_drvdata(codec);
 
-	if (es8328->clk)
-		clk_disable_unprepare(es8328->clk);
+	clk_disable_unprepare(es8328->clk);
 
 	regulator_bulk_disable(ARRAY_SIZE(es8328->supplies),
 			       es8328->supplies);
