@@ -311,8 +311,7 @@ static int snvs_rtc_probe(struct platform_device *pdev)
 	return 0;
 
 error_rtc_device_register:
-	if (data->clk)
-		clk_disable_unprepare(data->clk);
+	clk_disable_unprepare(data->clk);
 
 	return ret;
 }
@@ -332,8 +331,7 @@ static int snvs_rtc_suspend_noirq(struct device *dev)
 {
 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
 
-	if (data->clk)
-		clk_disable_unprepare(data->clk);
+	clk_disable_unprepare(data->clk);
 
 	return 0;
 }
