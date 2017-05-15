@@ -1736,12 +1736,10 @@ static int delta_release(struct file *file)
 	v4l2_fh_exit(&ctx->fh);
 
 	/* disable ST231 clocks */
-	if (delta->clk_st231)
-		clk_disable_unprepare(delta->clk_st231);
+	clk_disable_unprepare(delta->clk_st231);
 
 	/* disable FLASH_PROMIP clock */
-	if (delta->clk_flash_promip)
-		clk_disable_unprepare(delta->clk_flash_promip);
+	clk_disable_unprepare(delta->clk_flash_promip);
 
 	dev_dbg(delta->dev, "%s decoder instance released\n", ctx->name);
 
@@ -1943,8 +1941,7 @@ static int delta_runtime_suspend(struct device *dev)
 {
 	struct delta_dev *delta = dev_get_drvdata(dev);
 
-	if (delta->clk_delta)
-		clk_disable_unprepare(delta->clk_delta);
+	clk_disable_unprepare(delta->clk_delta);
 
 	return 0;
 }
