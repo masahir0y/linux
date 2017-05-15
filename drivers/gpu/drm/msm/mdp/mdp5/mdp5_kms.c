@@ -252,8 +252,7 @@ int mdp5_disable(struct mdp5_kms *mdp5_kms)
 	clk_disable_unprepare(mdp5_kms->ahb_clk);
 	clk_disable_unprepare(mdp5_kms->axi_clk);
 	clk_disable_unprepare(mdp5_kms->core_clk);
-	if (mdp5_kms->lut_clk)
-		clk_disable_unprepare(mdp5_kms->lut_clk);
+	clk_disable_unprepare(mdp5_kms->lut_clk);
 
 	return 0;
 }

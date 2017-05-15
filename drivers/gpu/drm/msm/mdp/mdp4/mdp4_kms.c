@@ -202,11 +202,9 @@ int mdp4_disable(struct mdp4_kms *mdp4_kms)
 	DBG("");
 
 	clk_disable_unprepare(mdp4_kms->clk);
-	if (mdp4_kms->pclk)
-		clk_disable_unprepare(mdp4_kms->pclk);
+	clk_disable_unprepare(mdp4_kms->pclk);
 	clk_disable_unprepare(mdp4_kms->lut_clk);
-	if (mdp4_kms->axi_clk)
-		clk_disable_unprepare(mdp4_kms->axi_clk);
+	clk_disable_unprepare(mdp4_kms->axi_clk);
 
 	return 0;
 }

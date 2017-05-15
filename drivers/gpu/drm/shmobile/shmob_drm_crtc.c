@@ -61,8 +61,7 @@ static void shmob_drm_clk_off(struct shmob_drm_device *sdev)
 	if (sdev->meram_dev && sdev->meram_dev->pdev)
 		pm_runtime_put_sync(&sdev->meram_dev->pdev->dev);
 #endif
-	if (sdev->clock)
-		clk_disable_unprepare(sdev->clock);
+	clk_disable_unprepare(sdev->clock);
 }
 
 /* -----------------------------------------------------------------------------

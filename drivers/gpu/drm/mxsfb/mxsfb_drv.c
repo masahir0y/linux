@@ -87,8 +87,7 @@ void mxsfb_enable_axi_clk(struct mxsfb_drm_private *mxsfb)
 
 void mxsfb_disable_axi_clk(struct mxsfb_drm_private *mxsfb)
 {
-	if (mxsfb->clk_axi)
-		clk_disable_unprepare(mxsfb->clk_axi);
+	clk_disable_unprepare(mxsfb->clk_axi);
 }
 
 static const struct drm_mode_config_funcs mxsfb_mode_config_funcs = {

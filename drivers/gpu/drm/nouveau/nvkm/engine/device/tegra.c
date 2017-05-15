@@ -64,8 +64,7 @@ nvkm_device_tegra_power_up(struct nvkm_device_tegra *tdev)
 err_clamp:
 	clk_disable_unprepare(tdev->clk_pwr);
 err_clk_pwr:
-	if (tdev->clk_ref)
-		clk_disable_unprepare(tdev->clk_ref);
+	clk_disable_unprepare(tdev->clk_ref);
 err_clk_ref:
 	clk_disable_unprepare(tdev->clk);
 err_clk:
@@ -84,8 +83,7 @@ nvkm_device_tegra_power_down(struct nvkm_device_tegra *tdev)
 	udelay(10);
 
 	clk_disable_unprepare(tdev->clk_pwr);
-	if (tdev->clk_ref)
-		clk_disable_unprepare(tdev->clk_ref);
+	clk_disable_unprepare(tdev->clk_ref);
 	clk_disable_unprepare(tdev->clk);
 	udelay(10);
 

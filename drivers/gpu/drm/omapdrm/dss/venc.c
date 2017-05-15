@@ -943,8 +943,7 @@ static int venc_remove(struct platform_device *pdev)
 
 static int venc_runtime_suspend(struct device *dev)
 {
-	if (venc.tv_dac_clk)
-		clk_disable_unprepare(venc.tv_dac_clk);
+	clk_disable_unprepare(venc.tv_dac_clk);
 
 	dispc_runtime_put();
 

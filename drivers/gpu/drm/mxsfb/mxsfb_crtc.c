@@ -155,8 +155,7 @@ static void mxsfb_disable_controller(struct mxsfb_drm_private *mxsfb)
 	mxsfb_disable_axi_clk(mxsfb);
 
 	clk_disable_unprepare(mxsfb->clk);
-	if (mxsfb->clk_disp_axi)
-		clk_disable_unprepare(mxsfb->clk_disp_axi);
+	clk_disable_unprepare(mxsfb->clk_disp_axi);
 }
 
 static void mxsfb_crtc_mode_set_nofb(struct mxsfb_drm_private *mxsfb)

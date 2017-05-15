@@ -458,8 +458,7 @@ static void sti_gdp_disable(struct sti_gdp *gdp)
 	if (sti_vtg_unregister_client(gdp->vtg, &gdp->vtg_field_nb))
 		DRM_DEBUG_DRIVER("Warning: cannot unregister VTG notifier\n");
 
-	if (gdp->clk_pix)
-		clk_disable_unprepare(gdp->clk_pix);
+	clk_disable_unprepare(gdp->clk_pix);
 
 	gdp->plane.status = STI_PLANE_DISABLED;
 	gdp->vtg = NULL;

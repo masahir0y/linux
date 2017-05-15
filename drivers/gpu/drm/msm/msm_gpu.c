@@ -116,8 +116,7 @@ static int disable_clk(struct msm_gpu *gpu)
 	int i;
 
 	for (i = gpu->nr_clocks - 1; i >= 0; i--)
-		if (gpu->grp_clks[i])
-			clk_disable(gpu->grp_clks[i]);
+		clk_disable(gpu->grp_clks[i]);
 
 	for (i = gpu->nr_clocks - 1; i >= 0; i--)
 		if (gpu->grp_clks[i])
@@ -148,8 +147,7 @@ static int enable_axi(struct msm_gpu *gpu)
 
 static int disable_axi(struct msm_gpu *gpu)
 {
-	if (gpu->ebi1_clk)
-		clk_disable_unprepare(gpu->ebi1_clk);
+	clk_disable_unprepare(gpu->ebi1_clk);
 	if (gpu->bus_freq)
 		bs_set(gpu, 0);
 	return 0;
