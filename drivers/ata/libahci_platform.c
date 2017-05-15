@@ -129,8 +129,7 @@ void ahci_platform_disable_clks(struct ahci_host_priv *hpriv)
 	int c;
 
 	for (c = AHCI_MAX_CLKS - 1; c >= 0; c--)
-		if (hpriv->clks[c])
-			clk_disable_unprepare(hpriv->clks[c]);
+		clk_disable_unprepare(hpriv->clks[c]);
 }
 EXPORT_SYMBOL_GPL(ahci_platform_disable_clks);
 
