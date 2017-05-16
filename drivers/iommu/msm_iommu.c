@@ -82,8 +82,7 @@ fail:
 
 static void __disable_clocks(struct msm_iommu_dev *iommu)
 {
-	if (iommu->clk)
-		clk_disable(iommu->clk);
+	clk_disable(iommu->clk);
 	clk_disable(iommu->pclk);
 }
 

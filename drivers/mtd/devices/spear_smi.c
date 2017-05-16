@@ -1044,7 +1044,7 @@ static int spear_smi_suspend(struct device *dev)
 {
 	struct spear_smi *sdev = dev_get_drvdata(dev);
 
-	if (sdev && sdev->clk)
+	if (sdev)
 		clk_disable_unprepare(sdev->clk);
 
 	return 0;
