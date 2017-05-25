@@ -32,10 +32,15 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	int ret;
 	resource_size_t csr_base, mem_base;
 	unsigned long csr_len, mem_len;
-	struct denali_nand_info *denali;
+	struct denali_hw *denali;
+	struct denali_chip *denali_chip;
 
 	denali = devm_kzalloc(&dev->dev, sizeof(*denali), GFP_KERNEL);
 	if (!denali)
+		return -ENOMEM;
+
+	denali_chip = devm_kzalloc(&dev->dev, sizeof(*denali_chip), GFP_KERNEL);
+	if (!denali_chip)
 		return -ENOMEM;
 
 	ret = pcim_enable_device(dev);

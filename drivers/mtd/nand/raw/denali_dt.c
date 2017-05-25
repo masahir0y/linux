@@ -18,10 +18,15 @@
 #include "denali.h"
 
 struct denali_dt {
+<<<<<<< 3a62a98a96a25310f8b42c3d02b960bff921a484
 	struct denali_nand_info	denali;
 	struct clk *clk;	/* core clock */
 	struct clk *clk_x;	/* bus interface clock */
 	struct clk *clk_ecc;	/* ECC circuit clock */
+=======
+	struct denali_hw denali;
+	struct clk *clk;
+>>>>>>> mtd: nand: denali: decouple controller and NAND chips
 };
 
 struct denali_dt_data {
@@ -71,14 +76,55 @@ static const struct of_device_id denali_nand_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, denali_nand_dt_ids);
 
+static int denali_dt_chip_init(struct denali_hw *denali,
+			       struct device_node *chip_np)
+{
+	struct denali_chip *denali_chip;
+	u32 bank;
+	int nbanks, i, ret;
+
+	nbanks = of_property_count_u32_elems(chip_np, "reg");
+	if (nbanks < 0)
+		return nbanks;
+
+	denali_chip = devm_kzalloc(denali->dev,
+				   sizeof(*denali_chip) +
+				   nbanks * sizeof(denali_chip->banks[0]),
+				   GFP_KERNEL);
+	if (!denali_chip)
+		return -ENOMEM;
+
+	for (i = 0; i < nbanks; i++) {
+		ret = of_property_read_u32_index(chip_np, "reg", i, &bank);
+		if (ret)
+			return ret;
+
+		if (bank >= DENALI_NR_BANKS) {
+			return -EINVAL;
+		}
+
+		/* Does a chip really exist there? */
+		if (!(denali->probed_banks & BIT(bank)))
+			break;
+
+		denali_chip->banks[i] = bank;
+	}
+
+	/* number of chip selects that are really connected to chips */
+	denali_chip->nbanks = i;
+
+	return denali_chip_init(denali, denali_chip);
+}
+
 static int denali_dt_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct resource *res;
 	struct denali_dt *dt;
 	const struct denali_dt_data *data;
-	struct denali_nand_info *denali;
-	int ret;
+	struct denali_hw *denali;
+	struct device_node *np;
+	int i, ret;
 
 	dt = devm_kzalloc(dev, sizeof(*dt), GFP_KERNEL);
 	if (!dt)
@@ -109,6 +155,7 @@ static int denali_dt_probe(struct platform_device *pdev)
 	if (IS_ERR(denali->host))
 		return PTR_ERR(denali->host);
 
+<<<<<<< 3a62a98a96a25310f8b42c3d02b960bff921a484
 	/*
 	 * A single anonymous clock is supported for the backward compatibility.
 	 * New platforms should support all the named clocks.
@@ -116,6 +163,9 @@ static int denali_dt_probe(struct platform_device *pdev)
 	dt->clk = devm_clk_get(dev, "nand");
 	if (IS_ERR(dt->clk))
 		dt->clk = devm_clk_get(dev, NULL);
+=======
+	dt->clk = devm_clk_get(dev, NULL);
+>>>>>>> mtd: nand: denali: decouple controller and NAND chips
 	if (IS_ERR(dt->clk)) {
 		dev_err(dev, "no clk available\n");
 		return PTR_ERR(dt->clk);
@@ -159,7 +209,18 @@ static int denali_dt_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_disable_clk_ecc;
 
+	i = 0;
+	for_each_child_of_node(dev->of_node, np) {
+		ret = denali_dt_chip_init(denali, np);
+		if (ret)
+			dev_warn(dev, "Failed to init chip %d (error %d)\n",
+				 i, ret);
+		/* even if it failed, continue to init the next chip */
+		i++;
+	}
+
 	platform_set_drvdata(pdev, dt);
+
 	return 0;
 
 out_disable_clk_ecc:

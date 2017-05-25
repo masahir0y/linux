@@ -290,14 +290,41 @@
 #define     CHNL_ACTIVE__CHANNEL2			BIT(2)
 #define     CHNL_ACTIVE__CHANNEL3			BIT(3)
 
-struct denali_nand_info {
+#define DENALI_NR_BANKS		4
+
+struct device;
+struct device_node;
+
+struct denali_chip {
 	struct nand_chip nand;
 	unsigned long clk_rate;		/* core clock rate */
 	unsigned long clk_x_rate;	/* bus interface clock rate */
-	int active_bank;		/* currently selected bank */
+	struct device_node *of_node;
+	struct list_head node;
+	void *buf;
+	int pages_per_block;
+	int devs_per_bank;		/* devices connected in parallel */
+	int oob_skip_bytes;
+	int nbanks;
+	int banks[0];
+};
+
+struct denali_hw {
+	struct nand_hw_control nfc;
 	struct device *dev;
+	struct list_head chips;
+
 	void __iomem *reg;		/* Register Interface */
 	void __iomem *host;		/* Host Data/Command Interface */
+<<<<<<< bae2670507dd4a2531943240dfa1d0f960324f1b
+=======
+	unsigned long clk_x_rate;	/* bus interface clock rate */
+	int max_banks;
+	unsigned long probed_banks;	/* bit is set if a chip is present */
+	int active_bank;		/* currently selected bank */
+
+	/* elements used by ISR */
+>>>>>>> mtd: nand: denali: decouple controller and NAND chips
 	struct completion complete;
 	spinlock_t irq_lock;		/* protect irq_mask and irq_status */
 	u32 irq_mask;			/* interrupts we are waiting for */
@@ -305,12 +332,18 @@ struct denali_nand_info {
 	int irq;
 	void *buf;			/* for syndrome layout conversion */
 	dma_addr_t dma_addr;
+<<<<<<< bae2670507dd4a2531943240dfa1d0f960324f1b
 	int dma_avail;			/* can support DMA? */
 	int devs_per_cs;		/* devices connected in parallel */
 	int oob_skip_bytes;		/* number of bytes reserved for BBM */
 	int max_banks;
 	unsigned int revision;		/* IP revision */
 	unsigned int caps;		/* IP capability (or quirk) */
+=======
+	int dma_avail;
+	unsigned int revision;
+	unsigned int caps;
+>>>>>>> mtd: nand: denali: decouple controller and NAND chips
 	const struct nand_ecc_caps *ecc_caps;
 	u32 (*host_read)(struct denali_nand_info *denali, u32 addr);
 	void (*host_write)(struct denali_nand_info *denali, u32 addr, u32 data);
@@ -322,7 +355,13 @@ struct denali_nand_info {
 #define DENALI_CAP_DMA_64BIT			BIT(1)
 
 int denali_calc_ecc_bytes(int step_size, int strength);
+<<<<<<< 32b70be5afbac5e0d0f81ce8d5ec6da630a77d64
 int denali_init(struct denali_nand_info *denali);
 void denali_remove(struct denali_nand_info *denali);
+=======
+int denali_init(struct denali_hw *denali);
+int denali_chip_init(struct denali_hw *denali, struct denali_chip *denali_chip);
+void denali_remove(struct denali_hw *denali);
+>>>>>>> mtd: nand: denali: decouple controller and NAND chips
 
 #endif /* __DENALI_H__ */
