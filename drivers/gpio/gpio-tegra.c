@@ -364,7 +364,7 @@ static void tegra_gpio_irq_handler(struct irq_desc *desc)
 	int gpio;
 	u32 lvl;
 	unsigned long sta;
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct tegra_gpio_bank *bank = irq_desc_get_handler_data(desc);
 	struct tegra_gpio_info *tgi = bank->tgi;
 

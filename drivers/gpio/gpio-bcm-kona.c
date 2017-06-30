@@ -449,7 +449,7 @@ static void bcm_kona_gpio_irq_handler(struct irq_desc *desc)
 	int bit, bank_id;
 	unsigned long sta;
 	struct bcm_kona_gpio_bank *bank = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	chained_irq_enter(chip, desc);
 

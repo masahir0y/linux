@@ -214,7 +214,7 @@ static void pl061_irq_handler(struct irq_desc *desc)
 	int offset;
 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
 	struct pl061 *pl061 = gpiochip_get_data(gc);
-	struct irq_chip *irqchip = irq_desc_get_chip(desc);
+	const struct irq_chip *irqchip = irq_desc_get_chip(desc);
 
 	chained_irq_enter(irqchip, desc);
 

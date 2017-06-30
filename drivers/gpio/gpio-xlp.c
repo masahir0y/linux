@@ -209,7 +209,7 @@ static struct irq_chip xlp_gpio_irq_chip = {
 static void xlp_gpio_generic_handler(struct irq_desc *desc)
 {
 	struct xlp_gpio_priv *priv = irq_desc_get_handler_data(desc);
-	struct irq_chip *irqchip = irq_desc_get_chip(desc);
+	const struct irq_chip *irqchip = irq_desc_get_chip(desc);
 	int gpio, regoff;
 	u32 gpio_stat;
 

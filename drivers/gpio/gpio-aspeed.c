@@ -453,7 +453,7 @@ static int aspeed_gpio_set_type(struct irq_data *d, unsigned int type)
 static void aspeed_gpio_irq_handler(struct irq_desc *desc)
 {
 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
-	struct irq_chip *ic = irq_desc_get_chip(desc);
+	const struct irq_chip *ic = irq_desc_get_chip(desc);
 	struct aspeed_gpio *data = gpiochip_get_data(gc);
 	unsigned int i, p, girq;
 	unsigned long reg;

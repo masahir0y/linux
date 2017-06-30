@@ -536,7 +536,7 @@ static void zynq_gpio_irqhandler(struct irq_desc *desc)
 	unsigned int bank_num;
 	struct zynq_gpio *gpio =
 		gpiochip_get_data(irq_desc_get_handler_data(desc));
-	struct irq_chip *irqchip = irq_desc_get_chip(desc);
+	const struct irq_chip *irqchip = irq_desc_get_chip(desc);
 
 	chained_irq_enter(irqchip, desc);
 

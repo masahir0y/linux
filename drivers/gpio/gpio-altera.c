@@ -202,7 +202,7 @@ static int altera_gpio_direction_output(struct gpio_chip *gc,
 static void altera_gpio_irq_edge_handler(struct irq_desc *desc)
 {
 	struct altera_gpio_chip *altera_gc;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 	struct of_mm_gpio_chip *mm_gc;
 	struct irq_domain *irqdomain;
 	unsigned long status;
@@ -230,7 +230,7 @@ static void altera_gpio_irq_edge_handler(struct irq_desc *desc)
 static void altera_gpio_irq_leveL_high_handler(struct irq_desc *desc)
 {
 	struct altera_gpio_chip *altera_gc;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 	struct of_mm_gpio_chip *mm_gc;
 	struct irq_domain *irqdomain;
 	unsigned long status;
