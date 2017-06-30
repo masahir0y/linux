@@ -65,7 +65,7 @@ static int mtk_sysirq_set_type(struct irq_data *data, unsigned int type)
 	return ret;
 }
 
-static struct irq_chip mtk_sysirq_chip = {
+static const struct irq_chip mtk_sysirq_chip = {
 	.name			= "MT_SYSIRQ",
 	.irq_mask		= irq_chip_mask_parent,
 	.irq_unmask		= irq_chip_unmask_parent,

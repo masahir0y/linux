@@ -44,7 +44,7 @@ static int metag_internal_irq_set_affinity(struct irq_data *data,
 			const struct cpumask *cpumask, bool force);
 #endif
 
-static struct irq_chip internal_irq_edge_chip = {
+static const struct irq_chip internal_irq_edge_chip = {
 	.name = "HWSTATMETA-IRQ",
 	.irq_startup = metag_internal_irq_startup,
 	.irq_shutdown = metag_internal_irq_shutdown,

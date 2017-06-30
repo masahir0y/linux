@@ -127,7 +127,7 @@ static void asm9260_unmask_irq(struct irq_data *d)
 			icoll_intr_reg(d) + SET_REG);
 }
 
-static struct irq_chip mxs_icoll_chip = {
+static const struct irq_chip mxs_icoll_chip = {
 	.irq_ack = icoll_ack_irq,
 	.irq_mask = icoll_mask_irq,
 	.irq_unmask = icoll_unmask_irq,
@@ -135,7 +135,7 @@ static struct irq_chip mxs_icoll_chip = {
 		 IRQCHIP_SKIP_SET_WAKE,
 };
 
-static struct irq_chip asm9260_icoll_chip = {
+static const struct irq_chip asm9260_icoll_chip = {
 	.irq_ack = icoll_ack_irq,
 	.irq_mask = asm9260_mask_irq,
 	.irq_unmask = asm9260_unmask_irq,

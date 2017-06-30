@@ -48,7 +48,7 @@ static void alpine_msix_unmask_msi_irq(struct irq_data *d)
 	irq_chip_unmask_parent(d);
 }
 
-static struct irq_chip alpine_msix_irq_chip = {
+static const struct irq_chip alpine_msix_irq_chip = {
 	.name			= "MSIx",
 	.irq_mask		= alpine_msix_mask_msi_irq,
 	.irq_unmask		= alpine_msix_unmask_msi_irq,
@@ -107,7 +107,7 @@ static struct msi_domain_info alpine_msix_domain_info = {
 	.chip	= &alpine_msix_irq_chip,
 };
 
-static struct irq_chip middle_irq_chip = {
+static const struct irq_chip middle_irq_chip = {
 	.name			= "alpine_msix_middle",
 	.irq_mask		= irq_chip_mask_parent,
 	.irq_unmask		= irq_chip_unmask_parent,

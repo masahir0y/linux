@@ -92,14 +92,14 @@ static void nps400_irq_ack(struct irq_data *irqd)
 	write_aux_reg(CTOP_AUX_IACK, 1 << irq);
 }
 
-static struct irq_chip nps400_irq_chip_fasteoi = {
+static const struct irq_chip nps400_irq_chip_fasteoi = {
 	.name		= "NPS400 IC Global",
 	.irq_mask	= nps400_irq_mask,
 	.irq_unmask	= nps400_irq_unmask,
 	.irq_eoi	= nps400_irq_eoi_global,
 };
 
-static struct irq_chip nps400_irq_chip_percpu = {
+static const struct irq_chip nps400_irq_chip_percpu = {
 	.name		= "NPS400 IC",
 	.irq_mask	= nps400_irq_mask,
 	.irq_unmask	= nps400_irq_unmask,

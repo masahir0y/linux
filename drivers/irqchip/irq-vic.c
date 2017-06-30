@@ -189,7 +189,7 @@ static int __init vic_pm_init(void)
 late_initcall(vic_pm_init);
 #endif /* CONFIG_PM */
 
-static struct irq_chip vic_chip;
+static const struct irq_chip vic_chip;
 
 static int vic_irqdomain_map(struct irq_domain *d, unsigned int irq,
 			     irq_hw_number_t hwirq)
@@ -374,7 +374,7 @@ static int vic_set_wake(struct irq_data *d, unsigned int on)
 #define vic_set_wake NULL
 #endif /* CONFIG_PM */
 
-static struct irq_chip vic_chip = {
+static const struct irq_chip vic_chip = {
 	.name		= "VIC",
 	.irq_ack	= vic_ack_irq,
 	.irq_mask	= vic_mask_irq,

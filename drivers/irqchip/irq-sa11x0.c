@@ -57,7 +57,7 @@ static int sa1100_set_wake(struct irq_data *d, unsigned int on)
 	return sa11x0_sc_set_wake(d->hwirq, on);
 }
 
-static struct irq_chip sa1100_normal_chip = {
+static const struct irq_chip sa1100_normal_chip = {
 	.name		= "SC",
 	.irq_ack	= sa1100_mask_irq,
 	.irq_mask	= sa1100_mask_irq,

@@ -708,7 +708,7 @@ static void gic_cpu_pm_init(void)
 static inline void gic_cpu_pm_init(void) { }
 #endif /* CONFIG_CPU_PM */
 
-static struct irq_chip gic_chip = {
+static const struct irq_chip gic_chip = {
 	.name			= "GICv3",
 	.irq_mask		= gic_mask_irq,
 	.irq_unmask		= gic_unmask_irq,
@@ -720,7 +720,7 @@ static struct irq_chip gic_chip = {
 	.flags			= IRQCHIP_SET_TYPE_MASKED,
 };
 
-static struct irq_chip gic_eoimode1_chip = {
+static const struct irq_chip gic_eoimode1_chip = {
 	.name			= "GICv3",
 	.irq_mask		= gic_eoimode1_mask_irq,
 	.irq_unmask		= gic_unmask_irq,

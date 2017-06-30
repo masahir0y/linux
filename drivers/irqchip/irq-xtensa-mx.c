@@ -128,7 +128,7 @@ static int xtensa_mx_irq_set_affinity(struct irq_data *d,
 
 }
 
-static struct irq_chip xtensa_mx_irq_chip = {
+static const struct irq_chip xtensa_mx_irq_chip = {
 	.name		= "xtensa-mx",
 	.irq_enable	= xtensa_mx_irq_enable,
 	.irq_disable	= xtensa_mx_irq_disable,

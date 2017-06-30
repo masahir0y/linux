@@ -278,7 +278,7 @@ static int __init bcm6345_l1_init_one(struct device_node *dn,
 	return 0;
 }
 
-static struct irq_chip bcm6345_l1_irq_chip = {
+static const struct irq_chip bcm6345_l1_irq_chip = {
 	.name			= "bcm6345-l1",
 	.irq_mask		= bcm6345_l1_mask,
 	.irq_unmask		= bcm6345_l1_unmask,

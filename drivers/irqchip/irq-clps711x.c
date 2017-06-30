@@ -121,7 +121,7 @@ static void clps711x_intc_unmask(struct irq_data *d)
 	writel_relaxed(tmp, intmr);
 }
 
-static struct irq_chip clps711x_intc_chip = {
+static const struct irq_chip clps711x_intc_chip = {
 	.name		= "clps711x-intc",
 	.irq_eoi	= clps711x_intc_eoi,
 	.irq_mask	= clps711x_intc_mask,

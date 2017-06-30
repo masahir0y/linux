@@ -40,7 +40,7 @@ static void mask_and_ack_8259A(struct irq_data *d);
 static void init_8259A(int auto_eoi);
 static int (*i8259_poll)(void) = i8259_irq;
 
-static struct irq_chip i8259A_chip = {
+static const struct irq_chip i8259A_chip = {
 	.name			= "XT-PIC",
 	.irq_mask		= disable_8259A_irq,
 	.irq_disable		= disable_8259A_irq,

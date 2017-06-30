@@ -90,7 +90,7 @@ static void ar724x_misc_irq_ack(struct irq_data *d)
 	__raw_readl(base + AR71XX_RESET_REG_MISC_INT_STATUS);
 }
 
-static struct irq_chip ath79_misc_irq_chip = {
+static const struct irq_chip ath79_misc_irq_chip = {
 	.name		= "MISC",
 	.irq_unmask	= ar71xx_misc_irq_unmask,
 	.irq_mask	= ar71xx_misc_irq_mask,

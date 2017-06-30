@@ -146,7 +146,7 @@ static int mbigen_set_type(struct irq_data *data, unsigned int type)
 	return 0;
 }
 
-static struct irq_chip mbigen_irq_chip = {
+static const struct irq_chip mbigen_irq_chip = {
 	.name =			"mbigen-v2",
 	.irq_mask =		irq_chip_mask_parent,
 	.irq_unmask =		irq_chip_unmask_parent,

@@ -263,7 +263,7 @@ static int s3c_irqext0_type(struct irq_data *data, unsigned int type)
 				   extint_offset, type);
 }
 
-static struct irq_chip s3c_irq_chip = {
+static const struct irq_chip s3c_irq_chip = {
 	.name		= "s3c",
 	.irq_ack	= s3c_irq_ack,
 	.irq_mask	= s3c_irq_mask,
@@ -272,7 +272,7 @@ static struct irq_chip s3c_irq_chip = {
 	.irq_set_wake	= s3c_irq_wake
 };
 
-static struct irq_chip s3c_irq_level_chip = {
+static const struct irq_chip s3c_irq_level_chip = {
 	.name		= "s3c-level",
 	.irq_mask	= s3c_irq_mask,
 	.irq_unmask	= s3c_irq_unmask,
@@ -280,7 +280,7 @@ static struct irq_chip s3c_irq_level_chip = {
 	.irq_set_type	= s3c_irq_type,
 };
 
-static struct irq_chip s3c_irqext_chip = {
+static const struct irq_chip s3c_irqext_chip = {
 	.name		= "s3c-ext",
 	.irq_mask	= s3c_irq_mask,
 	.irq_unmask	= s3c_irq_unmask,
@@ -289,7 +289,7 @@ static struct irq_chip s3c_irqext_chip = {
 	.irq_set_wake	= s3c_irqext_wake
 };
 
-static struct irq_chip s3c_irq_eint0t4 = {
+static const struct irq_chip s3c_irq_eint0t4 = {
 	.name		= "s3c-ext0",
 	.irq_ack	= s3c_irq_ack,
 	.irq_mask	= s3c_irq_mask,

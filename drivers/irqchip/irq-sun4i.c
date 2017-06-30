@@ -70,7 +70,7 @@ static void sun4i_irq_unmask(struct irq_data *irqd)
 	       sun4i_irq_base + SUN4I_IRQ_ENABLE_REG(reg));
 }
 
-static struct irq_chip sun4i_irq_chip = {
+static const struct irq_chip sun4i_irq_chip = {
 	.name		= "sun4i_irq",
 	.irq_eoi	= sun4i_irq_ack,
 	.irq_mask	= sun4i_irq_mask,

@@ -207,7 +207,7 @@ static void tegra_ictlr_syscore_init(void)
 static inline void tegra_ictlr_syscore_init(void) {}
 #endif
 
-static struct irq_chip tegra_ictlr_chip = {
+static const struct irq_chip tegra_ictlr_chip = {
 	.name			= "LIC",
 	.irq_eoi		= tegra_eoi,
 	.irq_mask		= tegra_mask,

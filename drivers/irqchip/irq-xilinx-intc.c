@@ -95,7 +95,7 @@ static void intc_mask_ack(struct irq_data *d)
 	xintc_write(IAR, mask);
 }
 
-static struct irq_chip intc_dev = {
+static const struct irq_chip intc_dev = {
 	.name = "Xilinx INTC",
 	.irq_unmask = intc_enable_or_unmask,
 	.irq_mask = intc_disable_or_mask,

@@ -114,7 +114,7 @@ static int ft010_irq_set_type(struct irq_data *d, unsigned int trigger)
 	return 0;
 }
 
-static struct irq_chip ft010_irq_chip = {
+static const struct irq_chip ft010_irq_chip = {
 	.name		= "FTINTC010",
 	.irq_ack	= ft010_irq_ack,
 	.irq_mask	= ft010_irq_mask,

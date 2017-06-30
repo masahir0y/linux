@@ -84,7 +84,7 @@ static void gicv2m_unmask_msi_irq(struct irq_data *d)
 	irq_chip_unmask_parent(d);
 }
 
-static struct irq_chip gicv2m_msi_irq_chip = {
+static const struct irq_chip gicv2m_msi_irq_chip = {
 	.name			= "MSI",
 	.irq_mask		= gicv2m_mask_msi_irq,
 	.irq_unmask		= gicv2m_unmask_msi_irq,
@@ -113,7 +113,7 @@ static void gicv2m_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
 	iommu_dma_map_msi_msg(data->irq, msg);
 }
 
-static struct irq_chip gicv2m_irq_chip = {
+static const struct irq_chip gicv2m_irq_chip = {
 	.name			= "GICv2m",
 	.irq_mask		= irq_chip_mask_parent,
 	.irq_unmask		= irq_chip_unmask_parent,
@@ -236,7 +236,7 @@ static bool is_msi_spi_valid(u32 base, u32 num)
 	return true;
 }
 
-static struct irq_chip gicv2m_pmsi_irq_chip = {
+static const struct irq_chip gicv2m_pmsi_irq_chip = {
 	.name			= "pMSI",
 };
 

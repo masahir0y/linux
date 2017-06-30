@@ -138,7 +138,7 @@ static void imx_gpcv2_irq_mask(struct irq_data *d)
 	irq_chip_mask_parent(d);
 }
 
-static struct irq_chip gpcv2_irqchip_data_chip = {
+static const struct irq_chip gpcv2_irqchip_data_chip = {
 	.name			= "GPCv2",
 	.irq_eoi		= irq_chip_eoi_parent,
 	.irq_mask		= imx_gpcv2_irq_mask,

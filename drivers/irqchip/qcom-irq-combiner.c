@@ -104,7 +104,7 @@ static void combiner_irq_chip_unmask_irq(struct irq_data *data)
 	set_bit(data->hwirq % REG_SIZE, &reg->enabled);
 }
 
-static struct irq_chip irq_chip = {
+static const struct irq_chip irq_chip = {
 	.irq_mask = combiner_irq_chip_mask_irq,
 	.irq_unmask = combiner_irq_chip_unmask_irq,
 	.name = "qcom-irq-combiner"

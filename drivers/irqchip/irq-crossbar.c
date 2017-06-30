@@ -61,7 +61,7 @@ static void crossbar_writeb(int irq_no, int cb_no)
 	writeb(cb_no, cb->crossbar_base + cb->register_offsets[irq_no]);
 }
 
-static struct irq_chip crossbar_chip = {
+static const struct irq_chip crossbar_chip = {
 	.name			= "CBAR",
 	.irq_eoi		= irq_chip_eoi_parent,
 	.irq_mask		= irq_chip_mask_parent,

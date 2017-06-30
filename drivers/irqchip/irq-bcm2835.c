@@ -107,7 +107,7 @@ static void armctrl_unmask_irq(struct irq_data *d)
 	writel_relaxed(HWIRQ_BIT(d->hwirq), intc.enable[HWIRQ_BANK(d->hwirq)]);
 }
 
-static struct irq_chip armctrl_chip = {
+static const struct irq_chip armctrl_chip = {
 	.name = "ARMCTRL-level",
 	.irq_mask = armctrl_mask_irq,
 	.irq_unmask = armctrl_unmask_irq

@@ -286,7 +286,7 @@ static int __init bcm7038_l1_init_one(struct device_node *dn,
 	return 0;
 }
 
-static struct irq_chip bcm7038_l1_irq_chip = {
+static const struct irq_chip bcm7038_l1_irq_chip = {
 	.name			= "bcm7038-l1",
 	.irq_mask		= bcm7038_l1_mask,
 	.irq_unmask		= bcm7038_l1_unmask,

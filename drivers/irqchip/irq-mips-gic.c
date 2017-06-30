@@ -40,7 +40,7 @@ static int gic_shared_intrs;
 static int gic_vpes;
 static unsigned int gic_cpu_pin;
 static unsigned int timer_cpu_pin;
-static struct irq_chip gic_level_irq_controller, gic_edge_irq_controller;
+static const struct irq_chip gic_level_irq_controller, gic_edge_irq_controller;
 DECLARE_BITMAP(ipi_resrv, GIC_MAX_INTRS);
 DECLARE_BITMAP(ipi_available, GIC_MAX_INTRS);
 
@@ -469,7 +469,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *cpumask,
 }
 #endif
 
-static struct irq_chip gic_level_irq_controller = {
+static const struct irq_chip gic_level_irq_controller = {
 	.name			=	"MIPS GIC",
 	.irq_mask		=	gic_mask_irq,
 	.irq_unmask		=	gic_unmask_irq,
@@ -479,7 +479,7 @@ static struct irq_chip gic_level_irq_controller = {
 #endif
 };
 
-static struct irq_chip gic_edge_irq_controller = {
+static const struct irq_chip gic_edge_irq_controller = {
 	.name			=	"MIPS GIC",
 	.irq_ack		=	gic_ack_irq,
 	.irq_mask		=	gic_mask_irq,
@@ -525,7 +525,7 @@ static void gic_unmask_local_irq(struct irq_data *d)
 	gic_write32(GIC_REG(VPE_LOCAL, GIC_VPE_SMASK), 1 << intr);
 }
 
-static struct irq_chip gic_local_irq_controller = {
+static const struct irq_chip gic_local_irq_controller = {
 	.name			=	"MIPS GIC Local",
 	.irq_mask		=	gic_mask_local_irq,
 	.irq_unmask		=	gic_unmask_local_irq,
@@ -561,7 +561,7 @@ static void gic_unmask_local_irq_all_vpes(struct irq_data *d)
 	spin_unlock_irqrestore(&gic_lock, flags);
 }
 
-static struct irq_chip gic_all_vpes_local_irq_controller = {
+static const struct irq_chip gic_all_vpes_local_irq_controller = {
 	.name			=	"MIPS GIC Local",
 	.irq_mask		=	gic_mask_local_irq_all_vpes,
 	.irq_unmask		=	gic_unmask_local_irq_all_vpes,

@@ -53,7 +53,7 @@ static inline void mask_mips_irq(struct irq_data *d)
 	irq_disable_hazard();
 }
 
-static struct irq_chip mips_cpu_irq_controller = {
+static const struct irq_chip mips_cpu_irq_controller = {
 	.name		= "MIPS",
 	.irq_ack	= mask_mips_irq,
 	.irq_mask	= mask_mips_irq,
@@ -113,7 +113,7 @@ static void mips_mt_send_ipi(struct irq_data *d, unsigned int cpu)
 
 #endif /* CONFIG_GENERIC_IRQ_IPI */
 
-static struct irq_chip mips_mt_cpu_irq_controller = {
+static const struct irq_chip mips_mt_cpu_irq_controller = {
 	.name		= "MIPS",
 	.irq_startup	= mips_mt_cpu_irq_startup,
 	.irq_ack	= mips_mt_cpu_irq_ack,

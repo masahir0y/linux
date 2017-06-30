@@ -79,7 +79,7 @@ static void shirq_irq_unmask(struct irq_data *d)
 	raw_spin_unlock(&shirq_lock);
 }
 
-static struct irq_chip shirq_chip = {
+static const struct irq_chip shirq_chip = {
 	.name		= "spear-shirq",
 	.irq_mask	= shirq_irq_mask,
 	.irq_unmask	= shirq_irq_unmask,

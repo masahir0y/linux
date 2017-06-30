@@ -109,7 +109,7 @@ static int combiner_set_affinity(struct irq_data *d,
 }
 #endif
 
-static struct irq_chip combiner_chip = {
+static const struct irq_chip combiner_chip = {
 	.name			= "COMBINER",
 	.irq_mask		= combiner_mask_irq,
 	.irq_unmask		= combiner_unmask_irq,

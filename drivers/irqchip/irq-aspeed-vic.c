@@ -158,7 +158,7 @@ static void avic_mask_ack_irq(struct irq_data *d)
 		writel(sbit, vic->base + AVIC_EDGE_CLR + sidx * 4);
 }
 
-static struct irq_chip avic_chip = {
+static const struct irq_chip avic_chip = {
 	.name		= "AVIC",
 	.irq_ack	= avic_ack_irq,
 	.irq_mask	= avic_mask_irq,

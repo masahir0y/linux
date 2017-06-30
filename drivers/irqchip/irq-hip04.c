@@ -193,7 +193,7 @@ static void __exception_irq_entry hip04_handle_irq(struct pt_regs *regs)
 	} while (1);
 }
 
-static struct irq_chip hip04_irq_chip = {
+static const struct irq_chip hip04_irq_chip = {
 	.name			= "HIP04 INTC",
 	.irq_mask		= hip04_mask_irq,
 	.irq_unmask		= hip04_unmask_irq,

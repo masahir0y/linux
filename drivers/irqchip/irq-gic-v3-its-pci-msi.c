@@ -33,7 +33,7 @@ static void its_unmask_msi_irq(struct irq_data *d)
 	irq_chip_unmask_parent(d);
 }
 
-static struct irq_chip its_msi_irq_chip = {
+static const struct irq_chip its_msi_irq_chip = {
 	.name			= "ITS-MSI",
 	.irq_unmask		= its_unmask_msi_irq,
 	.irq_mask		= its_mask_msi_irq,

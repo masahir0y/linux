@@ -66,7 +66,7 @@ static void odmi_compose_msi_msg(struct irq_data *d, struct msi_msg *msg)
 	msg->data = odmin << GICP_ODMI_INT_NUM_SHIFT;
 }
 
-static struct irq_chip odmi_irq_chip = {
+static const struct irq_chip odmi_irq_chip = {
 	.name			= "ODMI",
 	.irq_mask		= irq_chip_mask_parent,
 	.irq_unmask		= irq_chip_unmask_parent,
@@ -145,7 +145,7 @@ static const struct irq_domain_ops odmi_domain_ops = {
 	.free	= odmi_irq_domain_free,
 };
 
-static struct irq_chip odmi_msi_irq_chip = {
+static const struct irq_chip odmi_msi_irq_chip = {
 	.name	= "ODMI",
 };
 

@@ -142,7 +142,7 @@ static int vt8500_irq_set_type(struct irq_data *d, unsigned int flow_type)
 	return 0;
 }
 
-static struct irq_chip vt8500_irq_chip = {
+static const struct irq_chip vt8500_irq_chip = {
 	.name = "vt8500",
 	.irq_ack = vt8500_irq_mask,
 	.irq_mask = vt8500_irq_mask,

@@ -36,7 +36,7 @@ struct ls_scfg_msi {
 	DECLARE_BITMAP(used, MSI_MAX_IRQS);
 };
 
-static struct irq_chip ls_scfg_msi_irq_chip = {
+static const struct irq_chip ls_scfg_msi_irq_chip = {
 	.name = "MSI",
 	.irq_mask	= pci_msi_mask_irq,
 	.irq_unmask	= pci_msi_unmask_irq,
@@ -64,7 +64,7 @@ static int ls_scfg_msi_set_affinity(struct irq_data *irq_data,
 	return -EINVAL;
 }
 
-static struct irq_chip ls_scfg_msi_parent_chip = {
+static const struct irq_chip ls_scfg_msi_parent_chip = {
 	.name			= "SCFG",
 	.irq_compose_msi_msg	= ls_scfg_msi_compose_msg,
 	.irq_set_affinity	= ls_scfg_msi_set_affinity,

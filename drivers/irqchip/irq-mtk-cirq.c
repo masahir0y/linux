@@ -96,7 +96,7 @@ static int mtk_cirq_set_type(struct irq_data *data, unsigned int type)
 	return ret;
 }
 
-static struct irq_chip mtk_cirq_chip = {
+static const struct irq_chip mtk_cirq_chip = {
 	.name			= "MT_CIRQ",
 	.irq_mask		= mtk_cirq_mask,
 	.irq_unmask		= mtk_cirq_unmask,

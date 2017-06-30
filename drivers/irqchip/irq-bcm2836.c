@@ -115,7 +115,7 @@ static void bcm2836_arm_irqchip_unmask_timer_irq(struct irq_data *d)
 					       smp_processor_id());
 }
 
-static struct irq_chip bcm2836_arm_irqchip_timer = {
+static const struct irq_chip bcm2836_arm_irqchip_timer = {
 	.name		= "bcm2836-timer",
 	.irq_mask	= bcm2836_arm_irqchip_mask_timer_irq,
 	.irq_unmask	= bcm2836_arm_irqchip_unmask_timer_irq,
@@ -131,7 +131,7 @@ static void bcm2836_arm_irqchip_unmask_pmu_irq(struct irq_data *d)
 	writel(1 << smp_processor_id(), intc.base + LOCAL_PM_ROUTING_SET);
 }
 
-static struct irq_chip bcm2836_arm_irqchip_pmu = {
+static const struct irq_chip bcm2836_arm_irqchip_pmu = {
 	.name		= "bcm2836-pmu",
 	.irq_mask	= bcm2836_arm_irqchip_mask_pmu_irq,
 	.irq_unmask	= bcm2836_arm_irqchip_unmask_pmu_irq,
@@ -145,13 +145,14 @@ static void bcm2836_arm_irqchip_unmask_gpu_irq(struct irq_data *d)
 {
 }
 
-static struct irq_chip bcm2836_arm_irqchip_gpu = {
+static const struct irq_chip bcm2836_arm_irqchip_gpu = {
 	.name		= "bcm2836-gpu",
 	.irq_mask	= bcm2836_arm_irqchip_mask_gpu_irq,
 	.irq_unmask	= bcm2836_arm_irqchip_unmask_gpu_irq,
 };
 
-static void bcm2836_arm_irqchip_register_irq(int hwirq, struct irq_chip *chip)
+static void bcm2836_arm_irqchip_register_irq(int hwirq,
+					     const struct irq_chip *chip)
 {
 	int irq = irq_create_mapping(intc.domain, hwirq);
 

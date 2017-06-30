@@ -114,7 +114,7 @@ static void vf610_mscm_ir_disable(struct irq_data *data)
 	irq_chip_disable_parent(data);
 }
 
-static struct irq_chip vf610_mscm_ir_irq_chip = {
+static const struct irq_chip vf610_mscm_ir_irq_chip = {
 	.name			= "mscm-ir",
 	.irq_mask		= irq_chip_mask_parent,
 	.irq_unmask		= irq_chip_unmask_parent,
