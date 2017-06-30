@@ -125,7 +125,7 @@ static bool migrate_one_irq(struct irq_desc *desc)
 {
 	struct irq_data *d = irq_desc_get_irq_data(desc);
 	const struct cpumask *affinity = irq_data_get_affinity_mask(d);
-	struct irq_chip *c;
+	const struct irq_chip *c;
 	bool ret = false;
 
 	/*

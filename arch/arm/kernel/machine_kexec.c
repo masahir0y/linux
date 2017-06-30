@@ -98,7 +98,7 @@ static void machine_kexec_mask_interrupts(void)
 	struct irq_desc *desc;
 
 	for_each_irq_desc(i, desc) {
-		struct irq_chip *chip;
+		const struct irq_chip *chip;
 
 		chip = irq_desc_get_chip(desc);
 		if (!chip)

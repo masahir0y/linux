@@ -106,7 +106,7 @@ static void omap_prcm_irq_handler(struct irq_desc *desc)
 {
 	unsigned long pending[OMAP_PRCM_MAX_NR_PENDING_REG];
 	unsigned long priority_pending[OMAP_PRCM_MAX_NR_PENDING_REG];
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned int virtirq;
 	int nr_irq = prcm_irq_setup->nr_regs * 32;
 
