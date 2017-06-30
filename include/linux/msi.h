@@ -256,7 +256,7 @@ struct msi_domain_ops {
 struct msi_domain_info {
 	u32			flags;
 	struct msi_domain_ops	*ops;
-	struct irq_chip		*chip;
+	const struct irq_chip	*chip;
 	void			*chip_data;
 	irq_flow_handler_t	handler;
 	void			*handler_data;
