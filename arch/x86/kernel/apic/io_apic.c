@@ -1355,7 +1355,7 @@ void __init print_IO_APICs(void)
 	printk(KERN_DEBUG "IRQ to pin mappings:\n");
 	for_each_active_irq(irq) {
 		struct irq_pin_list *entry;
-		struct irq_chip *chip;
+		const struct irq_chip *chip;
 		struct mp_chip_data *data;
 
 		chip = irq_get_chip(irq);
@@ -2527,7 +2527,7 @@ void __init setup_ioapic_dest(void)
 	const struct cpumask *mask;
 	struct irq_desc *desc;
 	struct irq_data *idata;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 
 	if (skip_ioapic_setup == 1)
 		return;

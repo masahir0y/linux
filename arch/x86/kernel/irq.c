@@ -436,7 +436,7 @@ void fixup_irqs(void)
 	static int warned;
 	struct irq_desc *desc;
 	struct irq_data *data;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 	int ret;
 
 	for_each_irq_desc(irq, desc) {
