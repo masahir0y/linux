@@ -180,7 +180,7 @@ static int pm8xxx_irq_master_handler(struct pm_irq_chip *chip, int master)
 static void pm8xxx_irq_handler(struct irq_desc *desc)
 {
 	struct pm_irq_chip *chip = irq_desc_get_handler_data(desc);
-	struct irq_chip *irq_chip = irq_desc_get_chip(desc);
+	const struct irq_chip *irq_chip = irq_desc_get_chip(desc);
 	unsigned int root;
 	int	i, ret, masters = 0;
 
@@ -242,7 +242,7 @@ static inline void pm8821_irq_master_handler(struct pm_irq_chip *chip,
 static void pm8821_irq_handler(struct irq_desc *desc)
 {
 	struct pm_irq_chip *chip = irq_desc_get_handler_data(desc);
-	struct irq_chip *irq_chip = irq_desc_get_chip(desc);
+	const struct irq_chip *irq_chip = irq_desc_get_chip(desc);
 	unsigned int master;
 	int ret;
 
