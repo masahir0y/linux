@@ -23,7 +23,23 @@
 
 #define JCORE_AIC1_INTPRI_REG	8
 
-static struct irq_chip jcore_aic;
+static void noop(struct irq_data *data)
+{
+}
+
+/*
+ * The irq chip framework requires either mask/unmask or enable/disable
+ * function pointers to be provided, but the hardware does not have any
+ * such mechanism; the only interrupt masking is at the cpu level and
+ * it affects all interrupts. We provide dummy mask/unmask. The hardware
+ * handles all interrupt control and clears pending status when the cpu
+ * accepts the interrupt.
+ */
+static const struct irq_chip jcore_aic = {
+	.name = "AIC",
+	.irq_mask = noop,
+	.irq_unmask = noop,
+};
 
 /*
  * The J-Core AIC1 and AIC2 are cpu-local interrupt controllers and do
@@ -46,9 +62,7 @@ static void handle_jcore_irq(struct irq_desc *desc)
 static int jcore_aic_irqdomain_map(struct irq_domain *d, unsigned int irq,
 				   irq_hw_number_t hwirq)
 {
-	struct irq_chip *aic = d->host_data;
-
-	irq_set_chip_and_handler(irq, aic, handle_jcore_irq);
+	irq_set_chip_and_handler(irq, &jcore_aic, handle_jcore_irq);
 
 	return 0;
 }
@@ -57,10 +71,6 @@ static const struct irq_domain_ops jcore_aic_irqdomain_ops = {
 	.map = jcore_aic_irqdomain_map,
 	.xlate = irq_domain_xlate_onecell,
 };
-
-static void noop(struct irq_data *data)
-{
-}
 
 static int __init aic_irq_of_init(struct device_node *node,
 				  struct device_node *parent)
@@ -88,20 +98,8 @@ static int __init aic_irq_of_init(struct device_node *node,
 		min_irq = JCORE_AIC1_MIN_HWIRQ;
 	}
 
-	/*
-	 * The irq chip framework requires either mask/unmask or enable/disable
-	 * function pointers to be provided, but the hardware does not have any
-	 * such mechanism; the only interrupt masking is at the cpu level and
-	 * it affects all interrupts. We provide dummy mask/unmask. The hardware
-	 * handles all interrupt control and clears pending status when the cpu
-	 * accepts the interrupt.
-	 */
-	jcore_aic.irq_mask = noop;
-	jcore_aic.irq_unmask = noop;
-	jcore_aic.name = "AIC";
-
 	domain = irq_domain_add_linear(node, dom_sz, &jcore_aic_irqdomain_ops,
-				       &jcore_aic);
+				       NULL);
 	if (!domain)
 		return -ENOMEM;
 	irq_create_strict_mappings(domain, min_irq, min_irq, dom_sz - min_irq);
