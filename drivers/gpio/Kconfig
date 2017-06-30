@@ -268,7 +268,7 @@ config GPIO_LPC18XX
 
 config GPIO_LYNXPOINT
 	tristate "Intel Lynxpoint GPIO support"
-	depends on ACPI && X86
+	depends on ACPI && (X86 || COMPILE_TEST)
 	select GPIOLIB_IRQCHIP
 	help
 	  driver for GPIO functionality on Intel Lynxpoint PCH chipset
@@ -1131,14 +1131,14 @@ config GPIO_BT8XX
 
 config GPIO_INTEL_MID
 	bool "Intel MID GPIO support"
-	depends on X86_INTEL_MID
+	depends on X86_INTEL_MID || COMPILE_TEST
 	select GPIOLIB_IRQCHIP
 	help
 	  Say Y here to support Intel MID GPIO.
 
 config GPIO_MERRIFIELD
 	tristate "Intel Merrifield GPIO support"
-	depends on X86_INTEL_MID
+	depends on X86_INTEL_MID || COMPILE_TEST
 	select GPIOLIB_IRQCHIP
 	help
 	  Say Y here to support Intel Merrifield GPIO.
