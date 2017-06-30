@@ -307,7 +307,7 @@ void unmask_irq(struct irq_desc *desc)
 
 void unmask_threaded_irq(struct irq_desc *desc)
 {
-	struct irq_chip *chip = desc->irq_data.chip;
+	const struct irq_chip *chip = desc->irq_data.chip;
 
 	if (chip->flags & IRQCHIP_EOI_THREADED)
 		chip->irq_eoi(&desc->irq_data);
@@ -537,7 +537,7 @@ static inline void preflow_handler(struct irq_desc *desc)
 static inline void preflow_handler(struct irq_desc *desc) { }
 #endif
 
-static void cond_unmask_eoi_irq(struct irq_desc *desc, struct irq_chip *chip)
+static void cond_unmask_eoi_irq(struct irq_desc *desc, const struct irq_chip *chip)
 {
 	if (!(desc->istate & IRQS_ONESHOT)) {
 		chip->irq_eoi(&desc->irq_data);
@@ -569,7 +569,7 @@ static void cond_unmask_eoi_irq(struct irq_desc *desc, struct irq_chip *chip)
  */
 void handle_fasteoi_irq(struct irq_desc *desc)
 {
-	struct irq_chip *chip = desc->irq_data.chip;
+	const struct irq_chip *chip = desc->irq_data.chip;
 
 	raw_spin_lock(&desc->lock);
 
@@ -730,7 +730,7 @@ out_eoi:
  */
 void handle_percpu_irq(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	kstat_incr_irqs_this_cpu(desc);
 
@@ -756,7 +756,7 @@ void handle_percpu_irq(struct irq_desc *desc)
  */
 void handle_percpu_devid_irq(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct irqaction *action = desc->action;
 	unsigned int irq = irq_desc_get_irq(desc);
 	irqreturn_t res;
@@ -931,7 +931,7 @@ EXPORT_SYMBOL_GPL(irq_modify_status);
 void irq_cpu_online(void)
 {
 	struct irq_desc *desc;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 	unsigned long flags;
 	unsigned int irq;
 
@@ -961,7 +961,7 @@ void irq_cpu_online(void)
 void irq_cpu_offline(void)
 {
 	struct irq_desc *desc;
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 	unsigned long flags;
 	unsigned int irq;
 

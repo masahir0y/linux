@@ -7,7 +7,7 @@
 void irq_move_masked_irq(struct irq_data *idata)
 {
 	struct irq_desc *desc = irq_data_to_desc(idata);
-	struct irq_chip *chip = desc->irq_data.chip;
+	const struct irq_chip *chip = desc->irq_data.chip;
 
 	if (likely(!irqd_is_setaffinity_pending(&desc->irq_data)))
 		return;

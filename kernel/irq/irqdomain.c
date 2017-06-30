@@ -785,7 +785,7 @@ static int virq_debug_show(struct seq_file *m, void *private)
 		domain = desc->irq_data.domain;
 
 		if (domain) {
-			struct irq_chip *chip;
+			const struct irq_chip *chip;
 			int hwirq = desc->irq_data.hwirq;
 			bool direct;
 
