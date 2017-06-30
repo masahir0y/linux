@@ -61,7 +61,7 @@ static inline u32 msi_readl(struct altera_msi *msi, const u32 reg)
 
 static void altera_msi_isr(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct altera_msi *msi;
 	unsigned long status;
 	u32 num_of_vectors;

@@ -118,7 +118,7 @@ static void ks_pcie_msi_irq_handler(struct irq_desc *desc)
 	u32 offset = irq - ks_pcie->msi_host_irqs[0];
 	struct dw_pcie *pci = ks_pcie->pci;
 	struct device *dev = pci->dev;
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	dev_dbg(dev, "%s, irq %d\n", __func__, irq);
 
@@ -147,7 +147,7 @@ static void ks_pcie_legacy_irq_handler(struct irq_desc *desc)
 	struct dw_pcie *pci = ks_pcie->pci;
 	struct device *dev = pci->dev;
 	u32 irq_offset = irq - ks_pcie->legacy_host_irqs[0];
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	dev_dbg(dev, ": Handling legacy irq %d\n", irq);
 

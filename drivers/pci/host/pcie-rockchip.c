@@ -787,7 +787,7 @@ static irqreturn_t rockchip_pcie_client_irq_handler(int irq, void *arg)
 
 static void rockchip_pcie_legacy_int_handler(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct rockchip_pcie *rockchip = irq_desc_get_handler_data(desc);
 	struct device *dev = rockchip->dev;
 	u32 reg;
