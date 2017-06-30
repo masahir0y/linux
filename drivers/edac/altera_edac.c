@@ -1652,7 +1652,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
 {
 	int dberr, bit, sm_offset, irq_status;
 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	int irq = irq_desc_get_irq(desc);
 
 	dberr = (irq == edac->db_irq) ? 1 : 0;
