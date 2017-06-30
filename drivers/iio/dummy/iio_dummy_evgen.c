@@ -65,7 +65,7 @@ static const char *iio_evgen_name = "iio_dummy_evgen";
 
 static void iio_dummy_event_irqmask(struct irq_data *d)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(d);
+	const struct irq_chip *chip = irq_data_get_irq_chip(d);
 	struct iio_dummy_eventgen *evgen =
 		container_of(chip, struct iio_dummy_eventgen, chip);
 
@@ -74,7 +74,7 @@ static void iio_dummy_event_irqmask(struct irq_data *d)
 
 static void iio_dummy_event_irqunmask(struct irq_data *d)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(d);
+	const struct irq_chip *chip = irq_data_get_irq_chip(d);
 	struct iio_dummy_eventgen *evgen =
 		container_of(chip, struct iio_dummy_eventgen, chip);
 

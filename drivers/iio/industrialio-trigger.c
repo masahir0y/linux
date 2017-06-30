@@ -500,7 +500,7 @@ static const struct device_type iio_trig_type = {
 
 static void iio_trig_subirqmask(struct irq_data *d)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(d);
+	const struct irq_chip *chip = irq_data_get_irq_chip(d);
 	struct iio_trigger *trig
 		= container_of(chip,
 			       struct iio_trigger, subirq_chip);
@@ -509,7 +509,7 @@ static void iio_trig_subirqmask(struct irq_data *d)
 
 static void iio_trig_subirqunmask(struct irq_data *d)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(d);
+	const struct irq_chip *chip = irq_data_get_irq_chip(d);
 	struct iio_trigger *trig
 		= container_of(chip,
 			       struct iio_trigger, subirq_chip);
