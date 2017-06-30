@@ -258,7 +258,7 @@ static void atmel_gpio_irq_handler(struct irq_desc *desc)
 {
 	unsigned int irq = irq_desc_get_irq(desc);
 	struct atmel_pioctrl *atmel_pioctrl = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned long isr;
 	int n, bank = -1;
 

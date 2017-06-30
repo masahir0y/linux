@@ -158,7 +158,7 @@ static void iproc_gpio_irq_handler(struct irq_desc *desc)
 {
 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
 	struct iproc_gpio *chip = gpiochip_get_data(gc);
-	struct irq_chip *irq_chip = irq_desc_get_chip(desc);
+	const struct irq_chip *irq_chip = irq_desc_get_chip(desc);
 	int i, bit;
 
 	chained_irq_enter(irq_chip, desc);

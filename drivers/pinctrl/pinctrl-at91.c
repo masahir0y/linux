@@ -1578,7 +1578,7 @@ static struct irq_chip gpio_irqchip = {
 
 static void gpio_irq_handler(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct gpio_chip *gpio_chip = irq_desc_get_handler_data(desc);
 	struct at91_gpio_chip *at91_gpio = gpiochip_get_data(gpio_chip);
 	void __iomem	*pio = at91_gpio->regbase;

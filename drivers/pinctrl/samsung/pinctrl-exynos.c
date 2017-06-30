@@ -45,7 +45,8 @@ struct exynos_irq_chip {
 	u32 eint_pend;
 };
 
-static inline struct exynos_irq_chip *to_exynos_irq_chip(struct irq_chip *chip)
+static inline struct exynos_irq_chip *to_exynos_irq_chip(
+						const struct irq_chip *chip)
 {
 	return container_of(chip, struct exynos_irq_chip, chip);
 }
@@ -73,7 +74,7 @@ static const struct samsung_pin_bank_type exynos5433_bank_type_alive = {
 
 static void exynos_irq_mask(struct irq_data *irqd)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
@@ -91,7 +92,7 @@ static void exynos_irq_mask(struct irq_data *irqd)
 
 static void exynos_irq_ack(struct irq_data *irqd)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	unsigned long reg_pend = our_chip->eint_pend + bank->eint_offset;
@@ -101,7 +102,7 @@ static void exynos_irq_ack(struct irq_data *irqd)
 
 static void exynos_irq_unmask(struct irq_data *irqd)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
@@ -130,7 +131,7 @@ static void exynos_irq_unmask(struct irq_data *irqd)
 
 static int exynos_irq_set_type(struct irq_data *irqd, unsigned int type)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	unsigned int shift = EXYNOS_EINT_CON_LEN * irqd->hwirq;
@@ -173,7 +174,7 @@ static int exynos_irq_set_type(struct irq_data *irqd, unsigned int type)
 
 static int exynos_irq_request_resources(struct irq_data *irqd)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	const struct samsung_pin_bank_type *bank_type = bank->type;
@@ -212,7 +213,7 @@ static int exynos_irq_request_resources(struct irq_data *irqd)
 
 static void exynos_irq_release_resources(struct irq_data *irqd)
 {
-	struct irq_chip *chip = irq_data_get_irq_chip(irqd);
+	const struct irq_chip *chip = irq_data_get_irq_chip(irqd);
 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
 	const struct samsung_pin_bank_type *bank_type = bank->type;
@@ -433,7 +434,7 @@ static void exynos_irq_eint0_15(struct irq_desc *desc)
 {
 	struct exynos_weint_data *eintd = irq_desc_get_handler_data(desc);
 	struct samsung_pin_bank *bank = eintd->bank;
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	int eint_irq;
 
 	chained_irq_enter(chip, desc);
@@ -459,7 +460,7 @@ static inline void exynos_irq_demux_eint(unsigned long pend,
 /* interrupt handler for wakeup interrupt 16 */
 static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct exynos_muxed_weint_data *eintd = irq_desc_get_handler_data(desc);
 	unsigned long pend;
 	unsigned long mask;

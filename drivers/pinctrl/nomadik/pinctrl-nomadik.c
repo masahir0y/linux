@@ -807,7 +807,7 @@ static void nmk_gpio_irq_shutdown(struct irq_data *d)
 
 static void __nmk_gpio_irq_handler(struct irq_desc *desc, u32 status)
 {
-	struct irq_chip *host_chip = irq_desc_get_chip(desc);
+	const struct irq_chip *host_chip = irq_desc_get_chip(desc);
 	struct gpio_chip *chip = irq_desc_get_handler_data(desc);
 
 	chained_irq_enter(host_chip, desc);

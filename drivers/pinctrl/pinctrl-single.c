@@ -1454,7 +1454,7 @@ static irqreturn_t pcs_irq_handler(int irq, void *d)
 static void pcs_irq_chain_handler(struct irq_desc *desc)
 {
 	struct pcs_soc_data *pcs_soc = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip;
+	const struct irq_chip *chip;
 
 	chip = irq_desc_get_chip(desc);
 	chained_irq_enter(chip, desc);
