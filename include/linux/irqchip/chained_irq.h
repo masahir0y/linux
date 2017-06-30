@@ -24,7 +24,7 @@
  * Entry/exit functions for chained handlers where the primary IRQ chip
  * may implement either fasteoi or level-trigger flow control.
  */
-static inline void chained_irq_enter(struct irq_chip *chip,
+static inline void chained_irq_enter(const struct irq_chip *chip,
 				     struct irq_desc *desc)
 {
 	/* FastEOI controllers require no action on entry. */
@@ -40,7 +40,7 @@ static inline void chained_irq_enter(struct irq_chip *chip,
 	}
 }
 
-static inline void chained_irq_exit(struct irq_chip *chip,
+static inline void chained_irq_exit(const struct irq_chip *chip,
 				    struct irq_desc *desc)
 {
 	if (chip->irq_eoi)
