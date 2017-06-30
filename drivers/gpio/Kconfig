@@ -480,7 +480,7 @@ config GPIO_VX855
 
 config GPIO_XGENE
 	bool "APM X-Gene GPIO controller support"
-	depends on ARM64 && OF_GPIO
+	depends on (ARM64 || COMPILE_TEST) && OF_GPIO
 	help
 	  This driver is to support the GPIO block within the APM X-Gene SoC
 	  platform's generic flash controller. The GPIO pins are muxed with
@@ -489,7 +489,7 @@ config GPIO_XGENE
 
 config GPIO_XGENE_SB
 	tristate "APM X-Gene GPIO standby controller support"
-	depends on ARCH_XGENE && OF_GPIO
+	depends on (ARCH_XGENE || COMPILE_TEST) && OF_GPIO
 	select GPIO_GENERIC
 	select GPIOLIB_IRQCHIP
 	help
