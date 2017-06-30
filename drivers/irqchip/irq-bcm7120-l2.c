@@ -59,7 +59,7 @@ static void bcm7120_l2_intc_irq_handle(struct irq_desc *desc)
 {
 	struct bcm7120_l1_intc_data *data = irq_desc_get_handler_data(desc);
 	struct bcm7120_l2_intc_data *b = data->b;
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned int idx;
 
 	chained_irq_enter(chip, desc);

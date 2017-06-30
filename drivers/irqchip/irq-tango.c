@@ -74,7 +74,7 @@ static void tangox_dispatch_irqs(struct irq_domain *dom, unsigned int status,
 static void tangox_irq_handler(struct irq_desc *desc)
 {
 	struct irq_domain *dom = irq_desc_get_handler_data(desc);
-	struct irq_chip *host_chip = irq_desc_get_chip(desc);
+	const struct irq_chip *host_chip = irq_desc_get_chip(desc);
 	struct tangox_irq_chip *chip = dom->host_data;
 	unsigned int status_lo, status_hi;
 

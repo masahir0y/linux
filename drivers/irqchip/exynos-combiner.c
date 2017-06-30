@@ -68,7 +68,7 @@ static void combiner_unmask_irq(struct irq_data *data)
 static void combiner_handle_cascade_irq(struct irq_desc *desc)
 {
 	struct combiner_chip_data *chip_data = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned int cascade_irq, combiner_irq;
 	unsigned long status;
 
@@ -99,7 +99,7 @@ static int combiner_set_affinity(struct irq_data *d,
 				 const struct cpumask *mask_val, bool force)
 {
 	struct combiner_chip_data *chip_data = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_get_chip(chip_data->parent_irq);
+	const struct irq_chip *chip = irq_get_chip(chip_data->parent_irq);
 	struct irq_data *data = irq_get_irq_data(chip_data->parent_irq);
 
 	if (chip && chip->irq_set_affinity)

@@ -67,7 +67,7 @@ static const struct irq_domain_ops ts4800_ic_ops = {
 static void ts4800_ic_chained_handle_irq(struct irq_desc *desc)
 {
 	struct ts4800_irq_data *data = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	u16 status = readw(data->base + IRQ_STATUS);
 
 	chained_irq_enter(chip, desc);

@@ -137,7 +137,7 @@ static const struct irq_domain_ops xintc_irq_domain_ops = {
 
 static void xil_intc_irq_handler(struct irq_desc *desc)
 {
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	u32 pending;
 
 	chained_irq_enter(chip, desc);

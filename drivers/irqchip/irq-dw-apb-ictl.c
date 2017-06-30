@@ -29,7 +29,7 @@
 static void dw_apb_ictl_handler(struct irq_desc *desc)
 {
 	struct irq_domain *d = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	int n;
 
 	chained_irq_enter(chip, desc);

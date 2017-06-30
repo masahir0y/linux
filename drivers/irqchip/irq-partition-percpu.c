@@ -42,7 +42,7 @@ static bool partition_check_cpu(struct partition_desc *part,
 static void partition_irq_mask(struct irq_data *d)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	if (partition_check_cpu(part, smp_processor_id(), d->hwirq) &&
@@ -53,7 +53,7 @@ static void partition_irq_mask(struct irq_data *d)
 static void partition_irq_unmask(struct irq_data *d)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	if (partition_check_cpu(part, smp_processor_id(), d->hwirq) &&
@@ -66,7 +66,7 @@ static int partition_irq_set_irqchip_state(struct irq_data *d,
 					   bool val)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	if (partition_check_cpu(part, smp_processor_id(), d->hwirq) &&
@@ -81,7 +81,7 @@ static int partition_irq_get_irqchip_state(struct irq_data *d,
 					   bool *val)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	if (partition_check_cpu(part, smp_processor_id(), d->hwirq) &&
@@ -94,7 +94,7 @@ static int partition_irq_get_irqchip_state(struct irq_data *d,
 static int partition_irq_set_type(struct irq_data *d, unsigned int type)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	if (chip->irq_set_type)
@@ -106,7 +106,7 @@ static int partition_irq_set_type(struct irq_data *d, unsigned int type)
 static void partition_irq_print_chip(struct irq_data *d, struct seq_file *p)
 {
 	struct partition_desc *part = irq_data_get_irq_chip_data(d);
-	struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
+	const struct irq_chip *chip = irq_desc_get_chip(part->chained_desc);
 	struct irq_data *data = irq_desc_get_irq_data(part->chained_desc);
 
 	seq_printf(p, " %5s-%lu", chip->name, data->hwirq);
@@ -124,7 +124,7 @@ static struct irq_chip partition_irq_chip = {
 static void partition_handle_irq(struct irq_desc *desc)
 {
 	struct partition_desc *part = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	int cpu = smp_processor_id();
 	int hwirq;
 

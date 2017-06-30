@@ -89,7 +89,7 @@ static const struct irq_domain_ops mvebu_pic_domain_ops = {
 static void mvebu_pic_handle_cascade_irq(struct irq_desc *desc)
 {
 	struct mvebu_pic *pic = irq_desc_get_handler_data(desc);
-	struct irq_chip *chip = irq_desc_get_chip(desc);
+	const struct irq_chip *chip = irq_desc_get_chip(desc);
 	unsigned long irqmap, irqn;
 	unsigned int cascade_irq;
 

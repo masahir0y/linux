@@ -738,7 +738,7 @@ static struct irq_chip gic_eoimode1_chip = {
 static int gic_irq_domain_map(struct irq_domain *d, unsigned int irq,
 			      irq_hw_number_t hw)
 {
-	struct irq_chip *chip = &gic_chip;
+	const struct irq_chip *chip = &gic_chip;
 
 	if (static_key_true(&supports_deactivate))
 		chip = &gic_eoimode1_chip;
