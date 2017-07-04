@@ -270,7 +270,13 @@ extern bool irq_domain_check_msi_remap(void);
 extern void irq_set_default_host(struct irq_domain *host);
 extern int irq_domain_alloc_descs(int virq, unsigned int nr_irqs,
 				  irq_hw_number_t hwirq, int node,
+<<<<<<< 202a0142600290803c8e4e93225792d909349fc4
 				  const struct irq_affinity_desc *affinity);
+=======
+				  const struct cpumask *affinity);
+extern void of_phandle_args_to_fwspec(struct of_phandle_args *irq_data,
+				      struct irq_fwspec *fwspec);
+>>>>>>> irqdomain: export of_phandle_args_to_fwspec
 
 static inline struct fwnode_handle *of_node_to_fwnode(struct device_node *node)
 {
