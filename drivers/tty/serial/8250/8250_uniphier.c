@@ -240,6 +240,8 @@ static int uniphier_uart_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, priv);
 
+	my_printk("UniPhier uart %p\n", membase);
+
 	return 0;
 }
 

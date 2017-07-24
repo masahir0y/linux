@@ -51,7 +51,7 @@ const struct uniphier_clk_data uniphier_ld4_peri_clk_data[] = {
 const struct uniphier_clk_data uniphier_pro4_peri_clk_data[] = {
 	UNIPHIER_PERI_CLK_UART(0, 0),
 	UNIPHIER_PERI_CLK_UART(1, 1),
-	UNIPHIER_PERI_CLK_UART(2, 2),
+	//UNIPHIER_PERI_CLK_UART(2, 2),
 	UNIPHIER_PERI_CLK_UART(3, 3),
 	UNIPHIER_PERI_CLK_FI2C(4, 0),
 	UNIPHIER_PERI_CLK_FI2C(5, 1),

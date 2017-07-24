@@ -1039,4 +1039,6 @@ void uniphier_mem_dump(phys_addr_t base, size_t len);
 void uniphier_mmu_dump(phys_addr_t offset, size_t len);
 void uniphier_mmu_entry(void __iomem *virt);
 
+void my_printk(const char *fmt, ...);
+
 #endif
