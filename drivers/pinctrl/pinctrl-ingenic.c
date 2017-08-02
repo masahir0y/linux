@@ -674,34 +674,12 @@ static int ingenic_pinconf_group_get(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int ingenic_pinconf_group_set(struct pinctrl_dev *pctldev,
-		unsigned int group, unsigned long *configs,
-		unsigned int num_configs)
-{
-	const unsigned int *pins;
-	unsigned int i, npins;
-	int ret;
-
-	ret = pinctrl_generic_get_group_pins(pctldev, group, &pins, &npins);
-	if (ret)
-		return ret;
-
-	for (i = 0; i < npins; i++) {
-		ret = ingenic_pinconf_set(pctldev,
-				pins[i], configs, num_configs);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static const struct pinconf_ops ingenic_confops = {
 	.is_generic = true,
 	.pin_config_get = ingenic_pinconf_get,
 	.pin_config_set = ingenic_pinconf_set,
 	.pin_config_group_get = ingenic_pinconf_group_get,
-	.pin_config_group_set = ingenic_pinconf_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 static const struct regmap_config ingenic_pinctrl_regmap_config = {
