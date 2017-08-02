@@ -530,31 +530,11 @@ static int uniphier_conf_pin_config_set(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int uniphier_conf_pin_config_group_set(struct pinctrl_dev *pctldev,
-					      unsigned selector,
-					      unsigned long *configs,
-					      unsigned num_configs)
-{
-	struct uniphier_pinctrl_priv *priv = pinctrl_dev_get_drvdata(pctldev);
-	const unsigned *pins = priv->socdata->groups[selector].pins;
-	unsigned num_pins = priv->socdata->groups[selector].num_pins;
-	int i, ret;
-
-	for (i = 0; i < num_pins; i++) {
-		ret = uniphier_conf_pin_config_set(pctldev, pins[i],
-						   configs, num_configs);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static const struct pinconf_ops uniphier_confops = {
 	.is_generic = true,
 	.pin_config_get = uniphier_conf_pin_config_get,
 	.pin_config_set = uniphier_conf_pin_config_set,
-	.pin_config_group_set = uniphier_conf_pin_config_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 static int uniphier_pmx_get_functions_count(struct pinctrl_dev *pctldev)
