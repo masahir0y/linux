@@ -151,6 +151,7 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 {
 	struct pinctrl_dev *pctldev = setting->pctldev;
 	const struct pinconf_ops *ops = pctldev->desc->confops;
+	const struct pinctrl_setting_configs *configs = &setting->data.configs;
 	int ret;
 
 	if (!ops) {
@@ -165,13 +166,13 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 			return -EINVAL;
 		}
 		ret = ops->pin_config_set(pctldev,
-				setting->data.configs.group_or_pin,
-				setting->data.configs.configs,
-				setting->data.configs.num_configs);
+					  configs->group_or_pin,
+					  configs->configs,
+					  configs->num_configs);
 		if (ret < 0) {
 			dev_err(pctldev->dev,
 				"pin_config_set op failed for pin %d\n",
-				setting->data.configs.group_or_pin);
+				configs->group_or_pin);
 			return ret;
 		}
 		break;
@@ -182,13 +183,13 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 			return -EINVAL;
 		}
 		ret = ops->pin_config_group_set(pctldev,
-				setting->data.configs.group_or_pin,
-				setting->data.configs.configs,
-				setting->data.configs.num_configs);
+						configs->group_or_pin,
+						configs->configs,
+						configs->num_configs);
 		if (ret < 0) {
 			dev_err(pctldev->dev,
 				"pin_config_group_set op failed for group %d\n",
-				setting->data.configs.group_or_pin);
+				configs->group_or_pin);
 			return ret;
 		}
 		break;
