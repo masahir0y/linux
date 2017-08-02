@@ -297,24 +297,6 @@ static int meson_pinconf_get(struct pinctrl_dev *pcdev, unsigned int pin,
 	return 0;
 }
 
-static int meson_pinconf_group_set(struct pinctrl_dev *pcdev,
-				   unsigned int num_group,
-				   unsigned long *configs, unsigned num_configs)
-{
-	struct meson_pinctrl *pc = pinctrl_dev_get_drvdata(pcdev);
-	struct meson_pmx_group *group = &pc->data->groups[num_group];
-	int i;
-
-	dev_dbg(pc->dev, "set pinconf for group %s\n", group->name);
-
-	for (i = 0; i < group->num_pins; i++) {
-		meson_pinconf_set(pcdev, group->pins[i], configs,
-				  num_configs);
-	}
-
-	return 0;
-}
-
 static int meson_pinconf_group_get(struct pinctrl_dev *pcdev,
 				   unsigned int group, unsigned long *config)
 {
@@ -325,7 +307,7 @@ static const struct pinconf_ops meson_pinconf_ops = {
 	.pin_config_get		= meson_pinconf_get,
 	.pin_config_set		= meson_pinconf_set,
 	.pin_config_group_get	= meson_pinconf_group_get,
-	.pin_config_group_set	= meson_pinconf_group_set,
+	.pin_config_group_set	= pinconf_simple_group_set,
 	.is_generic		= true,
 };
 
