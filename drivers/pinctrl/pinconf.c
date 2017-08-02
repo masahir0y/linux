@@ -161,14 +161,10 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 
 	switch (setting->type) {
 	case PIN_MAP_TYPE_CONFIGS_PIN:
-		if (!ops->pin_config_set) {
-			dev_err(pctldev->dev, "missing pin_config_set op\n");
-			return -EINVAL;
-		}
-		ret = ops->pin_config_set(pctldev,
-					  configs->group_or_pin,
-					  configs->configs,
-					  configs->num_configs);
+		ret = pinconf_set_config(pctldev,
+					 configs->group_or_pin,
+					 configs->configs,
+					 configs->num_configs);
 		if (ret < 0) {
 			dev_err(pctldev->dev,
 				"pin_config_set op failed for pin %d\n",
