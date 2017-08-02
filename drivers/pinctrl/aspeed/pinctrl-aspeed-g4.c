@@ -2424,7 +2424,7 @@ static const struct pinconf_ops aspeed_g4_conf_ops = {
 	.pin_config_get = aspeed_pin_config_get,
 	.pin_config_set = aspeed_pin_config_set,
 	.pin_config_group_get = aspeed_pin_config_group_get,
-	.pin_config_group_set = aspeed_pin_config_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 static struct pinctrl_desc aspeed_g4_pinctrl_desc = {

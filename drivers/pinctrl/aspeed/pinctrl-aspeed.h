@@ -605,9 +605,5 @@ int aspeed_pin_config_set(struct pinctrl_dev *pctldev, unsigned int offset,
 int aspeed_pin_config_group_get(struct pinctrl_dev *pctldev,
 		unsigned int selector,
 		unsigned long *config);
-int aspeed_pin_config_group_set(struct pinctrl_dev *pctldev,
-		unsigned int selector,
-		unsigned long *configs,
-		unsigned int num_configs);
 
 #endif /* PINCTRL_ASPEED */

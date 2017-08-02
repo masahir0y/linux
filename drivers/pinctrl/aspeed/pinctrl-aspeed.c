@@ -753,29 +753,3 @@ int aspeed_pin_config_group_get(struct pinctrl_dev *pctldev,
 
 	return rc;
 }
-
-int aspeed_pin_config_group_set(struct pinctrl_dev *pctldev,
-		unsigned int selector,
-		unsigned long *configs,
-		unsigned int num_configs)
-{
-	const unsigned int *pins;
-	unsigned int npins;
-	int rc;
-	int i;
-
-	pr_debug("%s: Fetching pins for group selector %d\n",
-			__func__, selector);
-	rc = aspeed_pinctrl_get_group_pins(pctldev, selector, &pins, &npins);
-	if (rc < 0)
-		return rc;
-
-	for (i = 0; i < npins; i++) {
-		rc = aspeed_pin_config_set(pctldev, pins[i], configs,
-				num_configs);
-		if (rc < 0)
-			return rc;
-	}
-
-	return 0;
-}
