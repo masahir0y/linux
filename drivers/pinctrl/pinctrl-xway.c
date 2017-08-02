@@ -1468,27 +1468,10 @@ static int xway_pinconf_set(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-int xway_pinconf_group_set(struct pinctrl_dev *pctldev,
-			unsigned selector,
-			unsigned long *configs,
-			unsigned num_configs)
-{
-	struct ltq_pinmux_info *info = pinctrl_dev_get_drvdata(pctldev);
-	int i, ret = 0;
-
-	for (i = 0; i < info->grps[selector].npins && !ret; i++)
-		ret = xway_pinconf_set(pctldev,
-				info->grps[selector].pins[i],
-				configs,
-				num_configs);
-
-	return ret;
-}
-
 static const struct pinconf_ops xway_pinconf_ops = {
 	.pin_config_get	= xway_pinconf_get,
 	.pin_config_set	= xway_pinconf_set,
-	.pin_config_group_set = xway_pinconf_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 static struct pinctrl_desc xway_pctrl_desc = {
