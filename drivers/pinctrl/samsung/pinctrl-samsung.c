@@ -465,24 +465,6 @@ static int samsung_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin,
 	return samsung_pinconf_rw(pctldev, pin, config, false);
 }
 
-/* set the pin config settings for a specified pin group */
-static int samsung_pinconf_group_set(struct pinctrl_dev *pctldev,
-			unsigned group, unsigned long *configs,
-			unsigned num_configs)
-{
-	struct samsung_pinctrl_drv_data *drvdata;
-	const unsigned int *pins;
-	unsigned int cnt;
-
-	drvdata = pinctrl_dev_get_drvdata(pctldev);
-	pins = drvdata->pin_groups[group].pins;
-
-	for (cnt = 0; cnt < drvdata->pin_groups[group].num_pins; cnt++)
-		samsung_pinconf_set(pctldev, pins[cnt], configs, num_configs);
-
-	return 0;
-}
-
 /* get the pin config settings for a specified pin group */
 static int samsung_pinconf_group_get(struct pinctrl_dev *pctldev,
 				unsigned int group, unsigned long *config)
@@ -501,7 +483,7 @@ static const struct pinconf_ops samsung_pinconf_ops = {
 	.pin_config_get		= samsung_pinconf_get,
 	.pin_config_set		= samsung_pinconf_set,
 	.pin_config_group_get	= samsung_pinconf_group_get,
-	.pin_config_group_set	= samsung_pinconf_group_set,
+	.pin_config_group_set	= pinconf_simple_group_set,
 };
 
 /*

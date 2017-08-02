@@ -495,25 +495,6 @@ static int exynos5440_pinconf_get(struct pinctrl_dev *pctldev, unsigned int pin,
 	return 0;
 }
 
-/* set the pin config settings for a specified pin group */
-static int exynos5440_pinconf_group_set(struct pinctrl_dev *pctldev,
-			unsigned group, unsigned long *configs,
-			unsigned num_configs)
-{
-	struct exynos5440_pinctrl_priv_data *priv;
-	const unsigned int *pins;
-	unsigned int cnt;
-
-	priv = pinctrl_dev_get_drvdata(pctldev);
-	pins = priv->pin_groups[group].pins;
-
-	for (cnt = 0; cnt < priv->pin_groups[group].num_pins; cnt++)
-		exynos5440_pinconf_set(pctldev, pins[cnt], configs,
-				       num_configs);
-
-	return 0;
-}
-
 /* get the pin config settings for a specified pin group */
 static int exynos5440_pinconf_group_get(struct pinctrl_dev *pctldev,
 				unsigned int group, unsigned long *config)
@@ -532,7 +513,7 @@ static const struct pinconf_ops exynos5440_pinconf_ops = {
 	.pin_config_get		= exynos5440_pinconf_get,
 	.pin_config_set		= exynos5440_pinconf_set,
 	.pin_config_group_get	= exynos5440_pinconf_group_get,
-	.pin_config_group_set	= exynos5440_pinconf_group_set,
+	.pin_config_group_set	= pinconf_simple_group_set,
 };
 
 /* gpiolib gpio_set callback function */
