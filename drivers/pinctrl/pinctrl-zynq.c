@@ -1129,30 +1129,11 @@ static int zynq_pinconf_cfg_set(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int zynq_pinconf_group_set(struct pinctrl_dev *pctldev,
-				  unsigned int selector,
-				  unsigned long *configs,
-				  unsigned int  num_configs)
-{
-	int i, ret;
-	struct zynq_pinctrl *pctrl = pinctrl_dev_get_drvdata(pctldev);
-	const struct zynq_pctrl_group *pgrp = &pctrl->groups[selector];
-
-	for (i = 0; i < pgrp->npins; i++) {
-		ret = zynq_pinconf_cfg_set(pctldev, pgrp->pins[i], configs,
-					   num_configs);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static const struct pinconf_ops zynq_pinconf_ops = {
 	.is_generic = true,
 	.pin_config_get = zynq_pinconf_cfg_get,
 	.pin_config_set = zynq_pinconf_cfg_set,
-	.pin_config_group_set = zynq_pinconf_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 static struct pinctrl_desc zynq_desc = {
