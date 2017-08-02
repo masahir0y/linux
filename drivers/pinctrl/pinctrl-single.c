@@ -600,24 +600,6 @@ static int pcs_pinconf_group_get(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int pcs_pinconf_group_set(struct pinctrl_dev *pctldev,
-				unsigned group, unsigned long *configs,
-				unsigned num_configs)
-{
-	const unsigned *pins;
-	unsigned npins;
-	int i, ret;
-
-	ret = pinctrl_generic_get_group_pins(pctldev, group, &pins, &npins);
-	if (ret)
-		return ret;
-	for (i = 0; i < npins; i++) {
-		if (pcs_pinconf_set(pctldev, pins[i], configs, num_configs))
-			return -ENOTSUPP;
-	}
-	return 0;
-}
-
 static void pcs_pinconf_dbg_show(struct pinctrl_dev *pctldev,
 				struct seq_file *s, unsigned pin)
 {
@@ -639,7 +621,7 @@ static const struct pinconf_ops pcs_pinconf_ops = {
 	.pin_config_get = pcs_pinconf_get,
 	.pin_config_set = pcs_pinconf_set,
 	.pin_config_group_get = pcs_pinconf_group_get,
-	.pin_config_group_set = pcs_pinconf_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 	.pin_config_dbg_show = pcs_pinconf_dbg_show,
 	.pin_config_group_dbg_show = pcs_pinconf_group_dbg_show,
 	.pin_config_config_dbg_show = pcs_pinconf_config_dbg_show,
