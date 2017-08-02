@@ -887,35 +887,11 @@ static int artpec6_pconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 	return 0;
 }
 
-static int artpec6_pconf_group_set(struct pinctrl_dev *pctldev,
-				   unsigned int group, unsigned long *configs,
-				   unsigned int num_configs)
-{
-	unsigned int num_pins, current_pin;
-	int ret;
-
-	dev_dbg(pctldev->dev, "setting group %s configuration\n",
-		artpec6_get_group_name(pctldev, group));
-
-	num_pins = artpec6_pin_groups[group].num_pins;
-
-	for (current_pin = 0; current_pin < num_pins; current_pin++) {
-		ret = artpec6_pconf_set(pctldev,
-				artpec6_pin_groups[group].pins[current_pin],
-				configs, num_configs);
-
-		if (ret < 0)
-			return ret;
-	}
-
-	return 0;
-}
-
 static const struct pinconf_ops artpec6_pconf_ops = {
 	.is_generic		= true,
 	.pin_config_get		= artpec6_pconf_get,
 	.pin_config_set		= artpec6_pconf_set,
-	.pin_config_group_set	= artpec6_pconf_group_set,
+	.pin_config_group_set	= pinconf_simple_group_set,
 };
 
 static struct pinctrl_desc artpec6_desc = {
