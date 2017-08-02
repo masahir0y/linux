@@ -5376,28 +5376,9 @@ static int atlas7_pin_config_set(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int atlas7_pin_config_group_set(struct pinctrl_dev *pctldev,
-				unsigned group, unsigned long *configs,
-				unsigned num_configs)
-{
-	const unsigned *pins;
-	unsigned npins;
-	int i, ret;
-
-	ret = atlas7_pinctrl_get_group_pins(pctldev, group, &pins, &npins);
-	if (ret)
-		return ret;
-	for (i = 0; i < npins; i++) {
-		if (atlas7_pin_config_set(pctldev, pins[i],
-					  configs, num_configs))
-			return -ENOTSUPP;
-	}
-	return 0;
-}
-
 static const struct pinconf_ops atlas7_pinconf_ops = {
 	.pin_config_set = atlas7_pin_config_set,
-	.pin_config_group_set = atlas7_pin_config_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 	.is_generic = true,
 };
 
