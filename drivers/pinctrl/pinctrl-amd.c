@@ -731,29 +731,11 @@ static int amd_pinconf_group_get(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
-static int amd_pinconf_group_set(struct pinctrl_dev *pctldev,
-				unsigned group, unsigned long *configs,
-				unsigned num_configs)
-{
-	const unsigned *pins;
-	unsigned npins;
-	int i, ret;
-
-	ret = amd_get_group_pins(pctldev, group, &pins, &npins);
-	if (ret)
-		return ret;
-	for (i = 0; i < npins; i++) {
-		if (amd_pinconf_set(pctldev, pins[i], configs, num_configs))
-			return -ENOTSUPP;
-	}
-	return 0;
-}
-
 static const struct pinconf_ops amd_pinconf_ops = {
 	.pin_config_get		= amd_pinconf_get,
 	.pin_config_set		= amd_pinconf_set,
 	.pin_config_group_get = amd_pinconf_group_get,
-	.pin_config_group_set = amd_pinconf_group_set,
+	.pin_config_group_set = pinconf_simple_group_set,
 };
 
 #ifdef CONFIG_PM_SLEEP
