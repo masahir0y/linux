@@ -234,19 +234,6 @@ static const struct pinmux_ops mxs_pinmux_ops = {
 	.set_mux = mxs_pinctrl_set_mux,
 };
 
-static int mxs_pinconf_get(struct pinctrl_dev *pctldev,
-			   unsigned pin, unsigned long *config)
-{
-	return -ENOTSUPP;
-}
-
-static int mxs_pinconf_set(struct pinctrl_dev *pctldev,
-			   unsigned pin, unsigned long *configs,
-			   unsigned num_configs)
-{
-	return -ENOTSUPP;
-}
-
 static int mxs_pinconf_group_get(struct pinctrl_dev *pctldev,
 				 unsigned group, unsigned long *config)
 {
@@ -336,8 +323,6 @@ static void mxs_pinconf_group_dbg_show(struct pinctrl_dev *pctldev,
 }
 
 static const struct pinconf_ops mxs_pinconf_ops = {
-	.pin_config_get = mxs_pinconf_get,
-	.pin_config_set = mxs_pinconf_set,
 	.pin_config_group_get = mxs_pinconf_group_get,
 	.pin_config_group_set = mxs_pinconf_group_set,
 	.pin_config_dbg_show = mxs_pinconf_dbg_show,
