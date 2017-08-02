@@ -106,6 +106,31 @@ unlock:
 	return ret;
 }
 
+int pinconf_set_config(struct pinctrl_dev *pctldev, unsigned pin,
+		       unsigned long *configs, size_t nconfigs)
+{
+	const struct pinconf_ops *ops;
+
+	ops = pctldev->desc->confops;
+	if (!ops || !ops->pin_config_set)
+		return -ENOTSUPP;
+
+	return ops->pin_config_set(pctldev, pin, configs, nconfigs);
+}
+
+static int pinconf_group_set_config(struct pinctrl_dev *pctldev,
+				    unsigned int selector,
+				    unsigned long *configs, size_t nconfigs)
+{
+	const struct pinconf_ops *ops;
+
+	ops = pctldev->desc->confops;
+	if (!ops || !ops->pin_config_group_set)
+		return -ENOTSUPP;
+
+	return ops->pin_config_group_set(pctldev, selector, configs, nconfigs);
+}
+
 int pinconf_map_to_setting(const struct pinctrl_map *map,
 			  struct pinctrl_setting *setting)
 {
@@ -173,15 +198,10 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 		}
 		break;
 	case PIN_MAP_TYPE_CONFIGS_GROUP:
-		if (!ops->pin_config_group_set) {
-			dev_err(pctldev->dev,
-				"missing pin_config_group_set op\n");
-			return -EINVAL;
-		}
-		ret = ops->pin_config_group_set(pctldev,
-						configs->group_or_pin,
-						configs->configs,
-						configs->num_configs);
+		ret = pinconf_group_set_config(pctldev,
+					       configs->group_or_pin,
+					       configs->configs,
+					       configs->num_configs);
 		if (ret < 0) {
 			dev_err(pctldev->dev,
 				"pin_config_group_set op failed for group %d\n",
@@ -194,18 +214,6 @@ int pinconf_apply_setting(const struct pinctrl_setting *setting)
 	}
 
 	return 0;
-}
-
-int pinconf_set_config(struct pinctrl_dev *pctldev, unsigned pin,
-		       unsigned long *configs, size_t nconfigs)
-{
-	const struct pinconf_ops *ops;
-
-	ops = pctldev->desc->confops;
-	if (!ops || !ops->pin_config_set)
-		return -ENOTSUPP;
-
-	return ops->pin_config_set(pctldev, pin, configs, nconfigs);
 }
 
 #ifdef CONFIG_DEBUG_FS
