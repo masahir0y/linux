@@ -735,32 +735,11 @@ static int sh_pfc_pinconf_set(struct pinctrl_dev *pctldev, unsigned _pin,
 	return 0;
 }
 
-static int sh_pfc_pinconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
-				    unsigned long *configs,
-				    unsigned num_configs)
-{
-	struct sh_pfc_pinctrl *pmx = pinctrl_dev_get_drvdata(pctldev);
-	const unsigned int *pins;
-	unsigned int num_pins;
-	unsigned int i, ret;
-
-	pins = pmx->pfc->info->groups[group].pins;
-	num_pins = pmx->pfc->info->groups[group].nr_pins;
-
-	for (i = 0; i < num_pins; ++i) {
-		ret = sh_pfc_pinconf_set(pctldev, pins[i], configs, num_configs);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-
 static const struct pinconf_ops sh_pfc_pinconf_ops = {
 	.is_generic			= true,
 	.pin_config_get			= sh_pfc_pinconf_get,
 	.pin_config_set			= sh_pfc_pinconf_set,
-	.pin_config_group_set		= sh_pfc_pinconf_group_set,
+	.pin_config_group_set		= pinconf_simple_group_set,
 	.pin_config_config_dbg_show	= pinconf_generic_dump_config,
 };
 
