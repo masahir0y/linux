@@ -327,32 +327,22 @@ void irq_shutdown(struct irq_desc *desc)
 
 void irq_enable(struct irq_desc *desc)
 {
-	if (!irqd_irq_disabled(&desc->irq_data)) {
-		unmask_irq(desc);
-	} else {
-		irq_state_clr_disabled(desc);
-		if (desc->irq_data.chip->irq_enable) {
-			desc->irq_data.chip->irq_enable(&desc->irq_data);
-			irq_state_clr_masked(desc);
-		} else {
-			unmask_irq(desc);
-		}
-	}
+	irq_state_clr_disabled(desc);
+	if (desc->irq_data.chip->irq_enable)
+		desc->irq_data.chip->irq_enable(&desc->irq_data);
+	else
+		desc->irq_data.chip->irq_unmask(&desc->irq_data);
+	irq_state_clr_masked(desc);
 }
 
 static void __irq_disable(struct irq_desc *desc, bool mask)
 {
-	if (irqd_irq_disabled(&desc->irq_data)) {
-		if (mask)
-			mask_irq(desc);
-	} else {
-		irq_state_set_disabled(desc);
-		if (desc->irq_data.chip->irq_disable) {
-			desc->irq_data.chip->irq_disable(&desc->irq_data);
-			irq_state_set_masked(desc);
-		} else if (mask) {
-			mask_irq(desc);
-		}
+	irq_state_set_disabled(desc);
+	if (desc->irq_data.chip->irq_disable) {
+		desc->irq_data.chip->irq_disable(&desc->irq_data);
+		irq_state_set_masked(desc);
+	} else if (mask) {
+		mask_irq(desc);
 	}
 }
 
@@ -401,21 +391,18 @@ void irq_percpu_disable(struct irq_desc *desc, unsigned int cpu)
 
 static inline void mask_ack_irq(struct irq_desc *desc)
 {
-	if (desc->irq_data.chip->irq_mask_ack) {
+	if (desc->irq_data.chip->irq_mask_ack)
 		desc->irq_data.chip->irq_mask_ack(&desc->irq_data);
-		irq_state_set_masked(desc);
-	} else {
-		mask_irq(desc);
+	else {
+		desc->irq_data.chip->irq_mask(&desc->irq_data);
 		if (desc->irq_data.chip->irq_ack)
 			desc->irq_data.chip->irq_ack(&desc->irq_data);
 	}
+	irq_state_set_masked(desc);
 }
 
 void mask_irq(struct irq_desc *desc)
 {
-	if (irqd_irq_masked(&desc->irq_data))
-		return;
-
 	if (desc->irq_data.chip->irq_mask) {
 		desc->irq_data.chip->irq_mask(&desc->irq_data);
 		irq_state_set_masked(desc);
@@ -424,9 +411,6 @@ void mask_irq(struct irq_desc *desc)
 
 void unmask_irq(struct irq_desc *desc)
 {
-	if (!irqd_irq_masked(&desc->irq_data))
-		return;
-
 	if (desc->irq_data.chip->irq_unmask) {
 		desc->irq_data.chip->irq_unmask(&desc->irq_data);
 		irq_state_clr_masked(desc);
@@ -440,7 +424,10 @@ void unmask_threaded_irq(struct irq_desc *desc)
 	if (chip->flags & IRQCHIP_EOI_THREADED)
 		chip->irq_eoi(&desc->irq_data);
 
-	unmask_irq(desc);
+	if (chip->irq_unmask) {
+		chip->irq_unmask(&desc->irq_data);
+		irq_state_clr_masked(desc);
+	}
 }
 
 /*
