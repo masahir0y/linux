@@ -40,6 +40,36 @@ struct uniphier_pinctrl_priv {
 	struct list_head reg_regions;
 };
 
+static unsigned int uniphier_pin_get_iectrl(void *drv_data)
+{
+	return ((unsigned long)drv_data >> UNIPHIER_PIN_IECTRL_SHIFT) &
+						UNIPHIER_PIN_IECTRL_MASK;
+}
+
+static unsigned int uniphier_pin_get_drvctrl(void *drv_data)
+{
+	return ((unsigned long)drv_data >> UNIPHIER_PIN_DRVCTRL_SHIFT) &
+						UNIPHIER_PIN_DRVCTRL_MASK;
+}
+
+static unsigned int uniphier_pin_get_drv_type(void *drv_data)
+{
+	return ((unsigned long)drv_data >> UNIPHIER_PIN_DRV_TYPE_SHIFT) &
+						UNIPHIER_PIN_DRV_TYPE_MASK;
+}
+
+static unsigned int uniphier_pin_get_pupdctrl(void *drv_data)
+{
+	return ((unsigned long)drv_data >> UNIPHIER_PIN_PUPDCTRL_SHIFT) &
+						UNIPHIER_PIN_PUPDCTRL_MASK;
+}
+
+static unsigned int uniphier_pin_get_pull_dir(void *drv_data)
+{
+	return ((unsigned long)drv_data >> UNIPHIER_PIN_PULL_DIR_SHIFT) &
+						UNIPHIER_PIN_PULL_DIR_MASK;
+}
+
 static int uniphier_pctl_get_groups_count(struct pinctrl_dev *pctldev)
 {
 	struct uniphier_pinctrl_priv *priv = pinctrl_dev_get_drvdata(pctldev);
