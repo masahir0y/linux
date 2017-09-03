@@ -7,6 +7,7 @@
 #ifndef __PINCTRL_UNIPHIER_H__
 #define __PINCTRL_UNIPHIER_H__
 
+#include <linux/bitfield.h>
 #include <linux/bits.h>
 #include <linux/build_bug.h>
 #include <linux/kernel.h>
@@ -14,43 +15,11 @@
 
 struct platform_device;
 
-/* input enable control register bit */
-#define UNIPHIER_PIN_IECTRL_SHIFT	0
-#define UNIPHIER_PIN_IECTRL_BITS	3
-#define UNIPHIER_PIN_IECTRL_MASK	((1UL << (UNIPHIER_PIN_IECTRL_BITS)) \
-					 - 1)
-
-/* drive strength control register number */
-#define UNIPHIER_PIN_DRVCTRL_SHIFT	((UNIPHIER_PIN_IECTRL_SHIFT) + \
-					(UNIPHIER_PIN_IECTRL_BITS))
-#define UNIPHIER_PIN_DRVCTRL_BITS	9
-#define UNIPHIER_PIN_DRVCTRL_MASK	((1UL << (UNIPHIER_PIN_DRVCTRL_BITS)) \
-					 - 1)
-
-/* drive control type */
-#define UNIPHIER_PIN_DRV_TYPE_SHIFT	((UNIPHIER_PIN_DRVCTRL_SHIFT) + \
-					 (UNIPHIER_PIN_DRVCTRL_BITS))
-#define UNIPHIER_PIN_DRV_TYPE_BITS	3
-#define UNIPHIER_PIN_DRV_TYPE_MASK	((1UL << (UNIPHIER_PIN_DRV_TYPE_BITS)) \
-					 - 1)
-
-/* pull-up / pull-down register number */
-#define UNIPHIER_PIN_PUPDCTRL_SHIFT	((UNIPHIER_PIN_DRV_TYPE_SHIFT) + \
-					 (UNIPHIER_PIN_DRV_TYPE_BITS))
-#define UNIPHIER_PIN_PUPDCTRL_BITS	9
-#define UNIPHIER_PIN_PUPDCTRL_MASK	((1UL << (UNIPHIER_PIN_PUPDCTRL_BITS))\
-					 - 1)
-
-/* direction of pull register */
-#define UNIPHIER_PIN_PULL_DIR_SHIFT	((UNIPHIER_PIN_PUPDCTRL_SHIFT) + \
-					 (UNIPHIER_PIN_PUPDCTRL_BITS))
-#define UNIPHIER_PIN_PULL_DIR_BITS	3
-#define UNIPHIER_PIN_PULL_DIR_MASK	((1UL << (UNIPHIER_PIN_PULL_DIR_BITS))\
-					 - 1)
-
-#if UNIPHIER_PIN_PULL_DIR_SHIFT + UNIPHIER_PIN_PULL_DIR_BITS > BITS_PER_LONG
-#error "unable to pack pin attributes."
-#endif
+#define UNIPHIER_PIN_IECTRL_MASK	GENMASK(2, 0) /* input enable ctrl */
+#define UNIPHIER_PIN_DRVCTRL_MASK	GENMASK(11, 3) /* drive strength ctrl */
+#define UNIPHIER_PIN_DRV_TYPE_MASK	GENMASK(14, 12) /* drive control type */
+#define UNIPHIER_PIN_PUPDCTRL_MASK	GENMASK(23, 15) /* pull-up/down ctrl */
+#define UNIPHIER_PIN_PULL_DIR_MASK	GENMASK(26, 24) /* pull direction */
 
 #define UNIPHIER_PIN_IECTRL_NONE	(UNIPHIER_PIN_IECTRL_MASK)
 #define UNIPHIER_PIN_IECTRL_EXIST	0
@@ -75,16 +44,11 @@ enum uniphier_pin_pull_dir {
 	UNIPHIER_PIN_PULL_NONE,		/* no pull register */
 };
 
-#define UNIPHIER_PIN_IECTRL(x) \
-	(((x) & (UNIPHIER_PIN_IECTRL_MASK)) << (UNIPHIER_PIN_IECTRL_SHIFT))
-#define UNIPHIER_PIN_DRVCTRL(x) \
-	(((x) & (UNIPHIER_PIN_DRVCTRL_MASK)) << (UNIPHIER_PIN_DRVCTRL_SHIFT))
-#define UNIPHIER_PIN_DRV_TYPE(x) \
-	(((x) & (UNIPHIER_PIN_DRV_TYPE_MASK)) << (UNIPHIER_PIN_DRV_TYPE_SHIFT))
-#define UNIPHIER_PIN_PUPDCTRL(x) \
-	(((x) & (UNIPHIER_PIN_PUPDCTRL_MASK)) << (UNIPHIER_PIN_PUPDCTRL_SHIFT))
-#define UNIPHIER_PIN_PULL_DIR(x) \
-	(((x) & (UNIPHIER_PIN_PULL_DIR_MASK)) << (UNIPHIER_PIN_PULL_DIR_SHIFT))
+#define UNIPHIER_PIN_IECTRL(x)	FIELD_PREP((UNIPHIER_PIN_IECTRL_MASK), (x))
+#define UNIPHIER_PIN_DRVCTRL(x)	FIELD_PREP((UNIPHIER_PIN_DRVCTRL_MASK), (x))
+#define UNIPHIER_PIN_DRV_TYPE(x)	FIELD_PREP((UNIPHIER_PIN_DRV_TYPE_MASK), (x))
+#define UNIPHIER_PIN_PUPDCTRL(x)	FIELD_PREP((UNIPHIER_PIN_PUPDCTRL_MASK), (x))
+#define UNIPHIER_PIN_PULL_DIR(x)	FIELD_PREP((UNIPHIER_PIN_PULL_DIR_MASK), (x))
 
 #define UNIPHIER_PIN_ATTR_PACKED(iectrl, drvctrl, drv_type, pupdctrl, pull_dir)\
 				(UNIPHIER_PIN_IECTRL(iectrl) |		\

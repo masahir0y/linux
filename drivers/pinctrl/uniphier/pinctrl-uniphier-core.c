@@ -3,6 +3,7 @@
 // Copyright (C) 2015-2017 Socionext Inc.
 //   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
 
+#include <linux/bitfield.h>
 #include <linux/list.h>
 #include <linux/mfd/syscon.h>
 #include <linux/of.h>
@@ -42,32 +43,27 @@ struct uniphier_pinctrl_priv {
 
 static unsigned int uniphier_pin_get_iectrl(void *drv_data)
 {
-	return ((unsigned long)drv_data >> UNIPHIER_PIN_IECTRL_SHIFT) &
-						UNIPHIER_PIN_IECTRL_MASK;
+	return FIELD_GET(UNIPHIER_PIN_IECTRL_MASK, (unsigned long)drv_data);
 }
 
 static unsigned int uniphier_pin_get_drvctrl(void *drv_data)
 {
-	return ((unsigned long)drv_data >> UNIPHIER_PIN_DRVCTRL_SHIFT) &
-						UNIPHIER_PIN_DRVCTRL_MASK;
+	return FIELD_GET(UNIPHIER_PIN_DRVCTRL_MASK, (unsigned long)drv_data);
 }
 
 static unsigned int uniphier_pin_get_drv_type(void *drv_data)
 {
-	return ((unsigned long)drv_data >> UNIPHIER_PIN_DRV_TYPE_SHIFT) &
-						UNIPHIER_PIN_DRV_TYPE_MASK;
+	return FIELD_GET(UNIPHIER_PIN_DRV_TYPE_MASK, (unsigned long)drv_data);
 }
 
 static unsigned int uniphier_pin_get_pupdctrl(void *drv_data)
 {
-	return ((unsigned long)drv_data >> UNIPHIER_PIN_PUPDCTRL_SHIFT) &
-						UNIPHIER_PIN_PUPDCTRL_MASK;
+	return FIELD_GET(UNIPHIER_PIN_PUPDCTRL_MASK, (unsigned long)drv_data);
 }
 
 static unsigned int uniphier_pin_get_pull_dir(void *drv_data)
 {
-	return ((unsigned long)drv_data >> UNIPHIER_PIN_PULL_DIR_SHIFT) &
-						UNIPHIER_PIN_PULL_DIR_MASK;
+	return FIELD_GET(UNIPHIER_PIN_PULL_DIR_MASK, (unsigned long)drv_data);
 }
 
 static int uniphier_pctl_get_groups_count(struct pinctrl_dev *pctldev)
