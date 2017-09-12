@@ -43,8 +43,7 @@
  *	  FIELD_PREP(REG_FIELD_D, 0x40);
  *
  * Modify:
- *  reg &= ~REG_FIELD_C;
- *  reg |= FIELD_PREP(REG_FIELD_C, c);
+ *  reg = FIELD_UPDATE(reg, REG_FIELD_C, c);
  */
 
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
@@ -84,10 +83,15 @@
  * FIELD_PREP() masks and shifts up the value.  The result should
  * be combined with other fields of the bitfield using logical OR.
  */
+#define __FIELD_PREP(_mask, _val)					\
+{									\
+		((typeof(_mask))(_val) << __bf_shf(_mask)) & (_mask);	\
+}
+
 #define FIELD_PREP(_mask, _val)						\
 	({								\
 		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_PREP: ");	\
-		((typeof(_mask))(_val) << __bf_shf(_mask)) & (_mask);	\
+		__FIELD_PREP(_mask, _val);				\
 	})
 
 /**
@@ -149,5 +153,20 @@ __MAKE_OP(32)
 __MAKE_OP(64)
 #undef __MAKE_OP
 #undef ____MAKE_OP
+
+/**
+ * FIELD_UPDATE() - update a bitfield element
+ * @_reg:  value of entire bitfield
+ * @_mask: shifted mask defining the field's length and position
+ * @_val:  value to replace the field with
+ *
+ * FIELD_UPDATE() updates @_reg, replacing the field specified by @_mask
+ * with a new value @_val.
+ */
+#define FIELD_UPDATE(_reg, _mask, _val)					\
+	({								\
+		__BF_FIELD_CHECK(_mask, _reg, _val, "FIELD_UPDATE: ");	\
+		((typeof(_mask))(_reg) & ~(_mask)) | __FIELD_PREP(_mask, _val);\
+	})
 
 #endif
