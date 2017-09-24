@@ -78,7 +78,6 @@ static struct irq_chip crossbar_chip = {
 static int allocate_gic_irq(struct irq_domain *domain, unsigned virq,
 			    irq_hw_number_t hwirq)
 {
-	struct irq_fwspec fwspec;
 	int i;
 	int err;
 
@@ -97,13 +96,8 @@ static int allocate_gic_irq(struct irq_domain *domain, unsigned virq,
 	if (i < 0)
 		return -ENODEV;
 
-	fwspec.fwnode = domain->parent->fwnode;
-	fwspec.param_count = 3;
-	fwspec.param[0] = 0;	/* SPI */
-	fwspec.param[1] = i;
-	fwspec.param[2] = IRQ_TYPE_LEVEL_HIGH;
-
-	err = irq_domain_alloc_irqs_parent(domain, virq, 1, &fwspec);
+	err = irq_domain_alloc_irqs_parent(domain, virq, 1,
+					   (void *)(uintptr_t)(hwirq + 32));
 	if (err)
 		cb->irq_map[i] = IRQ_FREE;
 	else
@@ -116,15 +110,9 @@ static int crossbar_domain_alloc(struct irq_domain *d, unsigned int virq,
 				 unsigned int nr_irqs, void *data)
 {
 	struct irq_fwspec *fwspec = data;
-	irq_hw_number_t hwirq;
+	irq_hw_number_t hwirq = (uintptr_t)data;
 	int i;
 
-	if (fwspec->param_count != 3)
-		return -EINVAL;	/* Not GIC compliant */
-	if (fwspec->param[0] != 0)
-		return -EINVAL;	/* No PPI should point to this domain */
-
-	hwirq = fwspec->param[1];
 	if ((hwirq + nr_irqs) > cb->max_crossbar_sources)
 		return -EINVAL;	/* Can't deal with this */
 
@@ -355,7 +343,8 @@ static int __init irqcrossbar_init(struct device_node *node,
 	if (err)
 		return err;
 
-	domain = irq_domain_add_hierarchy(parent_domain, 0,
+	domain = irq_domain_add_hierarchy(parent_domain,
+					  IRQ_DOMAIN_FLAG_ALLOC_HWIRQ,
 					  cb->max_crossbar_sources,
 					  node, &crossbar_domain_ops,
 					  NULL);
