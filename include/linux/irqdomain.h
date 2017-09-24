@@ -204,6 +204,9 @@ enum {
 	/* Irq domain implements MSI remapping */
 	IRQ_DOMAIN_FLAG_MSI_REMAP	= (1 << 5),
 
+	/* Irq domain .alloc() takes hwirq */
+	IRQ_DOMAIN_FLAG_ALLOC_HWIRQ	= (1 << 6),
+
 	/*
 	 * Flags starting from IRQ_DOMAIN_FLAG_NONCORE are reserved
 	 * for implementation specific purposes and ignored by the

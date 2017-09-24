@@ -1254,6 +1254,18 @@ int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
 				    unsigned int irq_base,
 				    unsigned int nr_irqs, void *arg)
 {
+	if (domain->flags & IRQ_DOMAIN_FLAG_ALLOC_HWIRQ) {
+		irq_hw_number_t hwirq;
+		unsigned int type;
+		int ret;
+
+		ret = irq_domain_translate(domain, arg, &hwirq, &type);
+		if (ret)
+			return ret;
+
+		arg = (void *)(uintptr_t)hwirq;
+	}
+
 	return domain->ops->alloc(domain, irq_base, nr_irqs, arg);
 }
 
@@ -1539,10 +1551,19 @@ int irq_domain_alloc_irqs_parent(struct irq_domain *domain,
 				 unsigned int irq_base, unsigned int nr_irqs,
 				 void *arg)
 {
-	if (!domain->parent)
+	struct irq_domain *parent_d = domain->parent;
+
+	if (!parent_d)
 		return -ENOSYS;
 
-	return irq_domain_alloc_irqs_hierarchy(domain->parent, irq_base,
+	if (domain->flags & IRQ_DOMAIN_FLAG_ALLOC_HWIRQ) {
+		if (WARN_ON(!(parent_d->flags & IRQ_DOMAIN_FLAG_ALLOC_HWIRQ)))
+			return -EINVAL;
+
+		return parent_d->ops->alloc(parent_d, irq_base, nr_irqs, arg);
+	}
+
+	return irq_domain_alloc_irqs_hierarchy(parent_d, irq_base,
 					       nr_irqs, arg);
 }
 EXPORT_SYMBOL_GPL(irq_domain_alloc_irqs_parent);
