@@ -129,36 +129,21 @@ static int vf610_mscm_ir_domain_alloc(struct irq_domain *domain, unsigned int vi
 				      unsigned int nr_irqs, void *arg)
 {
 	int i;
-	irq_hw_number_t hwirq;
-	struct irq_fwspec *fwspec = arg;
-	struct irq_fwspec parent_fwspec;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 
 	if (!irq_domain_get_of_node(domain->parent))
 		return -EINVAL;
 
-	if (fwspec->param_count != 2)
-		return -EINVAL;
-
-	hwirq = fwspec->param[0];
 	for (i = 0; i < nr_irqs; i++)
 		irq_domain_set_hwirq_and_chip(domain, virq + i, hwirq + i,
 					      &vf610_mscm_ir_irq_chip,
 					      domain->host_data);
 
-	parent_fwspec.fwnode = domain->parent->fwnode;
-
-	if (mscm_ir_data->is_nvic) {
-		parent_fwspec.param_count = 1;
-		parent_fwspec.param[0] = fwspec->param[0];
-	} else {
-		parent_fwspec.param_count = 3;
-		parent_fwspec.param[0] = GIC_SPI;
-		parent_fwspec.param[1] = fwspec->param[0];
-		parent_fwspec.param[2] = fwspec->param[1];
-	}
+	if (!mscm_ir_data->is_nvic)
+		hwirq += 32;
 
 	return irq_domain_alloc_irqs_parent(domain, virq, nr_irqs,
-					    &parent_fwspec);
+					    (void *)(uintptr_t)hwirq);
 }
 
 static int vf610_mscm_ir_domain_translate(struct irq_domain *d,
@@ -213,7 +198,8 @@ static int __init vf610_mscm_ir_of_init(struct device_node *node,
 	regmap_read(mscm_cp_regmap, MSCM_CPxNUM, &cpuid);
 	mscm_ir_data->cpu_mask = 0x1 << cpuid;
 
-	domain = irq_domain_add_hierarchy(domain_parent, 0,
+	domain = irq_domain_add_hierarchy(domain_parent,
+					  IRQ_DOMAIN_FLAG_ALLOC_HWIRQ,
 					  MSCM_IRSPRC_NUM, node,
 					  &mscm_irq_domain_ops, mscm_ir_data);
 	if (!domain) {
