@@ -63,13 +63,7 @@ static int nvic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				unsigned int nr_irqs, void *arg)
 {
 	int i, ret;
-	irq_hw_number_t hwirq;
-	unsigned int type = IRQ_TYPE_NONE;
-	struct irq_fwspec *fwspec = arg;
-
-	ret = nvic_irq_domain_translate(domain, fwspec, &hwirq, &type);
-	if (ret)
-		return ret;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 
 	for (i = 0; i < nr_irqs; i++)
 		irq_map_generic_chip(domain, virq + i, hwirq + i);
@@ -110,6 +104,7 @@ static int __init nvic_of_init(struct device_node *node,
 		pr_warn("Failed to allocate irq domain\n");
 		return -ENOMEM;
 	}
+	nvic_irq_domain->flags |= IRQ_DOMAIN_FLAG_ALLOC_HWIRQ;
 
 	ret = irq_alloc_domain_generic_chips(nvic_irq_domain, 32, 1,
 					     "nvic_irq", handle_fasteoi_irq,
