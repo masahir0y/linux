@@ -117,31 +117,11 @@ static int uniphier_aidet_domain_alloc(struct irq_domain *domain,
 				       unsigned int virq, unsigned int nr_irqs,
 				       void *arg)
 {
-	struct irq_fwspec parent_fwspec;
-	irq_hw_number_t hwirq;
-	unsigned int type;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 	int ret;
 
 	if (nr_irqs != 1)
 		return -EINVAL;
-
-	ret = uniphier_aidet_domain_translate(domain, arg, &hwirq, &type);
-	if (ret)
-		return ret;
-
-	switch (type) {
-	case IRQ_TYPE_EDGE_RISING:
-	case IRQ_TYPE_LEVEL_HIGH:
-		break;
-	case IRQ_TYPE_EDGE_FALLING:
-		type = IRQ_TYPE_EDGE_RISING;
-		break;
-	case IRQ_TYPE_LEVEL_LOW:
-		type = IRQ_TYPE_LEVEL_HIGH;
-		break;
-	default:
-		return -EINVAL;
-	}
 
 	if (hwirq >= UNIPHIER_AIDET_NR_IRQS)
 		return -ENXIO;
@@ -152,14 +132,8 @@ static int uniphier_aidet_domain_alloc(struct irq_domain *domain,
 	if (ret)
 		return ret;
 
-	/* parent is GIC */
-	parent_fwspec.fwnode = domain->parent->fwnode;
-	parent_fwspec.param_count = 3;
-	parent_fwspec.param[0] = 0;		/* SPI */
-	parent_fwspec.param[1] = hwirq;
-	parent_fwspec.param[2] = type;
-
-	return irq_domain_alloc_irqs_parent(domain, virq, 1, &parent_fwspec);
+	return irq_domain_alloc_irqs_parent(domain, virq, 1,
+					    (void *)(uintptr_t)(hwirq + 32));
 }
 
 static const struct irq_domain_ops uniphier_aidet_domain_ops = {
@@ -197,7 +171,8 @@ static int uniphier_aidet_probe(struct platform_device *pdev)
 	spin_lock_init(&priv->lock);
 
 	priv->domain = irq_domain_create_hierarchy(
-					parent_domain, 0,
+					parent_domain,
+					IRQ_DOMAIN_FLAG_ALLOC_HWIRQ,
 					UNIPHIER_AIDET_NR_IRQS,
 					of_node_to_fwnode(dev->of_node),
 					&uniphier_aidet_domain_ops, priv);
