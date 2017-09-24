@@ -1041,13 +1041,7 @@ static int gic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				unsigned int nr_irqs, void *arg)
 {
 	int i, ret;
-	irq_hw_number_t hwirq;
-	unsigned int type = IRQ_TYPE_NONE;
-	struct irq_fwspec *fwspec = arg;
-
-	ret = gic_irq_domain_translate(domain, fwspec, &hwirq, &type);
-	if (ret)
-		return ret;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 
 	for (i = 0; i < nr_irqs; i++) {
 		ret = gic_irq_domain_map(domain, virq + i, hwirq + i);
@@ -1142,6 +1136,7 @@ static int gic_init_bases(struct gic_chip_data *gic, int irq_start,
 		gic->domain = irq_domain_create_linear(handle, gic_irqs,
 						       &gic_irq_domain_hierarchy_ops,
 						       gic);
+		gic->domain->flags |= IRQ_DOMAIN_FLAG_ALLOC_HWIRQ;
 	} else {		/* Legacy support */
 		/*
 		 * For primary GICs, skip over SGIs.
