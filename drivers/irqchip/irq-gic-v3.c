@@ -986,13 +986,7 @@ static int gic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				unsigned int nr_irqs, void *arg)
 {
 	int i, ret;
-	irq_hw_number_t hwirq;
-	unsigned int type = IRQ_TYPE_NONE;
-	struct irq_fwspec *fwspec = arg;
-
-	ret = gic_irq_domain_translate(domain, fwspec, &hwirq, &type);
-	if (ret)
-		return ret;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 
 	for (i = 0; i < nr_irqs; i++) {
 		ret = gic_irq_domain_map(domain, virq + i, hwirq + i);
@@ -1118,6 +1112,7 @@ static int __init gic_init_bases(void __iomem *dist_base,
 	gic_data.domain = irq_domain_create_tree(handle, &gic_irq_domain_ops,
 						 &gic_data);
 	irq_domain_update_bus_token(gic_data.domain, DOMAIN_BUS_WIRED);
+	gic_data.domain->flags |= IRQ_DOMAIN_FLAG_ALLOC_HWIRQ;
 	gic_data.rdists.rdist = alloc_percpu(typeof(*gic_data.rdists.rdist));
 	gic_data.rdists.has_vlpis = true;
 	gic_data.rdists.has_direct_lpi = true;
