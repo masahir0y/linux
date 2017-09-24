@@ -246,18 +246,10 @@ static int tegra_ictlr_domain_alloc(struct irq_domain *domain,
 				    unsigned int virq,
 				    unsigned int nr_irqs, void *data)
 {
-	struct irq_fwspec *fwspec = data;
-	struct irq_fwspec parent_fwspec;
 	struct tegra_ictlr_info *info = domain->host_data;
-	irq_hw_number_t hwirq;
+	irq_hw_number_t hwirq = (uintptr_t)data;
 	unsigned int i;
 
-	if (fwspec->param_count != 3)
-		return -EINVAL;	/* Not GIC compliant */
-	if (fwspec->param[0] != GIC_SPI)
-		return -EINVAL;	/* No PPI should point to this domain */
-
-	hwirq = fwspec->param[1];
 	if (hwirq >= (num_ictlrs * 32))
 		return -EINVAL;
 
@@ -269,10 +261,8 @@ static int tegra_ictlr_domain_alloc(struct irq_domain *domain,
 					      (void __force *)info->base[ictlr]);
 	}
 
-	parent_fwspec = *fwspec;
-	parent_fwspec.fwnode = domain->parent->fwnode;
 	return irq_domain_alloc_irqs_parent(domain, virq, nr_irqs,
-					    &parent_fwspec);
+					    (void *)(uintptr_t)(hwirq + 32));
 }
 
 static const struct irq_domain_ops tegra_ictlr_domain_ops = {
@@ -339,7 +329,9 @@ static int __init tegra_ictlr_init(struct device_node *node,
 	     node, num_ictlrs, soc->num_ictlrs);
 
 
-	domain = irq_domain_add_hierarchy(parent_domain, 0, num_ictlrs * 32,
+	domain = irq_domain_add_hierarchy(parent_domain,
+					  IRQ_DOMAIN_FLAG_ALLOC_HWIRQ,
+					  num_ictlrs * 32,
 					  node, &tegra_ictlr_domain_ops,
 					  lic);
 	if (!domain) {
