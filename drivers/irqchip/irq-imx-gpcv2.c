@@ -164,16 +164,11 @@ static int imx_gpcv2_domain_alloc(struct irq_domain *domain,
 				  unsigned int irq, unsigned int nr_irqs,
 				  void *data)
 {
-	struct irq_fwspec *fwspec = data;
 	struct irq_fwspec parent_fwspec;
-	irq_hw_number_t hwirq;
+	irq_hw_number_t hwirq = (uintptr_t)data;
 	unsigned int type;
 	int err;
 	int i;
-
-	err = imx_gpcv2_domain_translate(domain, fwspec, &hwirq, &type);
-	if (err)
-		return err;
 
 	if (hwirq >= GPC_MAX_IRQS)
 		return -EINVAL;
@@ -183,10 +178,8 @@ static int imx_gpcv2_domain_alloc(struct irq_domain *domain,
 				&gpcv2_irqchip_data_chip, domain->host_data);
 	}
 
-	parent_fwspec = *fwspec;
-	parent_fwspec.fwnode = domain->parent->fwnode;
 	return irq_domain_alloc_irqs_parent(domain, irq, nr_irqs,
-					    &parent_fwspec);
+					    (void *)(uintptr_t)(hwirq + 32));
 }
 
 static const struct irq_domain_ops gpcv2_irqchip_data_domain_ops = {
@@ -244,7 +237,8 @@ static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 		return -ENOMEM;
 	}
 
-	domain = irq_domain_add_hierarchy(parent_domain, 0, GPC_MAX_IRQS,
+	domain = irq_domain_add_hierarchy(parent_domain,
+				IRQ_DOMAIN_FLAG_ALLOC_HWIRQ, GPC_MAX_IRQS,
 				node, &gpcv2_irqchip_data_domain_ops, cd);
 	if (!domain) {
 		iounmap(cd->gpc_base);
