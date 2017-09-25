@@ -100,25 +100,15 @@ static int mtk_sysirq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				   unsigned int nr_irqs, void *arg)
 {
 	int i;
-	irq_hw_number_t hwirq;
-	struct irq_fwspec *fwspec = arg;
-	struct irq_fwspec gic_fwspec = *fwspec;
+	irq_hw_number_t hwirq = (uintptr_t)arg;
 
-	if (fwspec->param_count != 3)
-		return -EINVAL;
-
-	/* sysirq doesn't support PPI */
-	if (fwspec->param[0])
-		return -EINVAL;
-
-	hwirq = fwspec->param[1];
 	for (i = 0; i < nr_irqs; i++)
 		irq_domain_set_hwirq_and_chip(domain, virq + i, hwirq + i,
 					      &mtk_sysirq_chip,
 					      domain->host_data);
 
-	gic_fwspec.fwnode = domain->parent->fwnode;
-	return irq_domain_alloc_irqs_parent(domain, virq, nr_irqs, &gic_fwspec);
+	return irq_domain_alloc_irqs_parent(domain, virq, nr_irqs,
+					    (void *)(uintptr_t)(hwirq + 32));
 }
 
 static const struct irq_domain_ops sysirq_domain_ops = {
@@ -214,7 +204,9 @@ static int __init mtk_sysirq_of_init(struct device_node *node,
 		chip_data->which_word[i] = word;
 	}
 
-	domain = irq_domain_add_hierarchy(domain_parent, 0, intpol_num, node,
+	domain = irq_domain_add_hierarchy(domain_parent,
+					  IRQ_DOMAIN_FLAG_ALLOC_HWIRQ,
+					  intpol_num, node,
 					  &sysirq_domain_ops, chip_data);
 	if (!domain) {
 		ret = -ENOMEM;
