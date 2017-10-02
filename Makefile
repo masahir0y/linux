@@ -224,13 +224,23 @@ no-dot-config-targets := clean mrproper distclean \
 			 $(version_h) headers_% archheaders archscripts \
 			 kernelversion %src-pkg
 
+no-compiler-targets := $(no-dot-config-targets) config %config \
+		       dtbs kernelrelease image_name
+
 config-targets := 0
 mixed-targets  := 0
 dot-config     := 1
+need-compiler  := 1
 
 ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
 	ifeq ($(filter-out $(no-dot-config-targets), $(MAKECMDGOALS)),)
 		dot-config := 0
+	endif
+endif
+
+ifneq ($(filter $(no-compiler-targets), $(MAKECMDGOALS)),)
+	ifeq ($(filter-out $(no-compiler-targets), $(MAKECMDGOALS)),)
+		need-compiler := 0
 	endif
 endif
 

@@ -96,6 +96,13 @@ try-run = $(shell set -e;		\
 	fi;				\
 	rm -f "$$TMP" "$$TMPO")
 
+# hostcc-option
+# Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
+hostcc-option = $(call __cc-option, $(HOSTCC),\
+	$(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
+
+ifeq ($(need-compiler),1)
+
 # as-option
 # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
 
@@ -122,11 +129,6 @@ CC_OPTION_CFLAGS = $(filter-out $(GCC_PLUGINS_CFLAGS),$(KBUILD_CFLAGS))
 
 cc-option = $(call __cc-option, $(CC),\
 	$(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS),$(1),$(2))
-
-# hostcc-option
-# Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
-hostcc-option = $(call __cc-option, $(HOSTCC),\
-	$(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
 
 # cc-option-yn
 # Usage: flag := $(call cc-option-yn,-march=winchip-c6)
@@ -179,6 +181,8 @@ ld-version = $(shell $(LD) --version | $(srctree)/scripts/ld-version.sh)
 # ld-ifversion
 # Usage:  $(call ld-ifversion, -ge, 22252, y)
 ld-ifversion = $(shell [ $(ld-version) $(1) $(2) ] && echo $(3) || echo $(4))
+
+endif
 
 ######
 
