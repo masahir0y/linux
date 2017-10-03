@@ -67,7 +67,9 @@ define filechk
 	fi
 endef
 
--include cache.mk
+make-cache := $(if $(obj),$(obj)/)cache.mk
+
+-include $(make-cache)
 
 __sanitize-opt = $(subst $$,_,$(subst $(right_paren),_,$(subst $(left_paren),_,$(subst \,_,$(subst =,_,$(subst $(space),_,$(subst $(comma),_,$(1))))))))
 
@@ -77,7 +79,7 @@ __sanitize-opt = $(subst $$,_,$(subst $(right_paren),_,$(subst $(left_paren),_,$
 define __run-and-store
 ifeq ($(origin $(1)),undefined)
   $$(eval $(1) := $$(shell $$2))
-  $$(shell echo '$(1) := $$($(1))' >> cache.mk)
+  $$(shell echo '$(1) := $$($(1))' >> $(make-cache))
 endif
 endef
 
@@ -162,7 +164,7 @@ cc-option-yn = $(call try-run,\
 
 # cc-disable-warning
 # Usage: cflags-y += $(call cc-disable-warning,unused-but-set-variable)
-cc-disable-warning = $(call try-run,\
+cc-disable-warning = $(call try-run-cached,\
 	$(CC) -Werror $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -W$(strip $(1)) -c -x c /dev/null -o "$$TMP",-Wno-$(strip $(1)))
 
 # cc-name
