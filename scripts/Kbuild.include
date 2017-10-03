@@ -8,6 +8,8 @@ squote  := '
 empty   :=
 space   := $(empty) $(empty)
 space_escape := _-_SPACE_-_
+right_paren := )
+left_paren := (
 
 ###
 # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
@@ -65,6 +67,27 @@ define filechk
 	fi
 endef
 
+-include cache.mk
+
+__sanitize-opt = $(subst $$,_,$(subst $(right_paren),_,$(subst $(left_paren),_,$(subst \,_,$(subst =,_,$(subst $(space),_,$(subst $(comma),_,$(1))))))))
+
+###
+#
+#
+define __run-and-store
+ifeq ($(origin $(1)),undefined)
+  $$(eval $(1) := $$(shell $$2))
+  $$(shell echo '$(1) := $$($(1))' >> cache.mk)
+endif
+endef
+
+
+__shell-cached = $(eval $(call __run-and-store,$1))$($1)
+
+shell-cached = $(call __shell-cached,__cached_$(call __sanitize-opt,$(1)),$1)
+
+
+
 ######
 # gcc support functions
 # See documentation in Documentation/kbuild/makefiles.txt
@@ -96,6 +119,15 @@ try-run = $(shell set -e;		\
 	fi;				\
 	rm -f "$$TMP" "$$TMPO")
 
+try-run-cached = $(call shell-cached,set -e;		\
+	TMP="$(TMPOUT).$$$$.tmp";	\
+	TMPO="$(TMPOUT).$$$$.o";	\
+	if ($(1)) >/dev/null 2>&1;	\
+	then echo "$(2)";		\
+	else echo "$(3)";		\
+	fi;				\
+	rm -f "$$TMP" "$$TMPO")
+
 # as-option
 # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
 
@@ -110,7 +142,7 @@ as-instr = $(call try-run,\
 
 # __cc-option
 # Usage: MY_CFLAGS += $(call __cc-option,$(CC),$(MY_CFLAGS),-march=winchip-c6,-march=i586)
-__cc-option = $(call try-run,\
+__cc-option = $(call try-run-cached,\
 	$(1) -Werror $(2) $(3) -c -x c /dev/null -o "$$TMP",$(3),$(4))
 
 # Do not attempt to build with gcc plugins during cc-option tests.
