@@ -75,7 +75,7 @@ union bpf_attr;
 #include <linux/capability.h>
 #include <linux/signal.h>
 #include <linux/list.h>
-#include <linux/bug.h>
+#include <linux/build_bug.h>
 #include <linux/sem.h>
 #include <asm/siginfo.h>
 #include <linux/unistd.h>

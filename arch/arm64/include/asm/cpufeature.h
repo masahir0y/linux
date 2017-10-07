@@ -26,7 +26,6 @@
 
 #ifndef __ASSEMBLY__
 
-#include <linux/bug.h>
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
 

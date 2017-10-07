@@ -42,7 +42,6 @@ o        `                     ~~~~\___/~~~~    ` controller in FPGA is ,.`
 
 #include <linux/init.h>
 #include <linux/err.h>
-#include <linux/bug.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/spinlock.h>
