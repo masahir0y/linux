@@ -26,7 +26,7 @@
 #include <linux/list.h>
 #include <linux/preempt.h>
 #include <linux/rcupdate.h>
-#include <linux/spinlock.h>
+#include <linux/spinlock_types.h>
 #include <linux/types.h>
 #include <linux/xarray.h>
 
