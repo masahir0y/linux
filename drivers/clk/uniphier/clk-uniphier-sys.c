@@ -22,8 +22,8 @@
 	UNIPHIER_CLK_FACTOR("sd-133m", -1, "vpll27a", 1, 2)
 
 #define UNIPHIER_PRO5_SYS_CLK_SD					\
-	UNIPHIER_CLK_FACTOR("sd-200m", -1, "spll", 1, 12),		\
-	UNIPHIER_CLK_FACTOR("sd-133m", -1, "spll", 1, 18)
+	UNIPHIER_CLK_FACTOR("sd-200m", -1, "spll", 1, 6),		\
+	UNIPHIER_CLK_FACTOR("sd-133m", -1, "spll", 1, 9)
 
 #define UNIPHIER_LD20_SYS_CLK_SD					\
 	UNIPHIER_CLK_FACTOR("sd-200m", -1, "spll", 1, 10),		\
@@ -35,7 +35,7 @@
 	UNIPHIER_CLK_GATE("nand", (idx), "nand-200m", 0x2104, 2)
 
 #define UNIPHIER_PRO5_SYS_CLK_NAND(idx)					\
-	UNIPHIER_CLK_FACTOR("nand-200m", -1, "spll", 1, 12),		\
+	UNIPHIER_CLK_FACTOR("nand-200m", -1, "spll", 2, 12),		\
 	UNIPHIER_CLK_GATE("nand", (idx), "nand-200m", 0x2104, 2)
 
 #define UNIPHIER_LD11_SYS_CLK_NAND(idx)					\
@@ -184,9 +184,9 @@ const struct uniphier_clk_data uniphier_pro5_sys_clk_data[] = {
 const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
 	UNIPHIER_CLK_FACTOR("cpll", -1, "ref", 96, 1),		/* 2400 MHz */
 	UNIPHIER_CLK_FACTOR("ippll", -1, "ref", 96, 1),		/* 2400 MHz */
-	UNIPHIER_CLK_FACTOR("spll", -1, "ref", 96, 1),		/* 2400 MHz */
-	UNIPHIER_CLK_FACTOR("uart", 0, "spll", 1, 27),
-	UNIPHIER_CLK_FACTOR("i2c", 1, "spll", 1, 48),
+	UNIPHIER_CLK_FACTOR("spll", -1, "ref", 48, 1),		/* 2400 MHz */
+	UNIPHIER_CLK_FACTOR("uart", 0, "spll", 2, 27),
+	UNIPHIER_CLK_FACTOR("i2c", 1, "spll", 2, 48),
 	UNIPHIER_PRO5_SYS_CLK_NAND(2),
 	UNIPHIER_PRO5_SYS_CLK_SD,
 	UNIPHIER_PRO4_SYS_CLK_ETHER(6),
