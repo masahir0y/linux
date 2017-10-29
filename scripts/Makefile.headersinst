@@ -15,50 +15,36 @@ __headers:
 include scripts/Kbuild.include
 
 srcdir        := $(srctree)/$(obj)
-
-# When make is run under a fakechroot environment, the function
-# $(wildcard $(srcdir)/*/.) doesn't only return directories, but also regular
-# files. So, we are using a combination of sort/dir/wildcard which works
-# with fakechroot.
-subdirs       := $(patsubst $(srcdir)/%/,%,\
-		 $(filter-out $(srcdir)/,\
-		 $(sort $(dir $(wildcard $(srcdir)/*/)))))
-
-# Recursion
-__headers: $(subdirs)
-
-PHONY += $(subdirs)
-$(subdirs):
-	$(Q)$(MAKE) $(hdr-inst)=$(obj)/$@ dst=$(dst)/$@
-
-# Skip header install/check for include/uapi and arch/$(SRCARCH)/include/uapi.
-# We have only sub-directories there.
-skip-inst := $(if $(filter %/uapi,$(obj)),1)
-
-ifeq ($(skip-inst),)
-
-# Kbuild file is optional
-kbuild-file := $(srctree)/$(obj)/Kbuild
--include $(kbuild-file)
-
-installdir    := $(INSTALL_HDR_PATH)/$(dst)
 gendir        := $(objtree)/$(subst include/,include/generated/,$(obj))
-header-files  := $(notdir $(wildcard $(srcdir)/*.h))
-header-files  += $(notdir $(wildcard $(srcdir)/*.agh))
-header-files  := $(filter-out $(no-export-headers), $(header-files))
-genhdr-files  := $(notdir $(wildcard $(gendir)/*.h))
-genhdr-files  := $(filter-out $(header-files), $(genhdr-files))
+
+kbuild-files := $(shell find $(srcdir) -name Kbuild)
+header-files := $(patsubst $(srcdir)/%,%,$(shell find $(srcdir) -name '*.h' -o -name '*.agh'))
+genhdr-files := $(patsubst $(gendir)/%,%,$(shell find $(gendir) -name '*.h'))
+
+no-export-all :=
+mandatory-all :=
+
+define parse-kbuild-file
+no-export-headers :=
+mandatory-y :=
+include $(1)
+no-export-all += $$(addprefix $(dir $(1)),$$(no-export-headers))
+mandatory-all += $$(addprefix $(dir $(1)),$$(mandatory-y))
+endef
+
+$(foreach k, $(kbuild-files), $(eval $(call parse-kbuild-file,$(k))))
 
 # files used to track state of install/check
+installdir    := $(INSTALL_HDR_PATH)/$(dst)
 install-file  := $(installdir)/.install
 check-file    := $(installdir)/.check
 
-# all headers files for this dir
 all-files     := $(header-files) $(genhdr-files)
+all-dirs      := $(dir $(header-files) $(genhdr-files))
 output-files  := $(addprefix $(installdir)/, $(all-files))
 
-ifneq ($(mandatory-y),)
-missing       := $(filter-out $(all-files),$(mandatory-y))
+ifneq ($(mandatory-all),)
+missing       := $(filter-out $(all-files),$(mandatory-all))
 ifneq ($(missing),)
 $(error Some mandatory headers ($(missing)) are missing in $(obj))
 endif
@@ -121,8 +107,6 @@ cmd_files := $(wildcard \
 ifneq ($(cmd_files),)
 	include $(cmd_files)
 endif
-
-endif # skip-inst
 
 PHONY += FORCE
 FORCE: ;
