@@ -14,7 +14,3 @@ DTC_FLAGS_overlay := -@
 DTC_FLAGS_overlay_bad_phandle := -@
 DTC_FLAGS_overlay_bad_symbol := -@
 DTC_FLAGS_overlay_base := -@
-
-.PRECIOUS: \
-	$(obj)/%.dtb.S \
-	$(obj)/%.dtb
