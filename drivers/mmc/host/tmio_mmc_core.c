@@ -240,7 +240,6 @@ static void tmio_mmc_reset(struct tmio_mmc_host *host)
 		sd_ctrl_write16(host, CTL_SDIO_IRQ_MASK, host->sdio_irq_mask);
 		sd_ctrl_write16(host, CTL_TRANSACTION_CTL, 0x0001);
 	}
-
 }
 
 static void tmio_mmc_reset_work(struct work_struct *work)
@@ -361,8 +360,7 @@ static int tmio_mmc_start_command(struct tmio_mmc_host *host,
 }
 
 static void tmio_mmc_transfer_data(struct tmio_mmc_host *host,
-				   unsigned short *buf,
-				   unsigned int count)
+				   unsigned short *buf, unsigned int count)
 {
 	int is_read = host->data->flags & MMC_DATA_READ;
 	u8  *buf8;
