@@ -684,6 +684,8 @@ config ARCH_VIRT
 	select HAVE_ARM_ARCH_TIMER
 	select ARCH_SUPPORTS_BIG_ENDIAN
 
+source "arch/arm/Kconfig.platforms"
+
 #
 # This is sorted alphabetically by mach-* pathname.  However, plat-*
 # Kconfigs may be included either alphabetically (according to the
@@ -694,10 +696,6 @@ source "arch/arm/mach-actions/Kconfig"
 source "arch/arm/mach-alpine/Kconfig"
 
 source "arch/arm/mach-artpec/Kconfig"
-
-source "arch/arm/mach-asm9260/Kconfig"
-
-source "arch/arm/mach-aspeed/Kconfig"
 
 source "arch/arm/mach-at91/Kconfig"
 
@@ -712,8 +710,6 @@ source "arch/arm/mach-clps711x/Kconfig"
 source "arch/arm/mach-cns3xxx/Kconfig"
 
 source "arch/arm/mach-davinci/Kconfig"
-
-source "arch/arm/mach-digicolor/Kconfig"
 
 source "arch/arm/mach-dove/Kconfig"
 
@@ -751,8 +747,6 @@ source "arch/arm/mach-mediatek/Kconfig"
 source "arch/arm/mach-meson/Kconfig"
 
 source "arch/arm/mach-mmp/Kconfig"
-
-source "arch/arm/mach-moxart/Kconfig"
 
 source "arch/arm/mach-mv78xx0/Kconfig"
 
@@ -818,8 +812,6 @@ source "arch/arm/mach-tango/Kconfig"
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-u300/Kconfig"
-
-source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/mach-ux500/Kconfig"
 

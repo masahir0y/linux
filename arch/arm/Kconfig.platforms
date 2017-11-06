@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: GPL-2.0
+menuconfig ARCH_ASPEED
+	bool "Aspeed BMC architectures"
+	depends on ARCH_MULTI_V5 || ARCH_MULTI_V6
+	select SRAM
+	select WATCHDOG
+	select ASPEED_WATCHDOG
+	select FTTMR010_TIMER
+	select MFD_SYSCON
+	select PINCTRL
+	help
+	  Say Y here if you want to run your kernel on an ASpeed BMC SoC.
+
+if ARCH_ASPEED
+
+config MACH_ASPEED_G4
+	bool "Aspeed SoC 4th Generation"
+	depends on ARCH_MULTI_V5
+	select CPU_ARM926T
+	select PINCTRL_ASPEED_G4
+	help
+	 Say yes if you intend to run on an Aspeed ast2400 or similar
+	 fourth generation BMCs, such as those used by OpenPower Power8
+	 systems.
+
+config MACH_ASPEED_G5
+	bool "Aspeed SoC 5th Generation"
+	depends on ARCH_MULTI_V6
+	select CPU_V6
+	select PINCTRL_ASPEED_G5
+	help
+	 Say yes if you intend to run on an Aspeed ast2500 or similar
+	 fifth generation Aspeed BMCs.
+
+endif
+
+config ARCH_DIGICOLOR
+	bool "Conexant Digicolor SoC Support"
+	depends on ARCH_MULTI_V7
+	select CLKSRC_MMIO
+	select DIGICOLOR_TIMER
+	select GENERIC_IRQ_CHIP
+	select GPIOLIB
+	select MFD_SYSCON
+	select PINCTRL
+	select PINCTRL_DIGICOLOR
+
+menuconfig ARCH_MOXART
+	bool "MOXA ART SoC"
+	depends on ARCH_MULTI_V4
+	select CPU_FA526
+	select ARM_DMA_MEM_BUFFERABLE
+	select FARADAY_FTINTC010
+	select FTTMR010_TIMER
+	select GPIOLIB
+	select PHYLIB if NETDEVICES
+	help
+	  Say Y here if you want to run your kernel on hardware with a
+	  MOXA ART SoC.
+	  The MOXA ART SoC is based on a Faraday FA526 ARMv4 32-bit
+	  192 MHz CPU with MMU and 16KB/8KB D/I-cache (UC-7112-LX).
+	  Used on models UC-7101, UC-7112/UC-7110, IA240/IA241, IA3341.
+
+if ARCH_MOXART
+
+config MACH_UC7112LX
+	bool "MOXA UC-7112-LX"
+	depends on ARCH_MOXART
+	help
+	  Say Y here if you intend to run this kernel on a MOXA
+	  UC-7112-LX embedded computer.
+
+endif
+
+config ARCH_UNIPHIER
+	bool "Socionext UniPhier SoCs"
+	depends on ARCH_MULTI_V7
+	select ARCH_HAS_RESET_CONTROLLER
+	select ARM_AMBA
+	select ARM_GLOBAL_TIMER
+	select ARM_GIC
+	select HAVE_ARM_SCU
+	select HAVE_ARM_TWD
+	select PINCTRL
+	help
+	  Support for UniPhier SoC family developed by Socionext Inc.
+	  (formerly, System LSI Business Division of Panasonic Corporation)
+
+config MACH_ASM9260
+	bool "Alphascale ASM9260"
+	depends on ARCH_MULTI_V5
+	select CPU_ARM926T
+	select ASM9260_TIMER
+	select GENERIC_CLOCKEVENTS
+	help
+	  Support for Alphascale ASM9260 based platform.
