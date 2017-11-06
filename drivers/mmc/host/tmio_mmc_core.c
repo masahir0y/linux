@@ -321,7 +321,8 @@ static int tmio_mmc_start_command(struct tmio_mmc_host *host,
 	case MMC_RSP_R2:   c |= RESP_R2;   break;
 	case MMC_RSP_R3:   c |= RESP_R3;   break;
 	default:
-		pr_debug("Unknown response type %d\n", mmc_resp_type(cmd));
+		dev_err(mmc_dev(host->mmc), "Unknown response type %d\n",
+			mmc_resp_type(cmd));
 		return -EINVAL;
 	}
 
