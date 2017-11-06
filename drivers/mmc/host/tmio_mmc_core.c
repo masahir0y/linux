@@ -265,7 +265,7 @@ static void tmio_mmc_reset_work(struct work_struct *work)
 		return;
 	}
 
-	dev_warn(&host->pdev->dev,
+	dev_warn(mmc_dev(host->mmc),
 		 "timeout waiting for hardware interrupt (CMD%u)\n",
 		 mrq->cmd->opcode);
 
@@ -484,7 +484,7 @@ void tmio_mmc_do_data_irq(struct tmio_mmc_host *host)
 	host->data = NULL;
 
 	if (!data) {
-		dev_warn(&host->pdev->dev, "Spurious data end IRQ\n");
+		dev_warn(mmc_dev(host->mmc), "Spurious data end IRQ\n");
 		return;
 	}
 	stop = data->stop;
@@ -509,16 +509,17 @@ void tmio_mmc_do_data_irq(struct tmio_mmc_host *host)
 	if (data->flags & MMC_DATA_READ) {
 		if (host->chan_rx && !host->force_pio)
 			tmio_mmc_check_bounce_buffer(host);
-		dev_dbg(&host->pdev->dev, "Complete Rx request %p\n",
+		dev_dbg(mmc_dev(host->mmc), "Complete Rx request %p\n",
 			host->mrq);
 	} else {
-		dev_dbg(&host->pdev->dev, "Complete Tx request %p\n",
+		dev_dbg(mmc_dev(host->mmc), "Complete Tx request %p\n",
 			host->mrq);
 	}
 
 	if (stop && !host->mrq->sbc) {
 		if (stop->opcode != MMC_STOP_TRANSMISSION || stop->arg)
-			dev_err(&host->pdev->dev, "unsupported stop: CMD%u,0x%x. We did CMD12,0\n",
+			dev_err(mmc_dev(host->mmc),
+				"unsupported stop: CMD%u,0x%x. We did CMD12,0\n",
 				stop->opcode, stop->arg);
 
 		/* fill in response from auto CMD12 */
@@ -790,7 +791,7 @@ static int tmio_mmc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 		goto out;
 
 	if (host->tap_num * 2 >= sizeof(host->taps) * BITS_PER_BYTE) {
-		dev_warn_once(&host->pdev->dev,
+		dev_warn_once(mmc_dev(mmc),
 			"Too many taps, skipping tuning. Please consider updating size of taps field of tmio_mmc_host\n");
 		goto out;
 	}
@@ -815,7 +816,7 @@ static int tmio_mmc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 
 out:
 	if (ret < 0) {
-		dev_warn(&host->pdev->dev, "Tuning procedure failed\n");
+		dev_warn(mmc_dev(mmc), "Tuning procedure failed\n");
 		tmio_mmc_hw_reset(mmc);
 	}
 
@@ -972,7 +973,7 @@ static void tmio_mmc_power_on(struct tmio_mmc_host *host, unsigned short vdd)
 	}
 
 	if (ret < 0)
-		dev_dbg(&host->pdev->dev, "Regulators failed to power up: %d\n",
+		dev_dbg(mmc_dev(mmc), "Regulators failed to power up: %d\n",
 			ret);
 }
 
@@ -1014,7 +1015,6 @@ static void tmio_mmc_set_bus_width(struct tmio_mmc_host *host,
 static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
 	struct tmio_mmc_host *host = mmc_priv(mmc);
-	struct device *dev = &host->pdev->dev;
 	unsigned long flags;
 
 	mutex_lock(&host->ios_lock);
@@ -1022,13 +1022,13 @@ static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	spin_lock_irqsave(&host->lock, flags);
 	if (host->mrq) {
 		if (IS_ERR(host->mrq)) {
-			dev_dbg(dev,
+			dev_dbg(mmc_dev(mmc),
 				"%s.%d: concurrent .set_ios(), clk %u, mode %u\n",
 				current->comm, task_pid_nr(current),
 				ios->clock, ios->power_mode);
 			host->mrq = ERR_PTR(-EINTR);
 		} else {
-			dev_dbg(dev,
+			dev_dbg(mmc_dev(mmc),
 				"%s.%d: CMD%u active since %lu, now %lu!\n",
 				current->comm, task_pid_nr(current),
 				host->mrq->cmd->opcode, host->last_req_ts,
@@ -1063,8 +1063,7 @@ static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	/* Let things settle. delay taken from winCE driver */
 	udelay(140);
 	if (PTR_ERR(host->mrq) == -EINTR)
-		dev_dbg(&host->pdev->dev,
-			"%s.%d: IOS interrupted: clk %u, mode %u",
+		dev_dbg(mmc_dev(mmc), "%s.%d: IOS interrupted: clk %u, mode %u",
 			current->comm, task_pid_nr(current),
 			ios->clock, ios->power_mode);
 	host->mrq = NULL;
@@ -1385,7 +1384,7 @@ int tmio_mmc_host_runtime_resume(struct device *dev)
 	tmio_mmc_enable_dma(host, true);
 
 	if (tmio_mmc_can_retune(host) && host->select_tuning(host))
-		dev_warn(&host->pdev->dev, "Tuning selection failed\n");
+		dev_warn(dev, "Tuning selection failed\n");
 
 	return 0;
 }
