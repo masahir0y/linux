@@ -1160,8 +1160,8 @@ static void tmio_mmc_of_parse(struct platform_device *pdev,
 		pdata->flags |= TMIO_MMC_WRPROTECT_DISABLE;
 }
 
-struct tmio_mmc_host*
-tmio_mmc_host_alloc(struct platform_device *pdev)
+struct tmio_mmc_host *tmio_mmc_host_alloc(struct platform_device *pdev,
+					  struct tmio_mmc_data *pdata)
 {
 	struct tmio_mmc_host *host;
 	struct mmc_host *mmc;
@@ -1181,8 +1181,11 @@ tmio_mmc_host_alloc(struct platform_device *pdev)
 	host->ctl = ctl;
 	host->mmc = mmc;
 	host->pdev = pdev;
+	host->pdata = pdata;
 	host->ops = tmio_mmc_ops;
 	mmc->ops = &host->ops;
+
+	platform_set_drvdata(pdev, host);
 
 	return host;
 }
@@ -1195,12 +1198,19 @@ void tmio_mmc_host_free(struct tmio_mmc_host *host)
 EXPORT_SYMBOL_GPL(tmio_mmc_host_free);
 
 int tmio_mmc_host_probe(struct tmio_mmc_host *_host,
-			struct tmio_mmc_data *pdata,
 			const struct tmio_mmc_dma_ops *dma_ops)
 {
 	struct platform_device *pdev = _host->pdev;
+	struct tmio_mmc_data *pdata = _host->pdata;
 	struct mmc_host *mmc = _host->mmc;
 	int ret;
+
+	/*
+	 * Check the sanity of mmc->f_min to prevent tmio_mmc_set_clock() from
+	 * looping forever...
+	 */
+	if (mmc->f_min == 0)
+		return -EINVAL;
 
 	tmio_mmc_of_parse(pdev, pdata);
 
@@ -1210,9 +1220,6 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host,
 	ret = mmc_of_parse(mmc);
 	if (ret < 0)
 		return ret;
-
-	_host->pdata = pdata;
-	platform_set_drvdata(pdev, _host);
 
 	_host->set_pwr = pdata->set_pwr;
 	_host->set_clk_div = pdata->set_clk_div;
@@ -1260,18 +1267,6 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host,
 	 */
 	if (pdata->flags & TMIO_MMC_MIN_RCAR2)
 		_host->native_hotplug = true;
-
-	if (tmio_mmc_clk_enable(_host) < 0) {
-		mmc->f_max = pdata->hclk;
-		mmc->f_min = mmc->f_max / 512;
-	}
-
-	/*
-	 * Check the sanity of mmc->f_min to prevent tmio_mmc_set_clock() from
-	 * looping forever...
-	 */
-	if (mmc->f_min == 0)
-		return -EINVAL;
 
 	/*
 	 * While using internal tmio hardware logic for card detection, we need
@@ -1344,8 +1339,6 @@ void tmio_mmc_host_remove(struct tmio_mmc_host *host)
 
 	pm_runtime_put_sync(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
-
-	tmio_mmc_clk_disable(host);
 }
 EXPORT_SYMBOL_GPL(tmio_mmc_host_remove);
 
