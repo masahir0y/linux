@@ -158,6 +158,6 @@ static struct platform_driver denali_dt_driver = {
 };
 module_platform_driver(denali_dt_driver);
 
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Jamie Iles");
 MODULE_DESCRIPTION("DT driver for Denali NAND controller");

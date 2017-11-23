@@ -25,8 +25,6 @@
 
 #include "denali.h"
 
-MODULE_LICENSE("GPL");
-
 #define DENALI_NAND_NAME    "denali-nand"
 
 /* for Indexed Addressing */
@@ -1408,3 +1406,7 @@ void denali_remove(struct denali_nand_info *denali)
 	denali_disable_irq(denali);
 }
 EXPORT_SYMBOL(denali_remove);
+
+MODULE_DESCRIPTION("Driver core for Denali NAND controller");
+MODULE_AUTHOR("Intel Corporation and its suppliers");
+MODULE_LICENSE("GPL v2");
