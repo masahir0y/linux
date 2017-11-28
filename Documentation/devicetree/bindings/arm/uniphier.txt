@@ -1,0 +1,40 @@
+Socionext UniPhier SoC family
+
+Required properties in the root node:
+  - compatible: should contain board and SoC compatible strings
+
+    SoC compatibles:
+      - "socionext,uniphier-ld4"   - LD4 SoC
+      - "socionext,uniphier-pro4"  - Pro4 SoC
+      - "socionext,uniphier-sld8"  - sLD8 SoC
+      - "socionext,uniphier-pro5"  - Pro5 SoC
+      - "socionext,uniphier-pxs2"  - PXs2 SoC
+      - "socionext,uniphier-ld6b"  - LD6b SoC
+      - "socionext,uniphier-ld11"  - LD11 SoC
+      - "socionext,uniphier-ld20"  - LD20 SoC
+      - "socionext,uniphier-pxs3"  - PXs3 SoC
+
+    Board compatibles:
+      - "socionext,uniphier-ld4-ref"      - LD4 Reference Board
+      - "socionext,uniphier-pro4-ref"     - Pro4 Reference Board
+      - "socionext,uniphier-pro4-ace"     - Pro4 Ace Board
+      - "socionext,uniphier-pro4-sanji"   - Pro4 Sanji Board
+      - "socionext,uniphier-sld8-ref"     - sLD8 Reference Board
+      - "socionext,uniphier-pxs2-gentil"  - PXs2 Gentil Board
+      - "socionext,uniphier-pxs2-vodka"   - PXs2 Vodka Board
+      - "socionext,uniphier-ld6b-ref"     - LD6b Reference Board
+      - "socionext,uniphier-ld11-ref"     - LD11 Reference Board
+      - "socionext,uniphier-ld11-global"  - LD11 Global Board
+      - "socionext,uniphier-ld20-ref"     - LD20 Reference Board
+      - "socionext,uniphier-ld20-global"  - LD20 Global Board
+      - "socionext,uniphier-pxs3-ref"     - PXs3 Reference Board
+
+Example:
+
+/dts-v1/;
+
+/ {
+	compatible = "socionext,uniphier-ld20-ref", "socionext,uniphier-ld20";
+
+	...
+};
