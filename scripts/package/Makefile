@@ -27,12 +27,14 @@ KDEB_SOURCENAME ?= linux-$(KERNELRELEASE)
 KBUILD_PKG_ROOTCMD ?="fakeroot -u"
 export KDEB_SOURCENAME
 # Include only those top-level files that are needed by make, plus the GPL copy
-TAR_CONTENT := $(KBUILD_ALLDIRS) .config .scmversion Makefile \
-               Kbuild Kconfig COPYING $(wildcard localversion*)
+TAR_SRCS   := $(KBUILD_ALLDIRS) Makefile Kbuild Kconfig COPYING \
+		$(notdir $(wildcard $(srctree)/localversion*))
+TAR_OBJS   := .config .scmversion $(notdir $(wildcard $(objtree)/localversion*))
 MKSPEC     := $(srctree)/scripts/package/mkspec
 
 quiet_cmd_src_tar = TAR     $(2).tar.gz
       cmd_src_tar = \
+<<<<<<< 7a047f636d74a2799faccaf38aab429f0d7437b1
 if test "$(objtree)" != "$(srctree)"; then \
 	echo >&2; \
 	echo >&2 "  ERROR:"; \
@@ -42,9 +44,12 @@ if test "$(objtree)" != "$(srctree)"; then \
 	echo >&2; \
 	false; \
 fi ; \
+=======
+>>>>>>> kbuild: pkg: support out-of-tree building of rpm-pkg
 $(srctree)/scripts/setlocalversion --save-scmversion; \
-tar -cz $(RCS_TAR_IGNORE) -f $(2).tar.gz \
-	--transform 's:^:$(2)/:S' $(TAR_CONTENT) $(3); \
+tar -cz $(RCS_TAR_IGNORE) -f $(2).tar.gz --transform 's:^:$(2)/:S' $(3) \
+	-C $(abspath $(srctree)) $(TAR_SRCS) \
+	-C $(abspath $(objtree)) $(TAR_OBJS) $(3); \
 rm -f $(objtree)/.scmversion
 
 # rpm-pkg
