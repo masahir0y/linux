@@ -125,6 +125,7 @@ static const struct of_device_id reset_simple_dt_ids[] = {
 		.data = &reset_simple_active_low },
 	{ .compatible = "zte,zx296718-reset",
 		.data = &reset_simple_active_low },
+	{ .compatible = "simple-reset" },
 	{ /* sentinel */ },
 };
 
