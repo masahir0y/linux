@@ -37,7 +37,7 @@
  *
  */
 
-#include <asm/types.h>
+#include <linux/types.h>
 
 /* Physical constants relevant to raw loop/device timing. 
  */ 

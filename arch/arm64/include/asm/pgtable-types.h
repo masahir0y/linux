@@ -20,7 +20,7 @@
 #ifndef __ASM_PGTABLE_TYPES_H
 #define __ASM_PGTABLE_TYPES_H
 
-#include <asm/types.h>
+#include <linux/types.h>
 
 typedef u64 pteval_t;
 typedef u64 pmdval_t;
