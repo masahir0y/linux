@@ -13,6 +13,7 @@
 	ethsc: ethernet@1,1f00000 {
 		compatible = "smsc,lan9118", "smsc,lan9115";
 		reg = <1 0x01f00000 0x1000>;
+		resets = <&resetsc 0>;
 		phy-mode = "mii";
 		reg-io-width = <4>;
 	};
@@ -20,7 +21,14 @@
 	serialsc: serial@1,1fb0000 {
 		compatible = "ns16550a";
 		reg = <1 0x01fb0000 0x20>;
+		resets = <&resetsc 1>;
 		clock-frequency = <12288000>;
 		reg-shift = <1>;
+	};
+
+	resetsc: reset@d0034 {
+		compatible = "simple-reset";
+		reg = <0x000d0034 0x4>;
+		#reset-cells = <1>;
 	};
 };
