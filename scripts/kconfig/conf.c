@@ -655,17 +655,9 @@ int main(int ac, char **av)
 	case allmodconfig:
 		conf_set_all_new_symbols(def_mod);
 		break;
-	case alldefconfig:
-		conf_set_all_new_symbols(def_default);
-		break;
 	case randconfig:
 		/* Really nothing to do in this loop */
 		while (conf_set_all_new_symbols(def_random)) ;
-		break;
-	case defconfig:
-		conf_set_all_new_symbols(def_default);
-		break;
-	case savedefconfig:
 		break;
 	case oldaskconfig:
 		rootEntry = &rootmenu;
@@ -681,7 +673,10 @@ int main(int ac, char **av)
 			check_conf(&rootmenu);
 		} while (conf_cnt && input_mode != listnewconfig);
 		break;
+	case alldefconfig:
+	case defconfig:
 	case olddefconfig:
+	case savedefconfig:
 	default:
 		break;
 	}
