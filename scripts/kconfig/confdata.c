@@ -862,6 +862,8 @@ int conf_write(const char *name)
 	menu = rootmenu.list;
 	while (menu) {
 		sym = menu->sym;
+		sym_calc_value(sym);
+
 		if (!sym) {
 			if (!menu_is_visible(menu))
 				goto next;
@@ -873,7 +875,6 @@ int conf_write(const char *name)
 			need_newline = false;
 		} else if (!(sym->flags & SYMBOL_CHOICE) &&
 			   !(sym->flags & SYMBOL_WRITTEN)) {
-			sym_calc_value(sym);
 			if (!(sym->flags & SYMBOL_WRITE))
 				goto next;
 			if (need_newline) {
