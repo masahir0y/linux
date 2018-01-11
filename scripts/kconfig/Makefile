@@ -112,12 +112,18 @@ endif
 %_defconfig: $(obj)/conf
 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
 
-configfiles=$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(SRCARCH)/configs/$@)
-
 %.config: $(obj)/conf
-	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
-	+$(Q)yes "" | $(MAKE) -f $(srctree)/Makefile oldconfig
+	$(Q)set -e;							\
+	merge_files="$(wildcard $(srctree)/kernel/configs/$@		\
+				$(srctree)/arch/$(SRCARCH)/configs/$@)"; \
+	if [ -z "$$merge_files" ]; then					\
+		echo "No configuration fragment to merge" >&2;		\
+		false;							\
+	fi;								\
+	for m in $$merge_files;						\
+	do								\
+		$< $(silent) --mergeconfig=$$m $(Kconfig);		\
+	done
 
 PHONY += kvmconfig
 kvmconfig: kvm_guest.config
