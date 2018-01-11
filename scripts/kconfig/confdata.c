@@ -347,7 +347,7 @@ e_out:
 	return -1;
 }
 
-int conf_read_simple(const char *name, int def)
+int conf_read_simple(const char *name, int def, int merge)
 {
 	FILE *in = NULL;
 	char   *line = NULL;
@@ -388,7 +388,9 @@ load:
 	def_flags = SYMBOL_DEF << def;
 	for_all_symbols(i, sym) {
 		sym->flags |= SYMBOL_CHANGED;
-		sym->flags &= ~(def_flags|SYMBOL_VALID);
+		if (input_mode != mergeconfig)
+			sym->flags &= ~def_flags;
+		sym->flags &= ~SYMBOL_VALID;
 		if (sym_is_choice(sym))
 			sym->flags |= def_flags;
 		switch (sym->type) {
@@ -504,25 +506,33 @@ load:
 	return 0;
 }
 
-int conf_read(const char *name)
+int conf_read(const char *name, int merge)
 {
 	struct symbol *sym;
 	int conf_unsaved = 0;
 	int i;
 
+	printf("conf_read: %s\n", name);
+
 	sym_set_change_count(0);
 
-	if (conf_read_simple(name, S_DEF_USER)) {
+	if (conf_read_simple(name, S_DEF_USER, merge)) {
 		sym_calc_value(modules_sym);
 		return 1;
 	}
 
 	sym_calc_value(modules_sym);
 
+	printf("xxxx\n");
+
 	for_all_symbols(i, sym) {
+		printf("sym: %s\n", sym->name);
+
 		sym_calc_value(sym);
-		if (sym_is_choice(sym) || (sym->flags & SYMBOL_NO_WRITE))
+		if (sym_is_choice(sym) || (sym->flags & SYMBOL_NO_WRITE)) {
+			printf("cont: %s\n", sym->name);
 			continue;
+		}
 		if (sym_has_value(sym) && (sym->flags & SYMBOL_WRITE)) {
 			/* check that calculated value agrees with saved value */
 			switch (sym->type) {
