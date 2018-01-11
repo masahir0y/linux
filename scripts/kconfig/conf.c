@@ -558,6 +558,8 @@ int main(int ac, char **av)
 			break;
 		}
 	}
+	printf("config file is %s\n", config_file);
+
 	if (ac == optind) {
 		printf(_("%s: Kconfig file missing\n"), av[0]);
 		conf_usage(progname);
@@ -583,7 +585,7 @@ int main(int ac, char **av)
 	case defconfig:
 		if (!config_file)
 			config_file = conf_get_default_confname();
-		if (conf_read(config_file)) {
+		if (conf_read(config_file, 0)) {
 			printf(_("***\n"
 				"*** Can't find default configuration \"%s\"!\n"
 				"***\n"), config_file);
@@ -596,7 +598,11 @@ int main(int ac, char **av)
 	case oldconfig:
 	case listnewconfig:
 	case olddefconfig:
-		conf_read(NULL);
+		conf_read(NULL, 0);
+		break;
+	case mergeconfig:
+		conf_read(NULL, 0);
+		conf_read(config_file, 1);
 		break;
 	case allnoconfig:
 	case allyesconfig:
@@ -607,7 +613,7 @@ int main(int ac, char **av)
 		if (!name)
 			break;
 		if ((strcmp(name, "") != 0) && (strcmp(name, "1") != 0)) {
-			if (conf_read_simple(name, S_DEF_USER)) {
+			if (conf_read_simple(name, S_DEF_USER, 0)) {
 				fprintf(stderr,
 					_("*** Can't read seed configuration \"%s\"!\n"),
 					name);
@@ -679,6 +685,7 @@ int main(int ac, char **av)
 	case defconfig:
 	case olddefconfig:
 	case savedefconfig:
+	case mergeconfig:
 	default:
 		break;
 	}
