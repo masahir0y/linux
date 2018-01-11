@@ -35,6 +35,7 @@ enum input_mode {
 	savedefconfig,
 	listnewconfig,
 	olddefconfig,
+	mergeconfig,
 };
 static enum input_mode input_mode = oldaskconfig;
 
@@ -464,6 +465,7 @@ static struct option long_opts[] = {
 	 * value but not 'n') with the counter-intuitive name.
 	 */
 	{"oldnoconfig",     no_argument,       NULL, olddefconfig},
+	{"mergeconfig",     required_argument, NULL, mergeconfig},
 	{NULL, 0, NULL, 0}
 };
 
@@ -485,6 +487,7 @@ static void conf_usage(const char *progname)
 	printf("  --allmodconfig          New config where all options are answered with mod\n");
 	printf("  --alldefconfig          New config with all symbols set to default\n");
 	printf("  --randconfig            New config with random answer to all options\n");
+	printf("  --mergeconfig           Merge config fragment to base .config\n");
 }
 
 int main(int ac, char **av)
@@ -512,6 +515,7 @@ int main(int ac, char **av)
 			break;
 		case defconfig:
 		case savedefconfig:
+		case mergeconfig:
 			config_file = optarg;
 			break;
 		case randconfig:
@@ -562,7 +566,7 @@ int main(int ac, char **av)
 	name = av[optind];
 	conf_parse(name);
 	//zconfdump(stdout);
-	if (sync_kconfig) {
+	if (sync_kconfig || input_mode == mergeconfig) {
 		name = conf_get_configname();
 		if (stat(name, &tmpstat)) {
 			fprintf(stderr, _("***\n"
