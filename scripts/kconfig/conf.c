@@ -36,6 +36,7 @@ enum input_mode {
 	olddefconfig,
 	yes2modconfig,
 	mod2yesconfig,
+	mergeconfig,
 };
 static enum input_mode input_mode = oldaskconfig;
 
@@ -471,6 +472,7 @@ static struct option long_opts[] = {
 	{"olddefconfig",    no_argument,       NULL, olddefconfig},
 	{"yes2modconfig",   no_argument,       NULL, yes2modconfig},
 	{"mod2yesconfig",   no_argument,       NULL, mod2yesconfig},
+	{"mergeconfig",     required_argument, NULL, mergeconfig},
 	{NULL, 0, NULL, 0}
 };
 
@@ -495,6 +497,7 @@ static void conf_usage(const char *progname)
 	printf("  --randconfig            New config with random answer to all options\n");
 	printf("  --yes2modconfig         Change answers from yes to mod if possible\n");
 	printf("  --mod2yesconfig         Change answers from mod to yes if possible\n");
+	printf("  --mergeconfig           Merge config fragment to base .config\n");
 }
 
 int main(int ac, char **av)
@@ -523,6 +526,7 @@ int main(int ac, char **av)
 			break;
 		case defconfig:
 		case savedefconfig:
+		case mergeconfig:
 			config_file = optarg;
 			break;
 		case randconfig:
