@@ -491,7 +491,7 @@ int main(int ac, char **av)
 {
 	const char *progname = av[0];
 	int opt;
-	const char *name, *defconfig_file = NULL /* gcc uninit */;
+	const char *name, *config_file = NULL;
 	struct stat tmpstat;
 
 	setlocale(LC_ALL, "");
@@ -512,7 +512,7 @@ int main(int ac, char **av)
 			break;
 		case defconfig:
 		case savedefconfig:
-			defconfig_file = optarg;
+			config_file = optarg;
 			break;
 		case randconfig:
 		{
@@ -577,12 +577,12 @@ int main(int ac, char **av)
 
 	switch (input_mode) {
 	case defconfig:
-		if (!defconfig_file)
-			defconfig_file = conf_get_default_confname();
-		if (conf_read(defconfig_file)) {
+		if (!config_file)
+			config_file = conf_get_default_confname();
+		if (conf_read(config_file)) {
 			printf(_("***\n"
 				"*** Can't find default configuration \"%s\"!\n"
-				"***\n"), defconfig_file);
+				"***\n"), config_file);
 			exit(1);
 		}
 		break;
@@ -692,9 +692,9 @@ int main(int ac, char **av)
 			return 1;
 		}
 	} else if (input_mode == savedefconfig) {
-		if (conf_write_defconfig(defconfig_file)) {
+		if (conf_write_defconfig(config_file)) {
 			fprintf(stderr, _("n*** Error while saving defconfig to: %s\n\n"),
-				defconfig_file);
+				config_file);
 			return 1;
 		}
 	} else if (input_mode != listnewconfig) {
