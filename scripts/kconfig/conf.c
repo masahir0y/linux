@@ -501,7 +501,7 @@ int main(int ac, char **av)
 {
 	const char *progname = av[0];
 	int opt;
-	const char *name, *defconfig_file = NULL /* gcc uninit */;
+	const char *name, *config_file = NULL;
 	int no_conf_write = 0;
 
 	tty_stdio = isatty(0) && isatty(1);
@@ -523,7 +523,7 @@ int main(int ac, char **av)
 			break;
 		case defconfig:
 		case savedefconfig:
-			defconfig_file = optarg;
+			config_file = optarg;
 			break;
 		case randconfig:
 		{
@@ -584,7 +584,7 @@ int main(int ac, char **av)
 				"***\n"
 				  "*** Can't find default configuration \"%s\"!\n"
 				  "***\n",
-				defconfig_file);
+				config_file);
 			exit(1);
 		}
 		break;
@@ -694,7 +694,7 @@ int main(int ac, char **av)
 	if (input_mode == savedefconfig) {
 		if (conf_write_defconfig(defconfig_file)) {
 			fprintf(stderr, "n*** Error while saving defconfig to: %s\n\n",
-				defconfig_file);
+				config_file);
 			return 1;
 		}
 	} else if (input_mode != listnewconfig && input_mode != helpnewconfig) {
