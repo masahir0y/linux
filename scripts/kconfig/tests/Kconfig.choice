@@ -1,0 +1,25 @@
+config MODULES
+	bool "module support"
+	option modules
+
+choice
+	prompt "boolean choice test"
+
+config BOOL_CHOICE_VAL1
+	bool "choice 1"
+
+config BOOL_CHOICE_VAL2
+	bool "choice 2"
+
+endchoice
+
+choice
+	prompt "tristate choice test"
+
+config TRISTATE_CHOICE_VAL1
+	tristate "choice 1"
+
+config TRISTATE_CHOICE_VAL2
+	tristate "choice 2"
+
+endchoice

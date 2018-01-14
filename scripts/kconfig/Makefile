@@ -137,6 +137,10 @@ PHONY += tinyconfig
 tinyconfig:
 	$(Q)$(MAKE) -f $(srctree)/Makefile allnoconfig tiny.config
 
+PHONY += testconfig
+testconfig: $(obj)/conf
+	$(PYTHON3) -B -m pytest $(srctree)/$(src)/tests
+
 # Help text used by make help
 help:
 	@echo  '  config	  - Update current config utilising a line-oriented program'
