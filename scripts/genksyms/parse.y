@@ -351,12 +351,16 @@ parameter_declaration:
 m_abstract_declarator:
 	ptr_operator m_abstract_declarator
 		{ $$ = $2 ? $2 : $1; }
+	| direct_m_abstract_declarator_opt
+	;
+
+direct_m_abstract_declarator_opt:
+	/* empty */					{ $$ = NULL; }
 	| direct_m_abstract_declarator
 	;
 
 direct_m_abstract_declarator:
-	/* empty */					{ $$ = NULL; }
-	| IDENT
+	IDENT
 		{ /* For version 2 checksums, we don't want to remember
 		     private parameter names.  */
 		  remove_node($1);
