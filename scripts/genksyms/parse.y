@@ -295,15 +295,6 @@ direct_declarator:
 		    $$ = $1;
 		  }
 		}
-	| TYPE
-		{ if (current_name != NULL) {
-		    error_with_pos("unexpected second declaration name");
-		    YYERROR;
-		  } else {
-		    current_name = (*$1)->string;
-		    $$ = $1;
-		  }
-		}
 	| direct_declarator '(' parameter_declaration_clause ')'
 		{ $$ = $4; }
 	| direct_declarator '(' error ')'
@@ -323,7 +314,6 @@ nested_declarator:
 
 direct_nested_declarator:
 	IDENT
-	| TYPE
 	| direct_nested_declarator '(' parameter_declaration_clause ')'
 		{ $$ = $4; }
 	| direct_nested_declarator '(' error ')'
@@ -370,12 +360,6 @@ direct_m_abstract_declarator:
 		{ /* For version 2 checksums, we don't want to remember
 		     private parameter names.  */
 		  remove_node($1);
-		  $$ = $1;
-		}
-	/* This wasn't really a typedef name but an identifier that
-	   shadows one.  */
-	| TYPE
-		{ remove_node($1);
 		  $$ = $1;
 		}
 	| direct_m_abstract_declarator '(' parameter_declaration_clause ')'
