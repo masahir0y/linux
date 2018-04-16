@@ -163,11 +163,18 @@ quiet_cmd_itb-image = ITB     $@
 		$(BASH) $(MKIMAGE) \
 		-D "-I dts -O dtb -p 500 \
 			--include $(objtree)/arch/mips \
-			--warning no-unit_address_vs_reg" \
+			--warning no-unit_address_vs_reg \
+			-d $(depfile)" \
 		-f $(2) $@
 
 $(obj)/vmlinux.itb: $(obj)/vmlinux.its $(obj)/vmlinux.bin FORCE
-	$(call if_changed,itb-image,$<)
+	$(call if_changed_dep,itb-image,$<)
 
 $(obj)/vmlinux.%.itb: $(obj)/vmlinux.%.its $(obj)/vmlinux.bin.% FORCE
-	$(call if_changed,itb-image,$<)
+	$(call if_changed_dep,itb-image,$<)
+
+# The -d option of DTC outputs dependencies of binaries included by the
+# /incbin/ directive.  When .*.cmd files are included, Kbuild tries to
+# update *.dtb because it sees a pattern rule defined in scripts/Makefile.lib.
+# The rule must be cancelled by a more specific rule.
+$(obj)/dts/%.dtb: ;
