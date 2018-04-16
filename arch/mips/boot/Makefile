@@ -105,12 +105,6 @@ $(obj)/uImage: $(obj)/uImage.$(suffix-y)
 # Flattened Image Tree (.itb) images
 #
 
-targets += vmlinux.itb
-targets += vmlinux.gz.itb
-targets += vmlinux.bz2.itb
-targets += vmlinux.lzma.itb
-targets += vmlinux.lzo.itb
-
 ifeq ($(ADDR_BITS),32)
 	itb_addr_cells = 1
 endif
@@ -157,6 +151,12 @@ $(obj)/vmlinux.lzma.its: $(obj)/vmlinux.its.S $(obj)/vmlinux.bin.lzma FORCE
 $(obj)/vmlinux.lzo.its: $(obj)/vmlinux.its.S $(obj)/vmlinux.bin.lzo FORCE
 	$(call if_changed,cpp_its_S,lzo,vmlinux.bin.lzo)
 
+targets += vmlinux.itb
+targets += vmlinux.gz.itb
+targets += vmlinux.bz2.itb
+targets += vmlinux.lzma.itb
+targets += vmlinux.lzo.itb
+
 quiet_cmd_itb-image = ITB     $@
       cmd_itb-image = \
 		env PATH="$(objtree)/scripts/dtc:$(PATH)" \
@@ -169,14 +169,5 @@ quiet_cmd_itb-image = ITB     $@
 $(obj)/vmlinux.itb: $(obj)/vmlinux.its $(obj)/vmlinux.bin FORCE
 	$(call if_changed,itb-image,$<)
 
-$(obj)/vmlinux.gz.itb: $(obj)/vmlinux.gz.its $(obj)/vmlinux.bin.gz FORCE
-	$(call if_changed,itb-image,$<)
-
-$(obj)/vmlinux.bz2.itb: $(obj)/vmlinux.bz2.its $(obj)/vmlinux.bin.bz2 FORCE
-	$(call if_changed,itb-image,$<)
-
-$(obj)/vmlinux.lzma.itb: $(obj)/vmlinux.lzma.its $(obj)/vmlinux.bin.lzma FORCE
-	$(call if_changed,itb-image,$<)
-
-$(obj)/vmlinux.lzo.itb: $(obj)/vmlinux.lzo.its $(obj)/vmlinux.bin.lzo FORCE
+$(obj)/vmlinux.%.itb: $(obj)/vmlinux.%.its $(obj)/vmlinux.bin.% FORCE
 	$(call if_changed,itb-image,$<)
