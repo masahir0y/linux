@@ -1,8 +1,8 @@
 language: c
 
 install:
- - apt update
- - apt install libelf-dev
+ - sudo apt update
+ - sudo apt install libelf-dev
 
 script:
  - make defconfig
