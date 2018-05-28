@@ -4,3 +4,4 @@ install: true
 
 script:
  - make defconfig
+ - make -j8
