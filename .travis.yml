@@ -1,0 +1,6 @@
+language: c
+
+install: true
+
+script:
+ - make defconfig
