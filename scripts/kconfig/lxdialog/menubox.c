@@ -58,6 +58,10 @@
 
 #include "dialog.h"
 
+#include <stdio.h>
+
+extern FILE *debugf;
+
 static int menu_width, item_x;
 
 /*
@@ -68,6 +72,8 @@ static void do_print_item(WINDOW * win, const char *item, int line_y,
 {
 	int j;
 	char *menu_item = malloc(menu_width + 1);
+
+	fprintf(debugf, "do_print_item[%d]: %s (%d), %d\n", line_y, item, selected, hotkey);
 
 	strncpy(menu_item, item, menu_width - item_x);
 	menu_item[menu_width - item_x] = '\0';
@@ -245,11 +251,16 @@ do_resize:
 		item_x = 4;
 
 	/* Set choice to default item */
+	fprintf(debugf, "item_n=%d\n", item_n());
+
 	item_foreach()
 		if (selected && (selected == item_data()))
 			choice = item_n();
 	/* get the saved scroll info */
 	scroll = *s_scroll;
+
+	fprintf(debugf, "choice=%d, scroll=%d\n", choice, scroll);
+
 	if ((scroll <= choice) && (scroll + max_choice > choice) &&
 	   (scroll >= 0) && (scroll + max_choice <= item_count())) {
 		first_item = scroll;
@@ -302,6 +313,8 @@ do_resize:
 						break;
 				}
 		}
+
+		fprintf(debugf, "i=%d\n", i);
 
 		if (item_count() != 0 &&
 		    (i < max_choice ||

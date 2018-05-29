@@ -23,6 +23,11 @@
 
 #include "dialog.h"
 
+#include <stdio.h>
+
+extern FILE *debugf;
+
+
 /* Needed in signal handler in mconf.c */
 int saved_x, saved_y;
 
@@ -269,6 +274,7 @@ void dialog_clear(void)
 		mvwaddstr(stdscr, 0, 1, (char *)dlg.backtitle);
 
 		for (pos = dlg.subtitles; pos != NULL; pos = pos->next) {
+			fprintf(debugf, "subtitle: %s\n", pos->text);
 			/* 3 is for the arrow and spaces */
 			len += strlen(pos->text) + 3;
 		}

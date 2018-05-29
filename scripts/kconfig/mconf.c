@@ -21,6 +21,9 @@
 #include "lkc.h"
 #include "lxdialog/dialog.h"
 
+FILE *debugf;
+
+
 static const char mconf_readme[] =
 "Overview\n"
 "--------\n"
@@ -328,6 +331,7 @@ static void set_subtitle(void)
 
 	subtitles = NULL;
 	list_for_each_entry(sp, &trail, entries) {
+		fprintf(debugf, "set new subtitle: %s\n", sp->text);
 		if (sp->text) {
 			if (pos) {
 				pos->next = xcalloc(1, sizeof(*pos));
@@ -471,6 +475,8 @@ static void build_conf(struct menu *menu)
 	tristate val;
 	char ch;
 	bool visible;
+
+	fprintf(debugf, "build_conf: %s\n", menu_get_prompt(menu));
 
 	/*
 	 * note: menu_is_visible() has side effect that it will
@@ -635,6 +641,7 @@ static void build_conf(struct menu *menu)
 	}
 
 conf_childs:
+	fprintf(debugf, "  conf_childs: %s\n", menu_get_prompt(menu));
 	indent += doint;
 	for (child = menu->list; child; child = child->next)
 		build_conf(child);
@@ -660,6 +667,8 @@ static void conf(struct menu *menu, struct menu *active_menu)
 		item_reset();
 		current_menu = menu;
 		build_conf(menu);
+		fprintf(debugf, "build_conf DONE: child_count=%d\n", child_count);
+
 		if (!child_count)
 			break;
 		set_subtitle();
@@ -667,6 +676,7 @@ static void conf(struct menu *menu, struct menu *active_menu)
 		res = dialog_menu(prompt ? prompt : "Main Menu",
 				  menu_instructions,
 				  active_menu, &s_scroll);
+		fprintf(debugf, "dialog_menu BAIL\n");
 		if (res == 1 || res == KEY_ESC || res == -ERRDISPLAYTOOSMALL)
 			break;
 		if (item_count() != 0) {
@@ -1008,6 +1018,11 @@ int main(int ac, char **av)
 	char *mode;
 	int res;
 
+	debugf = fopen("/dev/pts/1", "w");
+	if (!debugf) {
+		perror("debug_temp.txt");
+		exit(1);
+	}
 	signal(SIGINT, sig_handler);
 
 	if (ac > 1 && strcmp(av[1], "-s") == 0) {
