@@ -369,7 +369,7 @@ void sym_calc_value(struct symbol *sym)
 
 	sym_calc_visibility(sym);
 
-	if (sym->visible != no)
+	if (sym->dir_dep.tri != no)
 		sym->flags |= SYMBOL_WRITE;
 
 	/* set default if recursively called */
@@ -396,16 +396,11 @@ void sym_calc_value(struct symbol *sym)
 				sym->flags |= SYMBOL_WRITE;
 			if (!sym_is_choice(sym)) {
 				prop = sym_get_default_prop(sym);
-				if (prop) {
+				if (prop)
 					newval.tri = EXPR_AND(expr_calc_value(prop->expr),
 							      prop->visible.tri);
-					if (newval.tri != no)
-						sym->flags |= SYMBOL_WRITE;
-				}
-				if (sym->implied.tri != no) {
-					sym->flags |= SYMBOL_WRITE;
+				if (sym->implied.tri != no)
 					newval.tri = EXPR_OR(newval.tri, sym->implied.tri);
-				}
 			}
 		calc_newval:
 			if (sym->dir_dep.tri < sym->rev_dep.tri)
@@ -427,7 +422,6 @@ void sym_calc_value(struct symbol *sym)
 		if (prop) {
 			struct symbol *ds = prop_get_symbol(prop);
 			if (ds) {
-				sym->flags |= SYMBOL_WRITE;
 				sym_calc_value(ds);
 				newval.val = ds->curr.val;
 			}
