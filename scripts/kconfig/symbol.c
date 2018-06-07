@@ -210,8 +210,6 @@ static void sym_calc_visibility(struct symbol *sym)
 		sym->visible = tri;
 		sym_set_changed(sym);
 	}
-	if (sym_is_choice_value(sym))
-		return;
 	/* defaulting to "yes" if no explicit "depends on" are given */
 	tri = yes;
 	if (sym->dir_dep.expr)
@@ -222,6 +220,10 @@ static void sym_calc_visibility(struct symbol *sym)
 		sym->dir_dep.tri = tri;
 		sym_set_changed(sym);
 	}
+
+	if (sym_is_choice_value(sym))
+		return;
+
 	tri = no;
 	if (sym->rev_dep.expr)
 		tri = expr_calc_value(sym->rev_dep.expr);
