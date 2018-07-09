@@ -150,43 +150,18 @@
 
 /* gcc version specific checks */
 
-#if GCC_VERSION < 30200
+#if GCC_VERSION < 40200
 # error Sorry, your compiler is too old - please upgrade it.
 #endif
 
-#if GCC_VERSION < 30300
-# define __used			__attribute__((__unused__))
-#else
-# define __used			__attribute__((__used__))
-#endif
-
-#ifdef CONFIG_GCOV_KERNEL
-# if GCC_VERSION < 30400
-#   error "GCOV profiling support for gcc versions below 3.4 not included"
-# endif /* __GNUC_MINOR__ */
-#endif /* CONFIG_GCOV_KERNEL */
-
-#if GCC_VERSION >= 30400
 #define __must_check		__attribute__((warn_unused_result))
 #define __malloc		__attribute__((__malloc__))
-#endif
-
-#if GCC_VERSION >= 40000
-
-/* GCC 4.1.[01] miscompiles __weak */
-#ifdef __KERNEL__
-# if GCC_VERSION >= 40100 &&  GCC_VERSION <= 40101
-#  error Your version of gcc miscompiles the __weak directive
-# endif
-#endif
 
 #define __used			__attribute__((__used__))
 #define __compiler_offsetof(a, b)					\
 	__builtin_offsetof(a, b)
 
-#if GCC_VERSION >= 40100
-# define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
-#endif
+#define __compiletime_object_size(obj) __builtin_object_size(obj, 0)
 
 #if GCC_VERSION >= 40300
 /* Mark functions as cold. gcc will assume any path leading to a call
@@ -342,8 +317,6 @@
  */
 #define __designated_init __attribute__((designated_init))
 #endif
-
-#endif	/* gcc version >= 40000 specific checks */
 
 #if !defined(__noclone)
 #define __noclone	/* not needed */
