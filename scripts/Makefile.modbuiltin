@@ -39,9 +39,13 @@ modbuiltin-target  := $(obj)/modules.builtin
 __modbuiltin: $(modbuiltin-target) $(subdir-ym)
 	@:
 
+define filechk_modbuiltin
+	{ for m in $(modbuiltin-mods); do echo kernel/$$m; done;	\
+	cat /dev/null $(modbuiltin-subdirs); }
+endef
+
 $(modbuiltin-target): $(subdir-ym) FORCE
-	$(Q)(for m in $(modbuiltin-mods); do echo kernel/$$m; done;	\
-	cat /dev/null $(modbuiltin-subdirs)) > $@
+	$(call filechk,modbuiltin)
 
 PHONY += FORCE
 

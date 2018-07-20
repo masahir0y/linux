@@ -1261,12 +1261,16 @@ modules: $(vmlinux-dirs) $(if $(KBUILD_BUILTIN),vmlinux) modules.builtin
 	@$(kecho) '  Building modules, stage 2.';
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 
-modules.builtin: $(vmlinux-dirs:%=%/modules.builtin)
-	$(Q)$(AWK) '!x[$$0]++' $^ > $(objtree)/modules.builtin
+modbuiltin-dirs := $(addprefix _modbuiltin_, $(vmlinux-dirs))
 
-%/modules.builtin: include/config/auto.conf include/config/tristate.conf
-	$(Q)$(MAKE) $(modbuiltin)=$*
+filechk_modbuiltin = $(AWK) '!x[$$0]++' $(addsuffix /modules.builtin, $(vmlinux-dirs))
 
+modules.builtin: $(modbuiltin-dirs) FORCE
+	$(call filechk,modbuiltin)
+
+PHONY += $(modbuiltin-dirs)
+$(modbuiltin-dirs): $(vmlinux-dirs)
+	$(Q)$(MAKE) $(modbuiltin)=$(patsubst _modbuiltin_%,%,$@)
 
 # Target to prepare building external modules
 PHONY += modules_prepare
