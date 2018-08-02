@@ -158,7 +158,8 @@ static unsigned int renesas_sdhi_clk_update(struct tmio_mmc_host *host,
 static void renesas_sdhi_set_clock(struct tmio_mmc_host *host,
 				   unsigned int new_clock)
 {
-	u32 clk = 0, clock;
+	unsigned int clock, divisor;
+	u32 clk = 0;
 
 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, ~CLK_CTL_SCLKEN &
 		sd_ctrl_read16(host, CTL_SD_CARD_CLK_CTL));
@@ -166,14 +167,18 @@ static void renesas_sdhi_set_clock(struct tmio_mmc_host *host,
 	if (new_clock == 0)
 		goto out;
 
-	clock = renesas_sdhi_clk_update(host, new_clock) / 512;
+	clock = renesas_sdhi_clk_update(host, new_clock);
 
-	for (clk = 0x80000080; new_clock >= (clock << 1); clk >>= 1)
-		clock <<= 1;
+	divisor = clock / new_clock;
 
-	/* 1/1 clock is option */
-	if ((host->pdata->flags & TMIO_MMC_CLK_ACTUAL) && ((clk >> 22) & 0x1))
-		clk |= 0xff;
+	/*
+	 * bit7 set: 1/512, ... bit0 set:1/4, all bits clear: 1/2
+	 * all bits set: 1/1 (Renesas extension)
+	 */
+	if ((host->pdata->flags & TMIO_MMC_CLK_ACTUAL) && divisor <= 1)
+		clk = 0xff;
+	else
+		clk = roundup_pow_of_two(divisor) >> 2;
 
 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, clk & CLK_CTL_DIV_MASK);
 	if (!(host->pdata->flags & TMIO_MMC_MIN_RCAR2))
