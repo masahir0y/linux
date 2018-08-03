@@ -106,6 +106,16 @@
 		TMIO_STAT_CARD_REMOVE | TMIO_STAT_CARD_INSERT)
 #define TMIO_MASK_IRQ     (TMIO_MASK_READOP | TMIO_MASK_WRITEOP | TMIO_MASK_CMD)
 
+/*
+ * Workaround for avoiding to use RX DMAC by multiple channels.
+ * On R-Car H3 ES1.* and M3-W ES1.0, when multiple SDHI channels use
+ * RX DMAC simultaneously, sometimes hundreds of bytes data are not
+ * stored into the system memory even if the DMAC interrupt happened.
+ * So, this driver then uses one RX DMAC channel only.
+ */
+#define SDHI_INTERNAL_DMAC_ONE_RX_ONLY	0
+#define SDHI_INTERNAL_DMAC_RX_IN_USE	1
+
 struct tmio_mmc_data;
 struct tmio_mmc_host;
 
@@ -274,5 +284,8 @@ static inline void sd_ctrl_write32_rep(struct tmio_mmc_host *host, int addr,
 {
 	iowrite32_rep(host->ctl + (addr << host->bus_shift), buf, count);
 }
+
+void tmio_mmc_internal_dmac_global_flags_register(unsigned long flags);
+extern const struct tmio_mmc_dma_ops tmio_mmc_internal_dmac_dma_ops;
 
 #endif

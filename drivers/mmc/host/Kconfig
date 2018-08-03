@@ -584,6 +584,9 @@ config MMC_SDRICOH_CS
 config MMC_TMIO_CORE
 	tristate
 
+config MMC_TMIO_INTERNAL_DMAC
+	tristate
+
 config MMC_TMIO
 	tristate "Toshiba Mobile IO Controller (TMIO) MMC/SD function support"
 	depends on MFD_TMIO || MFD_ASIC3
@@ -613,6 +616,7 @@ config MMC_SDHI_INTERNAL_DMAC
 	tristate "DMA for SDHI SD/SDIO controllers using on-chip bus mastering"
 	depends on ARM64 || COMPILE_TEST
 	depends on MMC_SDHI
+	select MMC_TMIO_INTERNAL_DMAC
 	default MMC_SDHI if ARM64
 	help
 	  This provides DMA support for SDHI SD/SDIO controllers
