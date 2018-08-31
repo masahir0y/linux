@@ -176,9 +176,10 @@ static int uniphier_i2c_stop(struct i2c_adapter *adap)
 }
 
 static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
-					struct i2c_msg *msg, bool stop)
+					struct i2c_msg *msg)
 {
-	bool is_read = msg->flags & I2C_M_RD;
+	bool is_read = !!(msg->flags & I2C_M_RD);
+	bool stop = !!(msg->flags & I2C_M_STOP);
 	bool recovery = false;
 	int ret;
 
@@ -240,21 +241,14 @@ static int uniphier_i2c_check_bus_busy(struct i2c_adapter *adap)
 static int uniphier_i2c_master_xfer(struct i2c_adapter *adap,
 				    struct i2c_msg *msgs, int num)
 {
-	struct i2c_msg *msg, *emsg = msgs + num;
-	int ret;
+	int ret, i;
 
 	ret = uniphier_i2c_check_bus_busy(adap);
 	if (ret)
 		return ret;
 
-	for (msg = msgs; msg < emsg; msg++) {
-		/* If next message is read, skip the stop condition */
-		bool stop = !(msg + 1 < emsg && msg[1].flags & I2C_M_RD);
-		/* but, force it if I2C_M_STOP is set */
-		if (msg->flags & I2C_M_STOP)
-			stop = true;
-
-		ret = uniphier_i2c_master_xfer_one(adap, msg, stop);
+	for (i = 0; i < num; i++) {
+		ret = uniphier_i2c_master_xfer_one(adap, msgs + i);
 		if (ret)
 			return ret;
 	}
