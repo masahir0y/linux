@@ -307,10 +307,11 @@ static void uniphier_fi2c_recover(struct uniphier_fi2c_priv *priv)
 }
 
 static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
-					 struct i2c_msg *msg, bool stop)
+					 struct i2c_msg *msg)
 {
 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
-	bool is_read = msg->flags & I2C_M_RD;
+	bool is_read = !!(msg->flags & I2C_M_RD);
+	bool stop = !!(msg->flags & I2C_M_STOP);
 	unsigned long time_left;
 
 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
@@ -393,21 +394,14 @@ static int uniphier_fi2c_check_bus_busy(struct i2c_adapter *adap)
 static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
 				     struct i2c_msg *msgs, int num)
 {
-	struct i2c_msg *msg, *emsg = msgs + num;
-	int ret;
+	int ret, i;
 
 	ret = uniphier_fi2c_check_bus_busy(adap);
 	if (ret)
 		return ret;
 
-	for (msg = msgs; msg < emsg; msg++) {
-		/* If next message is read, skip the stop condition */
-		bool stop = !(msg + 1 < emsg && msg[1].flags & I2C_M_RD);
-		/* but, force it if I2C_M_STOP is set */
-		if (msg->flags & I2C_M_STOP)
-			stop = true;
-
-		ret = uniphier_fi2c_master_xfer_one(adap, msg, stop);
+	for (i = 0; i < num; i++) {
+		ret = uniphier_fi2c_master_xfer_one(adap, msgs + i);
 		if (ret)
 			return ret;
 	}
