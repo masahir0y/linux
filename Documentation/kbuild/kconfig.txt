@@ -129,6 +129,12 @@ KCONFIG_NOSILENTUPDATE
 If this variable has a non-blank value, it prevents silent kernel
 config updates (requires explicit updates).
 
+KCONFIG_NONINTERACTIVE_UPDATE
+--------------------------------------------------
+If this variable has a non-blank value, it prevents user input prompts
+from showing up even when new symbols are available.  All new symbols
+are silently set to their default values.
+
 KCONFIG_AUTOCONFIG
 --------------------------------------------------
 This environment variable can be set to specify the path & name of the

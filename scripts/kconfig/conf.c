@@ -680,6 +680,11 @@ int main(int ac, char **av)
 	case oldconfig:
 	case listnewconfig:
 	case syncconfig:
+		if (input_mode == syncconfig) {
+			name = getenv("KCONFIG_NONINTERACTIVE_UPDATE");
+			if (name && *name)
+				break;
+		}
 		/* Update until a loop caused no more changes */
 		do {
 			conf_cnt = 0;
