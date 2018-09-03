@@ -87,7 +87,7 @@ $S	%prep
 $S	%setup -q
 $S
 $S	%build
-$S	make %{?_smp_mflags} ARCH=$ARCH KBUILD_BUILD_VERSION=%{release}
+$S	make %{?_smp_mflags} ARCH=$ARCH KBUILD_BUILD_VERSION=%{release} KCONFIG_NONINTERACTIVE_UPDATE=1
 $S
 	%install
 	mkdir -p %{buildroot}/boot
