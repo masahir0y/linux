@@ -163,8 +163,7 @@ static unsigned long kallsyms_sym_address(int idx)
 unsigned long kallsyms_lookup_name(const char *name)
 {
 	char namebuf[KSYM_NAME_LEN];
-	unsigned long i;
-	unsigned int off;
+	unsigned int off, i;
 
 	for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
 		off = kallsyms_expand_symbol(off, namebuf, ARRAY_SIZE(namebuf));
@@ -181,8 +180,7 @@ int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 			    void *data)
 {
 	char namebuf[KSYM_NAME_LEN];
-	unsigned long i;
-	unsigned int off;
+	unsigned int off, i;
 	int ret;
 
 	for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
@@ -200,7 +198,7 @@ static unsigned long get_symbol_pos(unsigned long addr,
 				    unsigned long *offset)
 {
 	unsigned long symbol_start = 0, symbol_end = 0;
-	unsigned long i, low, high, mid;
+	unsigned int i, low, high, mid;
 
 	/* This kernel should never had been booted. */
 	if (!IS_ENABLED(CONFIG_KALLSYMS_BASE_RELATIVE))
