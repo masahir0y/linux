@@ -121,7 +121,7 @@ static char kallsyms_get_symbol_type(unsigned int off)
  * Find the offset on the compressed stream given and index in the
  * kallsyms array.
  */
-static unsigned int get_symbol_offset(unsigned long pos)
+static unsigned int get_symbol_offset(unsigned int pos)
 {
 	const u8 *name;
 	int i;
@@ -144,7 +144,7 @@ static unsigned int get_symbol_offset(unsigned long pos)
 	return name - kallsyms_names;
 }
 
-static unsigned long kallsyms_sym_address(int idx)
+static unsigned long kallsyms_sym_address(unsigned int idx)
 {
 	if (!IS_ENABLED(CONFIG_KALLSYMS_BASE_RELATIVE))
 		return kallsyms_addresses[idx];
@@ -165,10 +165,10 @@ static unsigned long kallsyms_sym_address(int idx)
 unsigned long kallsyms_lookup_name(const char *name)
 {
 	char namebuf[KSYM_NAME_LEN];
-	unsigned long i;
-	unsigned int off;
+	unsigned int i;
+	unsigned int off = 0;
 
-	for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
+	for (i = 0; i < kallsyms_num_syms; i++) {
 		off = kallsyms_expand_symbol(off, namebuf, ARRAY_SIZE(namebuf));
 
 		if (strcmp(namebuf, name) == 0)
@@ -182,8 +182,7 @@ int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 			    void *data)
 {
 	char namebuf[KSYM_NAME_LEN];
-	unsigned long i;
-	unsigned int off;
+	unsigned int off, i;
 	int ret;
 
 	for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
@@ -195,12 +194,12 @@ int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 	return module_kallsyms_on_each_symbol(fn, data);
 }
 
-static unsigned long get_symbol_pos(unsigned long addr,
-				    unsigned long *symbolsize,
-				    unsigned long *offset)
+static unsigned int get_symbol_pos(unsigned long addr,
+				   unsigned long *symbolsize,
+				   unsigned long *offset)
 {
 	unsigned long symbol_start = 0, symbol_end = 0;
-	unsigned long i, low, high, mid;
+	unsigned int i, low, high, mid;
 
 	/* This kernel should never had been booted. */
 	if (!IS_ENABLED(CONFIG_KALLSYMS_BASE_RELATIVE))
@@ -289,7 +288,7 @@ const char *kallsyms_lookup(unsigned long addr,
 	namebuf[0] = 0;
 
 	if (is_ksym_addr(addr)) {
-		unsigned long pos;
+		unsigned int pos;
 
 		pos = get_symbol_pos(addr, symbolsize, offset);
 		/* Grab name */
@@ -319,7 +318,7 @@ int lookup_symbol_name(unsigned long addr, char *symname)
 	symname[KSYM_NAME_LEN - 1] = '\0';
 
 	if (is_ksym_addr(addr)) {
-		unsigned long pos;
+		unsigned int pos;
 
 		pos = get_symbol_pos(addr, NULL, NULL);
 		/* Grab name */
@@ -338,7 +337,7 @@ int lookup_symbol_attrs(unsigned long addr, unsigned long *size,
 	name[KSYM_NAME_LEN - 1] = '\0';
 
 	if (is_ksym_addr(addr)) {
-		unsigned long pos;
+		unsigned int pos;
 
 		pos = get_symbol_pos(addr, size, offset);
 		/* Grab name */
