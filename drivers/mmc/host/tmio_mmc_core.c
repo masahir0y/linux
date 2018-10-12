@@ -63,6 +63,12 @@ static inline void tmio_mmc_end_dma(struct tmio_mmc_host *host)
 		host->dma_ops->end(host);
 }
 
+static inline void tmio_mmc_issue_dma(struct tmio_mmc_host *host)
+{
+	if (host->dma_ops)
+		host->dma_ops->issue(host);
+}
+
 static inline void tmio_mmc_enable_dma(struct tmio_mmc_host *host, bool enable)
 {
 	if (host->dma_ops)
@@ -562,7 +568,7 @@ static void tmio_mmc_cmd_irq(struct tmio_mmc_host *host, unsigned int stat)
 			} else {
 				tmio_mmc_disable_mmc_irqs(host,
 							  TMIO_MASK_READOP);
-				tasklet_schedule(&host->dma_issue);
+				tmio_mmc_issue_dma(host);
 			}
 		} else {
 			if (!host->dma_on) {
@@ -570,7 +576,7 @@ static void tmio_mmc_cmd_irq(struct tmio_mmc_host *host, unsigned int stat)
 			} else {
 				tmio_mmc_disable_mmc_irqs(host,
 							  TMIO_MASK_WRITEOP);
-				tasklet_schedule(&host->dma_issue);
+				tmio_mmc_issue_dma(host);
 			}
 		}
 	} else {

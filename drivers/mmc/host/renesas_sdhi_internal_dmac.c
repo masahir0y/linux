@@ -218,10 +218,8 @@ force_pio:
 	renesas_sdhi_internal_dmac_enable_dma(host, false);
 }
 
-static void renesas_sdhi_internal_dmac_issue_tasklet_fn(unsigned long arg)
+static void renesas_sdhi_internal_dmac_issue_dma(struct tmio_mmc_host *host)
 {
-	struct tmio_mmc_host *host = (struct tmio_mmc_host *)arg;
-
 	tmio_mmc_enable_mmc_irqs(host, TMIO_STAT_DATAEND);
 
 	/* start the DMAC */
@@ -292,9 +290,6 @@ renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
 	tasklet_init(&priv->dma_priv.dma_complete,
 		     renesas_sdhi_internal_dmac_complete_tasklet_fn,
 		     (unsigned long)host);
-	tasklet_init(&host->dma_issue,
-		     renesas_sdhi_internal_dmac_issue_tasklet_fn,
-		     (unsigned long)host);
 }
 
 static void
@@ -306,6 +301,7 @@ renesas_sdhi_internal_dmac_release_dma(struct tmio_mmc_host *host)
 
 static const struct tmio_mmc_dma_ops renesas_sdhi_internal_dmac_dma_ops = {
 	.start = renesas_sdhi_internal_dmac_start_dma,
+	.issue = renesas_sdhi_internal_dmac_issue_dma,
 	.enable = renesas_sdhi_internal_dmac_enable_dma,
 	.request = renesas_sdhi_internal_dmac_request_dma,
 	.release = renesas_sdhi_internal_dmac_release_dma,

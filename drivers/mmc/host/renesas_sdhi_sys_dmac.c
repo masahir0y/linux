@@ -310,12 +310,9 @@ static void renesas_sdhi_sys_dmac_start_dma(struct tmio_mmc_host *host,
 	}
 }
 
-static void renesas_sdhi_sys_dmac_issue_tasklet_fn(unsigned long priv)
+static void renesas_sdhi_sys_dmac_issue_tasklet_fn(struct tmio_mmc_host *host)
 {
-	struct tmio_mmc_host *host = (struct tmio_mmc_host *)priv;
 	struct dma_chan *chan = NULL;
-
-	spin_lock_irq(&host->lock);
 
 	if (host->data) {
 		if (host->data->flags & MMC_DATA_READ)
@@ -323,8 +320,6 @@ static void renesas_sdhi_sys_dmac_issue_tasklet_fn(unsigned long priv)
 		else
 			chan = host->chan_tx;
 	}
-
-	spin_unlock_irq(&host->lock);
 
 	tmio_mmc_enable_mmc_irqs(host, TMIO_STAT_DATAEND);
 
