@@ -12,6 +12,11 @@ include include/config/auto.conf
 __toolcheck:
 	@:
 
+chk_stack_validation = echo "int main() {}" | $(HOSTCC) -xc -o /dev/null -lelf -
+msg_stack_validation = "libelf is necessary for building the objtool." \
+		       "Please install libelf-dev, libelf-devel or elfutils-libelf-devel."
+toolcheck-$(CONFIG_STACK_VALIDATION) += stack_validation
+
 PHONY += $(toolcheck-y)
 __toolcheck: $(toolcheck-y)
 
