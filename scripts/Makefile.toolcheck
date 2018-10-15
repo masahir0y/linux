@@ -17,6 +17,14 @@ msg_stack_validation = "libelf is necessary for building the objtool." \
 		       "Please install libelf-dev, libelf-devel or elfutils-libelf-devel."
 toolcheck-$(CONFIG_STACK_VALIDATION) += stack_validation
 
+chk_lzo = command -v lzop
+msg_lzo = "lzo tool not found. Please install it."
+toolcheck-$(CONFIG_KERNEL_LZO) += lzo
+
+chk_lz4 = command -v lz4c
+msg_lz4 = "lz4 tool not found. Please install it."
+toolcheck-$(CONFIG_KERNEL_LZ4) += lz4
+
 PHONY += $(toolcheck-y)
 __toolcheck: $(toolcheck-y)
 
