@@ -638,6 +638,7 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # include/config/auto.conf (which mirrors .config).
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile syncconfig
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.toolcheck
 else
 # External modules and some install targets need include/generated/autoconf.h
 # and include/config/auto.conf but do not care if they are up-to-date.

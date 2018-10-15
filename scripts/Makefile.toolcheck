@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0
+# ===========================================================================
+# Host tools check
+# ===========================================================================
+#
+# Some additional tools might be required depending on the kernel configuration.
+# Check if they are installed on the host machine, and if missing, error out
+# with a user-friendly message.
+
+include include/config/auto.conf
+
+__toolcheck:
+	@:
+
+PHONY += $(toolcheck-y)
+__toolcheck: $(toolcheck-y)
+
+define populate_toolcheck
+__toolcheck: check_$(1)
+PHONY += check_$(1)
+check_$(1):
+	$(Q){ $(chk_$(1)); } >/dev/null 2>&1 || {	\
+		echo "*" >&2;				\
+		for msg in $(msg_$(1));			\
+		do					\
+			echo "* $$$${msg}" >&2;		\
+		done;					\
+		echo "*" >&2;				\
+		/bin/false;				\
+	}
+endef
+
+$(foreach c, $(toolcheck-y), $(eval $(call populate_toolcheck,$(c))))
+
+.PHONY: $(PHONY)
