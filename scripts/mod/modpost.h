@@ -117,9 +117,13 @@ struct namespace_list {
 struct module {
 	struct module *next;
 	int gpl_compatible;
+<<<<<<< HEAD
 	struct symbol *unres;
 	int from_dump;  /* 1 if module was loaded from *.symvers */
 	int is_vmlinux;
+=======
+	struct linked_symbol *unres;
+>>>>>>> modpost: refactor symbol handling
 	int seen;
 	int has_init;
 	int has_cleanup;

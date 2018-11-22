@@ -193,7 +193,6 @@ static struct module *new_module(const char *modname)
 #define SYMBOL_HASH_SIZE 1024
 
 struct symbol {
-	struct symbol *next;
 	struct module *module;
 	unsigned int crc;
 	int crc_valid;
@@ -204,7 +203,17 @@ struct symbol {
 	char name[];
 };
 
-static struct symbol *symbolhash[SYMBOL_HASH_SIZE];
+struct linked_symbol {
+	struct symbol *symbol;
+	struct linked_symbol *next;
+};
+
+#define for_each_symbol(sym, lsym, head)		\
+	for (lsym = head, sym = lsym->symbol;		\
+	     lsym;					\
+	     lsym = lsym->next, sym = lsym->symbol)
+
+static struct linked_symbol *symbolhash[SYMBOL_HASH_SIZE];
 
 /* This is based on the hash agorithm from gdbm, via tdb */
 static inline unsigned int tdb_hash(const char *name)
@@ -219,48 +228,90 @@ static inline unsigned int tdb_hash(const char *name)
 	return (1103515243 * value + 12345);
 }
 
-/**
- * Allocate a new symbols for use in the hash of exported symbols or
- * the list of unresolved symbols per module
- **/
-static struct symbol *alloc_symbol(const char *name, unsigned int weak,
-				   struct symbol *next)
+static struct symbol *find_symbol(const char *name)
 {
-	struct symbol *s = NOFAIL(malloc(sizeof(*s) + strlen(name) + 1));
+	struct symbol *sym;
+	struct linked_symbol *lsym;
+	unsigned int hash;
 
-	memset(s, 0, sizeof(*s));
-	strcpy(s->name, name);
-	s->weak = weak;
-	s->next = next;
-	s->is_static = 1;
-	return s;
+	/* For our purposes, .foo matches foo.  PPC64 needs this. */
+	if (name[0] == '.')
+		name++;
+
+	hash = tdb_hash(name);
+
+	for_each_symbol(sym, lsym, symbolhash[hash % SYMBOL_HASH_SIZE]) {
+		if (strcmp(sym->name, name) == 0)
+			return sym;
+	}
+
+	/* If not found, allocate a new one and add it to the hash table. */
+	sym = NOFAIL(malloc(sizeof(*sym) + strlen(name) + 1));
+	memset(sym, 0, sizeof(*sym));
+
+	lsym = NOFAIL(malloc(sizeof(*lsym)));
+	lsym->symbol = sym;
+	lsym->next = symbolhash[hash % SYMBOL_HASH_SIZE];
+	symbolhash[hash % SYMBOL_HASH_SIZE] = lsym;
+
+	return sym;
 }
 
-/* For the hash of exported symbols */
-static struct symbol *new_symbol(const char *name, struct module *module,
-				 enum export export)
+/* mark a given symbol as exported */
+static struct symbol *set_symbol_exported(const char *name, struct module *mod,
+					  enum export export)
 {
+<<<<<<< HEAD
 	unsigned int hash;
 
 	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
 	symbolhash[hash] = alloc_symbol(name, 0, symbolhash[hash]);
 
 	return symbolhash[hash];
+=======
+	struct symbol *sym;
+
+	sym = find_symbol(name);
+
+	if (sym->module && !sym->preloaded)
+		warn("%s: '%s' exported twice. Previous export was in %s%s\n",
+		     mod->name, name, sym->module->name,
+		     is_vmlinux(sym->module->name) ? "" : ".ko");
+	else
+			sym->module = mod;	/* In case Module.symvers was out of date */
+
+	sym->preloaded = 0;
+	sym->vmlinux = is_vmlinux(mod->name);
+	sym->kernel = 0;
+	sym->export = export;
+
+	return sym;
+>>>>>>> 1c454f608eb9... modpost: refactor symbol handling
 }
 
-static struct symbol *find_symbol(const char *name)
+/* set CRC for a give symbol */
+static void set_symbol_crc(const char *name, unsigned int crc)
 {
-	struct symbol *s;
+	struct symbol *sym;
 
-	/* For our purposes, .foo matches foo.  PPC64 needs this. */
-	if (name[0] == '.')
-		name++;
+	sym = find_symbol(name);
 
-	for (s = symbolhash[tdb_hash(name) % SYMBOL_HASH_SIZE]; s; s = s->next) {
-		if (strcmp(s->name, name) == 0)
-			return s;
-	}
-	return NULL;
+	sym->crc = crc;
+	sym->crc_valid = 1;
+}
+
+static void add_unresolved_sym(const char *name, struct module *mod, bool weak)
+{
+	struct linked_symbol *lsym;
+	struct symbol *sym;
+
+	sym = find_symbol(name);
+	sym->weak = weak;
+
+	lsym = NOFAIL(malloc(sizeof(*lsym)));
+	lsym->symbol = sym;
+	lsym->next = mod->unres;
+	mod->unres = lsym;
 }
 
 static bool contains_namespace(struct namespace_list *list,
@@ -387,8 +438,22 @@ static enum export export_from_sec(struct elf_info *elf, unsigned int sec)
 		return export_unknown;
 }
 
+<<<<<<< HEAD
 static const char *namespace_from_kstrtabns(const struct elf_info *info,
 					    const Elf_Sym *sym)
+=======
+<<<<<<< HEAD
+static const char *namespace_from_kstrtabns(struct elf_info *info,
+					    Elf_Sym *kstrtabns)
+=======
+<<<<<<< HEAD
+static char *sym_extract_namespace(const char **symname)
+=======
+<<<<<<< HEAD
+static const char *sym_extract_namespace(const char **symname)
+>>>>>>> modpost: refactor symbol handling
+>>>>>>> modpost: refactor symbol handling
+>>>>>>> 7aa78062711f... modpost: refactor symbol handling
 {
 	const char *value = sym_get_data(info, sym);
 	return value[0] ? value : NULL;
@@ -452,7 +517,13 @@ static void sym_set_crc(const char *name, unsigned int crc)
 	s->crc_valid = 1;
 }
 
+<<<<<<< HEAD
 static void *grab_file(const char *filename, size_t *size)
+=======
+=======
+>>>>>>> modpost: refactor symbol handling
+void *grab_file(const char *filename, unsigned long *size)
+>>>>>>> modpost: refactor symbol handling
 {
 	struct stat st;
 	void *map = MAP_FAILED;
@@ -711,6 +782,26 @@ static void handle_symbol(struct module *mod, struct elf_info *info,
 	else
 		export = export_from_sec(info, get_secindex(info, sym));
 
+<<<<<<< HEAD
+=======
+	/* CRC'd symbol */
+	if (strstarts(symname, "__crc_")) {
+		is_crc = true;
+		crc = (unsigned int) sym->st_value;
+		if (sym->st_shndx != SHN_UNDEF && sym->st_shndx != SHN_ABS) {
+			unsigned int *crcp;
+
+			/* symbol points to the CRC in the ELF object */
+			crcp = (void *)info->hdr + sym->st_value +
+			       info->sechdrs[sym->st_shndx].sh_offset -
+			       (info->hdr->e_type != ET_REL ?
+				info->sechdrs[sym->st_shndx].sh_addr : 0);
+			crc = TO_NATIVE(*crcp);
+		}
+		set_symbol_crc(symname + strlen("__crc_"), crc);
+	}
+
+>>>>>>> 7d227412766f... modpost: refactor symbol handling
 	switch (sym->st_shndx) {
 	case SHN_COMMON:
 		if (strstarts(symname, "__gnu_lto_")) {
@@ -738,16 +829,32 @@ static void handle_symbol(struct module *mod, struct elf_info *info,
 			}
 		}
 
+<<<<<<< HEAD
 		mod->unres = alloc_symbol(symname,
 					  ELF_ST_BIND(sym->st_info) == STB_WEAK,
 					  mod->unres);
+=======
+		if (is_crc) {
+			const char *e = is_vmlinux(mod->name) ?"":".ko";
+			warn("EXPORT symbol \"%s\" [%s%s] version generation failed, symbol will not be versioned.\n",
+			     symname + strlen("__crc_"), mod->name, e);
+		}
+		add_unresolved_sym(symname, mod,
+				   ELF_ST_BIND(sym->st_info) == STB_WEAK);
+>>>>>>> 7d227412766f... modpost: refactor symbol handling
 		break;
 	default:
 		/* All exported symbols */
+<<<<<<< HEAD
 		if (strstarts(symname, "__ksymtab_")) {
 			name = symname + strlen("__ksymtab_");
 			sym_add_exported(name, mod, export);
 		}
+=======
+		if (strstarts(symname, "__ksymtab_"))
+			set_symbol_exported(symname + strlen("__ksymtab_"),
+					    mod, export);
+>>>>>>> modpost: refactor symbol handling
 		if (strcmp(symname, "init_module") == 0)
 			mod->has_init = 1;
 		if (strcmp(symname, "cleanup_module") == 0)
@@ -2084,7 +2191,7 @@ static void read_symbols(const char *modname)
 	 * the automatic versioning doesn't pick it up, but it's really
 	 * important anyhow */
 	if (modversions)
-		mod->unres = alloc_symbol("module_layout", 0, mod->unres);
+		add_unresolved_sym("module_layout", mod, 0);
 }
 
 static void read_symbols_from_files(const char *filename)
@@ -2176,13 +2283,14 @@ static void check_for_unused(enum export exp, const char *m, const char *s)
 
 static int check_exports(struct module *mod)
 {
-	struct symbol *s, *exp;
+	struct linked_symbol *ls;
+	struct symbol *s;
 	int err = 0;
 
-	for (s = mod->unres; s; s = s->next) {
+	for (ls = mod->unres; ls; ls = ls->next) {
 		const char *basename;
-		exp = find_symbol(s->name);
-		if (!exp || exp->module == mod) {
+		s = ls->symbol;
+		if (!s->module || s->module == mod) {
 			if (have_vmlinux && !s->weak) {
 				modpost_log(warn_unresolved ? LOG_WARN : LOG_ERROR,
 					    "\"%s\" [%s.ko] undefined!\n",
@@ -2209,8 +2317,8 @@ static int check_exports(struct module *mod)
 		}
 
 		if (!mod->gpl_compatible)
-			check_for_gpl_usage(exp->export, basename, exp->name);
-		check_for_unused(exp->export, basename, exp->name);
+			check_for_gpl_usage(s->export, basename, s->name);
+		check_for_unused(s->export, basename, s->name);
 	}
 
 	return err;
@@ -2291,26 +2399,18 @@ static void add_staging_flag(struct buffer *b, const char *name)
  **/
 static int add_versions(struct buffer *b, struct module *mod)
 {
-	struct symbol *s, *exp;
+	struct linked_symbol *ls;
+	struct symbol *s;
 	int err = 0;
 
-	for (s = mod->unres; s; s = s->next) {
-		exp = find_symbol(s->name);
-		if (!exp || exp->module == mod)
-			continue;
-		s->module = exp->module;
-		s->crc_valid = exp->crc_valid;
-		s->crc = exp->crc;
-	}
-
 	if (!modversions)
-		return err;
+		return 0;
 
 	buf_printf(b, "\n");
 	buf_printf(b, "static const struct modversion_info ____versions[]\n");
 	buf_printf(b, "__used __section(\"__versions\") = {\n");
 
-	for (s = mod->unres; s; s = s->next) {
+	for_each_symbol(s, ls, mod->unres) {
 		if (!s->module)
 			continue;
 		if (!s->crc_valid) {
@@ -2335,17 +2435,19 @@ static int add_versions(struct buffer *b, struct module *mod)
 
 static void add_depends(struct buffer *b, struct module *mod)
 {
+	struct linked_symbol *ls;
 	struct symbol *s;
 	int first = 1;
 
 	/* Clear ->seen flag of modules that own symbols needed by this. */
-	for (s = mod->unres; s; s = s->next)
+	for_each_symbol(s, ls, mod->unres)
 		if (s->module)
 			s->module->seen = s->module->is_vmlinux;
 
 	buf_printf(b, "\n");
 	buf_printf(b, "MODULE_INFO(depends, \"");
 	for (s = mod->unres; s; s = s->next) {
+	for_each_symbol(s, ls, mod->unres) {
 		const char *p;
 		if (!s->module)
 			continue;
@@ -2473,11 +2575,59 @@ static void read_dump(const char *fname)
 			mod = new_module(modname);
 			mod->from_dump = 1;
 		}
+<<<<<<< HEAD
 		s = sym_add_exported(symname, mod, export_no(export));
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+		s = sym_add_exported(symname, namespace, mod,
+=======
+<<<<<<< HEAD
+		s = sym_add_exported(symname, NOFAIL(strdup(namespace)), mod,
+=======
+<<<<<<< HEAD
+		s = sym_add_exported(symname, namespace, mod,
+>>>>>>> c0ff94fa4793... modpost: refactor symbol handling
+>>>>>>> 8ddd78e10b87... modpost: refactor symbol handling
+				     export_no(export));
+=======
+		s = set_symbol_exported(symname, mod, export_no(export));
+>>>>>>> modpost: refactor symbol handling
+>>>>>>> modpost: refactor symbol handling
+		s->kernel    = kernel;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+		s->preloaded = 1;
+=======
+<<<<<<< HEAD
+>>>>>>> fc57dce68ce4... modpost: refactor symbol handling
+>>>>>>> fd4ca18910f1... modpost: refactor symbol handling
+>>>>>>> modpost: refactor symbol handling
 		s->is_static = 0;
+<<<<<<< HEAD
 		if (crc_valid)
+<<<<<<< HEAD
 			sym_set_crc(symname, crc);
+=======
+			sym_set_crc(symname, mod, crc);
+=======
+<<<<<<< HEAD
+		sym_set_crc(symname, mod, crc);
+=======
+		sym_update_crc(symname, mod, crc, export_no(export));
+<<<<<<< HEAD
+>>>>>>> 7d227412766f... modpost: refactor symbol handling
+>>>>>>> 1bb97e6fc4f3... modpost: refactor symbol handling
+>>>>>>> modpost: refactor symbol handling
 		sym_update_namespace(symname, namespace);
+=======
+=======
+		s->preloaded = 1;
+		set_symbol_crc(symname, crc);
+>>>>>>> modpost: refactor symbol handling
+>>>>>>> modpost: refactor symbol handling
 	}
 	free(buf);
 	return;
@@ -2502,11 +2652,13 @@ static int dump_sym(struct symbol *sym)
 static void write_dump(const char *fname)
 {
 	struct buffer buf = { };
+	struct linked_symbol *ls;
 	struct symbol *symbol;
 	const char *namespace;
 	int n;
 
 	for (n = 0; n < SYMBOL_HASH_SIZE ; n++) {
+<<<<<<< HEAD
 		symbol = symbolhash[n];
 		while (symbol) {
 			if (dump_sym(symbol)) {
@@ -2523,6 +2675,14 @@ static void write_dump(const char *fname)
 					   namespace ? namespace : "");
 			}
 			symbol = symbol->next;
+=======
+		for_each_symbol(symbol, ls, symbolhash[n]) {
+			if (dump_sym(symbol))
+				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\n",
+					symbol->crc, symbol->name,
+					symbol->module->name,
+					export_str(symbol->export));
+>>>>>>> modpost: refactor symbol handling
 		}
 	}
 	write_buf(&buf, fname);
