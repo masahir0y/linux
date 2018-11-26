@@ -1,0 +1,9 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Main menu
+#
+CONFIG_MODULES=y
+CONFIG_A=y
+CONFIG_B=y
+CONFIG_C=m
+CONFIG_D=y

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-2.0
+
+config MODULES
+	def_bool y
+	option modules
+
+config A
+	tristate
+
+config B
+	tristate "b"
+	default y
+	select A if C
+	imply D if C
+
+config C
+	tristate "c"
+	default m
+
+config D
+	tristate "d"
