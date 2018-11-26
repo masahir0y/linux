@@ -401,11 +401,13 @@ void menu_finalize(struct menu *parent)
 				if (prop->type == P_SELECT) {
 					struct symbol *es = prop_get_symbol(prop);
 					es->rev_dep.expr = expr_alloc_or(es->rev_dep.expr,
-							expr_alloc_and(expr_alloc_symbol(menu->sym), expr_copy(dep)));
+							expr_alloc_and(expr_alloc_symbol(menu->sym),
+									expr_trans_compare(dep, E_UNEQUAL, &symbol_no)));
 				} else if (prop->type == P_IMPLY) {
 					struct symbol *es = prop_get_symbol(prop);
 					es->implied.expr = expr_alloc_or(es->implied.expr,
-							expr_alloc_and(expr_alloc_symbol(menu->sym), expr_copy(dep)));
+							expr_alloc_and(expr_alloc_symbol(menu->sym),
+									expr_trans_compare(dep, E_UNEQUAL, &symbol_no)));
 				}
 			}
 		}
