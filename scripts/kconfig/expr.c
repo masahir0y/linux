@@ -990,14 +990,9 @@ enum string_value_kind {
 	k_unsigned,
 };
 
-union string_value {
-	unsigned long long u;
-	signed long long s;
-};
-
 static enum string_value_kind expr_parse_string(const char *str,
 						enum symbol_type type,
-						union string_value *val)
+						long long *val)
 {
 	char *tail;
 	enum string_value_kind kind;
@@ -1006,20 +1001,20 @@ static enum string_value_kind expr_parse_string(const char *str,
 	switch (type) {
 	case S_BOOLEAN:
 	case S_TRISTATE:
-		val->s = !strcmp(str, "n") ? 0 :
-			 !strcmp(str, "m") ? 1 :
-			 !strcmp(str, "y") ? 2 : -1;
+		*val = !strcmp(str, "n") ? 0 :
+		       !strcmp(str, "m") ? 1 :
+		       !strcmp(str, "y") ? 2 : -1;
 		return k_signed;
 	case S_INT:
-		val->s = strtoll(str, &tail, 10);
+		*val = strtoll(str, &tail, 10);
 		kind = k_signed;
 		break;
 	case S_HEX:
-		val->u = strtoull(str, &tail, 16);
+		*val = strtoull(str, &tail, 16);
 		kind = k_unsigned;
 		break;
 	default:
-		val->s = strtoll(str, &tail, 0);
+		*val = strtoll(str, &tail, 0);
 		kind = k_signed;
 		break;
 	}
@@ -1032,7 +1027,7 @@ tristate expr_calc_value(struct expr *e)
 	tristate val1, val2;
 	const char *str1, *str2;
 	enum string_value_kind k1 = k_string, k2 = k_string;
-	union string_value lval = {}, rval = {};
+	long long lval = 0, rval = 0;
 	int res;
 
 	if (!e)
@@ -1075,12 +1070,15 @@ tristate expr_calc_value(struct expr *e)
 		k2 = expr_parse_string(str2, e->right.sym->type, &rval);
 	}
 
-	if (k1 == k_string || k2 == k_string)
+	if (k1 == k_unsigned || k2 == k_unsigned) {
+		unsigned long long ulval = lval;
+		unsigned long long urval = rval;
+		res = (ulval > urval) - (ulval < urval);
+	} else if (k1 == k_signed || k2 == k_signed) {
+		res = (lval > rval) - (lval < rval);
+	} else {
 		res = strcmp(str1, str2);
-	else if (k1 == k_unsigned || k2 == k_unsigned)
-		res = (lval.u > rval.u) - (lval.u < rval.u);
-	else /* if (k1 == k_signed && k2 == k_signed) */
-		res = (lval.s > rval.s) - (lval.s < rval.s);
+	}
 
 	switch(e->type) {
 	case E_EQUAL:
