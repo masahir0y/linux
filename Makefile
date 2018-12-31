@@ -1160,7 +1160,8 @@ targets := vmlinux
 $(sort $(vmlinux-deps) $(subdir-modorder)): descend ;
 
 filechk_kernel.release = \
-	echo "$(KERNELVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
+	printf "$(KERNELVERSION)"; \
+	$(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree)
 
 # Store (new) KERNELRELEASE string in include/config/kernel.release
 include/config/kernel.release: FORCE
@@ -1231,7 +1232,7 @@ define filechk_utsrelease.h
 	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
 	  exit 1;                                                         \
 	fi;                                                               \
-	echo \#define UTS_RELEASE \"$(KERNELRELEASE)\"
+	echo '#define UTS_RELEASE "$(KERNELRELEASE)"'
 endef
 
 define filechk_version.h
