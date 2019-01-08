@@ -27,6 +27,6 @@
 # driver components or later moved to kernel/lib for sharing with
 # other drivers.
 
-ccflags-y := -I$(src)/../include
+ccflags-y := -I $(srctree)/$(src)/../include
 
 obj-$(CONFIG_CHASH) += chash.o
