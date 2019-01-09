@@ -10,4 +10,4 @@ iwlmvm-$(CONFIG_IWLWIFI_LEDS) += led.o
 iwlmvm-y += tof.o
 iwlmvm-$(CONFIG_PM) += d3.o
 
-ccflags-y += -I$(src)/../
+ccflags-y += -I $(srctree)/$(src)/../
