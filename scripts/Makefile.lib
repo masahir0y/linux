@@ -28,9 +28,9 @@ KBUILD_CFLAGS += $(subdir-ccflags-y)
 # only build the compiled-in version
 obj-m := $(filter-out $(obj-y),$(obj-m))
 
-# Libraries are always collected in one lib file.
-# Filter out objects already built-in
+# lib-y is deprecated. If used, append it to obj-y.
 lib-y := $(filter-out $(obj-y), $(sort $(lib-y) $(lib-m)))
+obj-y += $(lib-y)
 
 # Subdirectories we need to descend into
 subdir-ym := $(sort $(subdir-y) $(subdir-m) \
