@@ -503,6 +503,7 @@ KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE
 KBUILD_LDFLAGS_MODULE :=
 KBUILD_LDFLAGS :=
+KBUILD_VMLINUX_LIBS :=
 CLANG_FLAGS :=
 
 export ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
@@ -1111,9 +1112,9 @@ KBUILD_VMLINUX_OBJS := $(head-y) $(patsubst %/,%/built-in.a, $(core-y))
 KBUILD_VMLINUX_OBJS += $(addsuffix built-in.a, $(filter %/, $(libs-y)))
 ifdef CONFIG_MODULES
 KBUILD_VMLINUX_OBJS += $(patsubst %/, %/lib.a, $(filter %/, $(libs-y)))
-KBUILD_VMLINUX_LIBS := $(filter-out %/, $(libs-y))
+KBUILD_VMLINUX_LIBS += $(filter-out %/, $(libs-y))
 else
-KBUILD_VMLINUX_LIBS := $(patsubst %/,%/lib.a, $(libs-y))
+KBUILD_VMLINUX_LIBS += $(patsubst %/,%/lib.a, $(libs-y))
 endif
 KBUILD_VMLINUX_OBJS += $(patsubst %/,%/built-in.a, $(drivers-y))
 

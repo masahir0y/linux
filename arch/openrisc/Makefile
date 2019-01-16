@@ -20,7 +20,7 @@
 KBUILD_DEFCONFIG := or1ksim_defconfig
 
 OBJCOPYFLAGS    := -O binary -R .note -R .comment -S
-LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+KBUILD_VMLINUX_LIBS += $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
 
@@ -41,7 +41,6 @@ head-y 		:= arch/openrisc/kernel/head.o
 core-y		+= arch/openrisc/lib/ \
 		   arch/openrisc/kernel/ \
 		   arch/openrisc/mm/
-libs-y		+= $(LIBGCC)
 
 ifneq '$(CONFIG_OPENRISC_BUILTIN_DTB)' '""'
 BUILTIN_DTB := y

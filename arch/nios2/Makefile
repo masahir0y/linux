@@ -20,7 +20,7 @@ UTS_SYSNAME = Linux
 
 export MMU
 
-LIBGCC         := $(shell $(CC) $(KBUILD_CFLAGS) $(KCFLAGS) -print-libgcc-file-name)
+KBUILD_VMLINUX_LIBS += $(shell $(CC) $(KBUILD_CFLAGS) $(KCFLAGS) -print-libgcc-file-name)
 
 KBUILD_AFLAGS += -march=r$(CONFIG_NIOS2_ARCH_REVISION)
 
@@ -39,7 +39,7 @@ KBUILD_CFLAGS += -fno-builtin
 KBUILD_CFLAGS += -G 0
 
 head-y		:= arch/nios2/kernel/head.o
-libs-y		+= arch/nios2/lib/ $(LIBGCC)
+libs-y		+= arch/nios2/lib/
 core-y		+= arch/nios2/kernel/ arch/nios2/mm/
 core-y		+= arch/nios2/platform/
 

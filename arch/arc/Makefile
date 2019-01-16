@@ -73,7 +73,7 @@ cflags-$(disable_small_data)		+= -mno-sdata -fcall-used-gp
 cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= -mbig-endian
 ldflags-$(CONFIG_CPU_BIG_ENDIAN)	+= -EB
 
-LIBGCC	= $(shell $(CC) $(cflags-y) --print-libgcc-file-name)
+KBUILD_VMLINUX_LIBS += $(shell $(CC) $(cflags-y) --print-libgcc-file-name)
 
 # Modules with short calls might break for calls into builtin-kernel
 KBUILD_CFLAGS_MODULE	+= -mlong-calls -mno-millicode
@@ -98,7 +98,7 @@ core-$(CONFIG_ARC_SOC_HSDK)	+= arch/arc/plat-hsdk/
 
 drivers-$(CONFIG_OPROFILE)	+= arch/arc/oprofile/
 
-libs-y		+= arch/arc/lib/ $(LIBGCC)
+libs-y		+= arch/arc/lib/
 
 boot		:= arch/arc/boot
 

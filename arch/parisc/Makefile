@@ -21,6 +21,9 @@ KBUILD_IMAGE := vmlinuz
 
 NM		= sh $(srctree)/arch/parisc/nm
 CHECKFLAGS	+= -D__hppa__=1
+LIBGCC		= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+export LIBGCC
+KBUILD_VMLINUX_LIBS += $(LIBGCC)
 
 ifdef CONFIG_64BIT
 UTS_MACHINE	:= parisc64
@@ -114,7 +117,7 @@ export LIBGCC
 kernel-y			:= mm/ kernel/ math-emu/
 
 core-y	+= $(addprefix arch/parisc/, $(kernel-y))
-libs-y	+= arch/parisc/lib/ $(LIBGCC)
+libs-y	+= arch/parisc/lib/
 
 drivers-$(CONFIG_OPROFILE)		+= arch/parisc/oprofile/
 

@@ -75,14 +75,14 @@ buildplf := $(shell test -e $(srctree)/arch/xtensa/platforms/$(PLATFORM)/Makefil
 
 # Find libgcc.a
 
-LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+KBUILD_VMLINUX_LIBS := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 head-y		:= arch/xtensa/kernel/head.o
 core-y		+= arch/xtensa/kernel/ arch/xtensa/mm/
 core-y		+= $(buildvar) $(buildplf)
 core-y 		+= arch/xtensa/boot/dts/
 
-libs-y		+= arch/xtensa/lib/ $(LIBGCC)
+libs-y		+= arch/xtensa/lib/
 drivers-$(CONFIG_OPROFILE)	+= arch/xtensa/oprofile/
 
 boot		:= arch/xtensa/boot
