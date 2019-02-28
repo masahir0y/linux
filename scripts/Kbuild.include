@@ -68,6 +68,39 @@ define filechk
 endef
 
 ######
+# Return min/max in the string comparison.
+min = $(firstword $(sort $(1)))
+max = $(lastword $(sort $(1)))
+
+# Usage: $(call ge, $(A), (B))
+# Return a non-empty string if $(A) is greater than or equal to $(B), an empty
+# string otherwise, in the string comparison.
+# For arithmetic comparison, $(A) and $(B) must have the same number of digits.
+eq = $(filter $(1), $(2))
+ge = $(filter $(1), $(call max, $(1) $(2)))
+gt = $(filter-out $(2), $(call max, $(1) $(2)))
+le = $(filter $(1), $(call min, $(1) $(2)))
+lt = $(filter-out $(2), $(call min, $(1) $(2)))
+
+# CONFIG_GCC_VERSION represents the gcc version in a 5 or 6-digit form because
+# Kconfig does not support prepending '0' to an 'int' type symbol value.
+# Turn it into an always 6-digit form to handle it easier in Makefile
+#
+# ex1) GCC 4.9   CONFIG_GCC_VERSION=40900   ->  gcc-version=040900
+# ex2) GCC 10    CONFIG_GCC_VERSION=100000  ->  gcc-version=100000
+#
+# This assumes the minimum GCC version for the kernel is 4.x,
+# and will break when GCC 40 is released.
+gcc-version = $(if $(call ge, $(CONFIG_GCC_VERSION), 4),0)$(CONFIG_GCC_VERSION)
+
+# Usage: KBUILD_CFLAGS += $(call cc-ifversion, lt, 040200, -O1)
+ifdef CONFIG_CC_IS_GCC
+if-gcc-version = $(if $(call $(1), $(gcc-version), $(2)),$(3),$(4))
+else
+if-gcc-version = $(4)
+endif
+
+######
 # gcc support functions
 # See documentation in Documentation/kbuild/makefiles.rst
 
