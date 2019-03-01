@@ -1,0 +1,4 @@
+CFLAGS_GCOV	:= -fprofile-arcs -ftest-coverage
+CFLAGS_GCOV	+= $(call cc-option, -fno-tree-loop-im) \
+CFLAGS_GCOV	+= $(call cc-disable-warning, maybe-uninitialized)
+export CFLAGS_GCOV
