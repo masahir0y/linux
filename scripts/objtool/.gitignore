@@ -1,2 +1,2 @@
-x86/lib/inat-tables.c
+arch/x86/lib/inat-tables.c
 objtool
