@@ -36,6 +36,7 @@ PHONY += build_unifdef
 build_unifdef: $(obj)/unifdef
 	@:
 
+subdir-$(CONFIG_STACK_VALIDATION) += objtool
 subdir-$(CONFIG_GCC_PLUGINS) += gcc-plugins
 subdir-$(CONFIG_MODVERSIONS) += genksyms
 subdir-$(CONFIG_SECURITY_SELINUX) += selinux
