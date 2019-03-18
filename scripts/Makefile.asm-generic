@@ -29,6 +29,12 @@ $(if $(redundant),\
 mandatory-y := $(filter-out $(generated-y), $(mandatory-y))
 generic-y   += $(foreach f, $(mandatory-y), $(if $(wildcard $(srctree)/$(src)/$(f)),,$(f)))
 
+dangling    := $(foreach f, $(generic-y), $(if $(wildcard $(srctree)/$(generic)/$(f)),,$(f)))
+dangling    := $(sort $(dangling))
+
+$(if $(dangling),\
+	$(error dangling asm-generic wrapper: $(dangling)))
+
 generic-y   := $(addprefix $(obj)/, $(generic-y))
 generated-y := $(addprefix $(obj)/, $(generated-y))
 
