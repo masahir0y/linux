@@ -8,12 +8,12 @@ ccflags-y += -I $(NOUVEAU_PATH)/$(src)
 
 # NVKM - HW resource manager
 #- code also used by various userspace tools/tests
-include $(src)/nvif/Kbuild
+include $(srctree)/$(src)/nvif/Kbuild
 nouveau-y := $(nvif-y)
 
 # NVIF - NVKM interface library (NVKM user interface also defined here)
 #- code also used by various userspace tools/tests
-include $(src)/nvkm/Kbuild
+include $(srctree)/$(src)/nvkm/Kbuild
 nouveau-y += $(nvkm-y)
 
 # DRM - general
@@ -58,8 +58,8 @@ nouveau-y += nouveau_fbcon.o
 nouveau-y += nv04_fbcon.o
 nouveau-y += nv50_fbcon.o
 nouveau-y += nvc0_fbcon.o
-include $(src)/dispnv04/Kbuild
-include $(src)/dispnv50/Kbuild
+include $(srctree)/$(src)/dispnv04/Kbuild
+include $(srctree)/$(src)/dispnv50/Kbuild
 
 # DRM - command submission
 nouveau-y += nouveau_abi16.o

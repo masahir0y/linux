@@ -14,7 +14,7 @@
 OBJCOPYFLAGS	:=-O binary -R .comment -S
 
 ifneq ($(MACHINE),)
-include $(MACHINE)/Makefile.boot
+include $(srctree)/$(MACHINE)/Makefile.boot
 endif
 
 # Note: the following conditions must always be true:

@@ -27,7 +27,7 @@ obj-$(CONFIG_STACKTRACE) += stacktrace.o
 
 USER_OBJS := config.o
 
-include arch/um/scripts/Makefile.rules
+include $(srctree)/arch/um/scripts/Makefile.rules
 
 targets := config.c config.tmp
 
