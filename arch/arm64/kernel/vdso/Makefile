@@ -75,10 +75,9 @@ quiet_cmd_vdsold_and_vdso_check = LD      $@
 
 # Install commands for the unstripped file
 quiet_cmd_vdso_install = INSTALL $@
-      cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
+      cmd_vdso_install = mkdir -p $(dir $@); cp $< $@
 
-vdso.so: $(obj)/vdso.so.dbg
-	@mkdir -p $(MODLIB)/vdso
+$(MODLIB)/vdso/vdso.so: $(obj)/vdso.so.dbg
 	$(call cmd,vdso_install)
 
-vdso_install: vdso.so
+vdso_install: $(MODLIB)/vdso/$@
