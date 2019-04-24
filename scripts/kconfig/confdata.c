@@ -818,9 +818,9 @@ int conf_write(const char *name)
 	struct symbol *sym;
 	struct menu *menu;
 	const char *basename;
-	const char *str;
 	char dirname[PATH_MAX+1], tmpname[PATH_MAX+22], newname[PATH_MAX+8];
 	char *env;
+	int indent = 1;
 
 	dirname[0] = 0;
 	if (name && name[0]) {
@@ -866,11 +866,14 @@ int conf_write(const char *name)
 		if (!sym) {
 			if (!menu_is_visible(menu))
 				goto next;
-			str = menu_get_prompt(menu);
-			fprintf(out, "\n"
-				     "#\n"
-				     "# %s\n"
-				     "#\n", str);
+			fprintf(out,
+				"\n"
+				"# \n"
+				"#%*c%s \"%s\"\n"
+				"#\n",
+				menu->prompt->type == P_MENU ? indent : 1, ' ',
+				prop_get_type_name(menu->prompt->type),
+				menu_get_prompt(menu));
 		} else if (!(sym->flags & SYMBOL_CHOICE)) {
 			sym_calc_value(sym);
 			if (!(sym->flags & SYMBOL_WRITE))
@@ -883,16 +886,36 @@ int conf_write(const char *name)
 next:
 		if (menu->list) {
 			menu = menu->list;
+			indent += 4;
 			continue;
 		}
-		if (menu->next)
-			menu = menu->next;
-		else while ((menu = menu->parent)) {
+
+		do {
+			if (menu->prompt && menu->prompt->type == P_MENU && indent > 0)
+				/*
+				fprintf(out,
+					"# \n"
+					"#%*cendmenu \"%s\"\n"
+					"#\n",
+					indent, ' ',
+					menu_get_prompt(menu));
+				*/
+				//fprintf(out, "\n");
+				fprintf(out,
+					"# \n"
+					"#%*cendmenu\n"
+					"#\n",
+					indent, ' ');
+
+
 			if (menu->next) {
 				menu = menu->next;
 				break;
 			}
-		}
+
+			menu = menu->parent;
+			indent -= 4;
+		} while (menu);
 	}
 	fclose(out);
 
