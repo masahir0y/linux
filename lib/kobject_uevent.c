@@ -647,7 +647,7 @@ EXPORT_SYMBOL_GPL(kobject_uevent);
  * @env: environment buffer structure
  * @format: printf format for the key=value pair
  *
- * Returns 0 if environment variable was added successfully or -ENOMEM
+ * Returns 0 if environment variable was added successfully or -ENOSPC
  * if no space was available.
  */
 int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
@@ -657,7 +657,7 @@ int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
 
 	if (env->envp_idx >= ARRAY_SIZE(env->envp)) {
 		WARN(1, KERN_ERR "add_uevent_var: too many keys\n");
-		return -ENOMEM;
+		return -ENOSPC;
 	}
 
 	va_start(args, format);
@@ -668,7 +668,7 @@ int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
 
 	if (len >= (sizeof(env->buf) - env->buflen)) {
 		WARN(1, KERN_ERR "add_uevent_var: buffer size too small\n");
-		return -ENOMEM;
+		return -ENOSPC;
 	}
 
 	env->envp[env->envp_idx++] = &env->buf[env->buflen];
