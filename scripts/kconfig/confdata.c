@@ -870,8 +870,8 @@ int conf_write(const char *name)
 			str = menu_get_prompt(menu);
 			fprintf(out, "\n"
 				     "#\n"
-				     "# %s\n"
-				     "#\n", str);
+				     "# %s: \"%s\"\n"
+				     "#\n", prop_get_type_name(menu->prompt->type), str);
 			need_newline = false;
 		} else if (!(sym->flags & SYMBOL_CHOICE)) {
 			sym_calc_value(sym);
@@ -895,7 +895,7 @@ next:
 		else while ((menu = menu->parent)) {
 			if (menu != &rootmenu && !menu->sym && menu_is_visible(menu)) {
 				str = menu_get_prompt(menu);
-				fprintf(out, "# end of %s\n", str);
+				fprintf(out, "# endmenu \"%s\"\n", str);
 				need_newline = true;
 			}
 			if (menu->next) {
