@@ -864,43 +864,52 @@ int conf_write(const char *name)
 	menu = rootmenu.list;
 	while (menu) {
 		sym = menu->sym;
-		if (!sym) {
-			if (!menu_is_visible(menu))
-				goto next;
+
+		if (sym && !(sym->flags & SYMBOL_CHOICE)) {
+			sym_calc_value(sym);
+
+			if (sym->flags & SYMBOL_WRITE) {
+				if (need_newline) {
+					fprintf(out, "\n");
+					need_newline = false;
+				}
+				sym->flags &= ~SYMBOL_WRITE;
+				conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
+			}
+		}
+
+		if (menu_is_visible(menu) && menu->prompt->type != P_PROMPT) {
 			str = menu_get_prompt(menu);
 			fprintf(out, "\n"
 				     "#\n"
 				     "# %s: \"%s\"\n"
 				     "#\n", prop_get_type_name(menu->prompt->type), str);
 			need_newline = false;
-		} else if (!(sym->flags & SYMBOL_CHOICE)) {
-			sym_calc_value(sym);
-			if (!(sym->flags & SYMBOL_WRITE))
-				goto next;
-			if (need_newline) {
-				fprintf(out, "\n");
-				need_newline = false;
-			}
-			sym->flags &= ~SYMBOL_WRITE;
-			conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
 		}
 
-next:
 		if (menu->list) {
 			menu = menu->list;
 			continue;
 		}
-		if (menu->next)
+		if (menu->next) {
 			menu = menu->next;
-		else while ((menu = menu->parent)) {
-			if (menu != &rootmenu && !menu->sym && menu_is_visible(menu)) {
-				str = menu_get_prompt(menu);
-				fprintf(out, "# endmenu \"%s\"\n", str);
-				need_newline = true;
-			}
-			if (menu->next) {
-				menu = menu->next;
-				break;
+		} else {
+			while ((menu = menu->parent)) {
+				if (menu != &rootmenu &&
+				    menu_is_visible(menu) &&
+				    menu->prompt->type == P_MENU) {
+					str = menu_get_prompt(menu);
+					fprintf(out,
+						"#\n"
+						"# endmenu: \"%s\"\n"
+						"#\n",
+						str);
+					need_newline = true;
+				}
+				if (menu->next) {
+					menu = menu->next;
+					break;
+				}
 			}
 		}
 	}
