@@ -45,6 +45,7 @@
 *.xz
 Module.symvers
 modules.builtin
+Symbols.list
 
 #
 # Top-level generic files

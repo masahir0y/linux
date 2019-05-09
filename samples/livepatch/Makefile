@@ -1,3 +1,7 @@
+LIVEPATCH_livepatch-sample := y
+LIVEPATCH_livepatch-shadow-fix1 := y
+LIVEPATCH_livepatch-shadow-fix2 := y
+LIVEPATCH_livepatch-callbacks-demo := y
 obj-$(CONFIG_SAMPLE_LIVEPATCH) += livepatch-sample.o
 obj-$(CONFIG_SAMPLE_LIVEPATCH) += livepatch-shadow-mod.o
 obj-$(CONFIG_SAMPLE_LIVEPATCH) += livepatch-shadow-fix1.o
