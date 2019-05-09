@@ -124,8 +124,22 @@ quiet_cmd_ld_ko_o = LD [M]  $@
                  -o $@ $(real-prereqs) ;                                \
 	$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) $@, true)
 
+SLIST = $(objtree)/Symbols.list
+KLP_CONVERT = scripts/livepatch/klp-convert
+quiet_cmd_klp_convert = KLP     $@
+      cmd_klp_convert = mv $@ $(@:.ko=.klp.o);				\
+			$(KLP_CONVERT) $(SLIST) $(@:.ko=.klp.o) $@
+
+define rule_ld_ko_o
+	$(Q)$(call echo-cmd,ld_ko_o) $(cmd_ld_ko_o) ;			\
+	$(call save-cmd,ld_ko_o) ;					\
+	$(if $(CONFIG_LIVEPATCH),					\
+	  $(if $(wildcard $(MODVERDIR)/$(basetarget).livepatch),	\
+	    $(call echo-cmd,klp_convert) $(cmd_klp_convert) ))
+endef
+
 $(modules): %.ko :%.o %.mod.o FORCE
-	+$(call if_changed,ld_ko_o)
+	+$(call if_changed_rule,ld_ko_o)
 
 targets += $(modules)
 
