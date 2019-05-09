@@ -617,6 +617,18 @@ static void free_converted_resources(struct elf *klp_elf)
 	}
 }
 
+/* Check for special sections that klp-convert doesn't support */
+static bool is_section_supported(char *sname)
+{
+	if (strcmp(sname, ".rela.altinstructions") == 0)
+		return false;
+	if (strcmp(sname, ".rela.parainstructions") == 0)
+		return false;
+	if (strcmp(sname, ".rela__jump_table") == 0)
+		return false;
+	return true;
+}
+
 int main(int argc, const char **argv)
 {
 	const char *klp_in_module, *klp_out_module, *symbols_list;
@@ -649,6 +661,12 @@ int main(int argc, const char **argv)
 	}
 
 	list_for_each_entry_safe(sec, aux, &klp_elf->sections, list) {
+		if (!is_section_supported(sec->name)) {
+			WARN("Special ELF section: %s not supported",
+				sec->name);
+			return -1;
+		}
+
 		if (!is_rela_section(sec) ||
 		    is_klp_rela_section(sec->name))
 			continue;
