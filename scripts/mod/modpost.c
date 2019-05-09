@@ -1974,10 +1974,6 @@ static void read_symbols(const char *modname)
 		license = get_next_modinfo(&info, "license", license);
 	}
 
-	/* Livepatch modules have unresolved symbols resolved by klp-convert */
-	if (get_modinfo(&info, "livepatch"))
-		mod->livepatch = 1;
-
 	for (sym = info.symtab_start; sym < info.symtab_stop; sym++) {
 		symname = remove_dot(info.strtab + sym->st_name);
 
@@ -2416,6 +2412,76 @@ static void write_dump(const char *fname)
 	free(buf.p);
 }
 
+struct livepatch_mod_list {
+	struct livepatch_mod_list *next;
+	char *livepatch_mod;
+};
+
+static struct livepatch_mod_list *load_livepatch_mods(const char *fname)
+{
+	struct livepatch_mod_list *list_iter, *list_start = NULL;
+	unsigned long size, pos = 0;
+	void *file = grab_file(fname, &size);
+	char *line;
+
+	if (!file)
+		return NULL;
+
+	while ((line = get_next_line(&pos, file, size))) {
+		list_iter = NOFAIL(malloc(sizeof(*list_iter)));
+		list_iter->next = list_start;
+		list_iter->livepatch_mod = NOFAIL(strdup(line));
+		list_start = list_iter;
+	}
+	release_file(file, size);
+
+	return list_start;
+}
+
+static void free_livepatch_mods(struct livepatch_mod_list *list_start)
+{
+	struct livepatch_mod_list *list_iter;
+
+	while (list_start) {
+		list_iter = list_start->next;
+		free(list_start->livepatch_mod);
+		free(list_start);
+		list_start = list_iter;
+	}
+}
+
+static int is_livepatch_mod(const char *modname,
+		struct livepatch_mod_list *list)
+{
+	const char *myname;
+
+	if (!list)
+		return 0;
+
+	myname = strrchr(modname, '/');
+	if (myname)
+		myname++;
+	else
+		myname = modname;
+
+	while (list) {
+		if (!strcmp(myname, list->livepatch_mod))
+			return 1;
+		list = list->next;
+	}
+	return 0;
+}
+
+static void add_livepatch_flag(struct buffer *b, struct module *mod,
+		struct livepatch_mod_list *list)
+{
+	if (is_livepatch_mod(mod->name, list)) {
+		buf_printf(b, "\nMODULE_INFO(livepatch, \"Y\");\n");
+		mod->livepatch = 1;
+	}
+}
+
+
 struct ext_sym_list {
 	struct ext_sym_list *next;
 	const char *file;
@@ -2431,8 +2497,9 @@ int main(int argc, char **argv)
 	int err;
 	struct ext_sym_list *extsym_iter;
 	struct ext_sym_list *extsym_start = NULL;
+	struct livepatch_mod_list *livepatch_mods = NULL;
 
-	while ((opt = getopt(argc, argv, "i:I:e:mnsT:o:awE")) != -1) {
+	while ((opt = getopt(argc, argv, "i:I:e:l:mnsT:o:awE")) != -1) {
 		switch (opt) {
 		case 'i':
 			kernel_read = optarg;
@@ -2448,6 +2515,9 @@ int main(int argc, char **argv)
 			extsym_iter->next = extsym_start;
 			extsym_iter->file = optarg;
 			extsym_start = extsym_iter;
+			break;
+		case 'l':
+			livepatch_mods = load_livepatch_mods(optarg);
 			break;
 		case 'm':
 			modversions = 1;
@@ -2506,15 +2576,16 @@ int main(int argc, char **argv)
 		buf.pos = 0;
 
 		err |= check_modname_len(mod);
-		err |= check_exports(mod);
 		add_header(&buf, mod);
 		add_intree_flag(&buf, !external_module);
 		add_retpoline(&buf);
 		add_staging_flag(&buf, mod->name);
+		add_livepatch_flag(&buf, mod, livepatch_mods);
 		err |= add_versions(&buf, mod);
 		add_depends(&buf, mod);
 		add_moddevtable(&buf, mod);
 		add_srcversion(&buf, mod);
+		err |= check_exports(mod);
 
 		sprintf(fname, "%s.mod.c", mod->name);
 		write_if_changed(&buf, fname);
@@ -2524,6 +2595,7 @@ int main(int argc, char **argv)
 	if (sec_mismatch_count && sec_mismatch_fatal)
 		fatal("modpost: Section mismatches detected.\n"
 		      "Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.\n");
+	free_livepatch_mods(livepatch_mods);
 	free(buf.p);
 
 	return err;

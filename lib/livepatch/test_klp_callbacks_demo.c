@@ -116,6 +116,5 @@ static void test_klp_callbacks_demo_exit(void)
 module_init(test_klp_callbacks_demo_init);
 module_exit(test_klp_callbacks_demo_exit);
 MODULE_LICENSE("GPL");
-MODULE_INFO(livepatch, "Y");
 MODULE_AUTHOR("Joe Lawrence <joe.lawrence@redhat.com>");
 MODULE_DESCRIPTION("Livepatch test: livepatch demo");

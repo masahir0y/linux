@@ -205,4 +205,3 @@ static void livepatch_callbacks_demo_exit(void)
 module_init(livepatch_callbacks_demo_init);
 module_exit(livepatch_callbacks_demo_exit);
 MODULE_LICENSE("GPL");
-MODULE_INFO(livepatch, "Y");

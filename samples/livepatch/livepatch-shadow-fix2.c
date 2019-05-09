@@ -141,4 +141,3 @@ static void livepatch_shadow_fix2_exit(void)
 module_init(livepatch_shadow_fix2_init);
 module_exit(livepatch_shadow_fix2_exit);
 MODULE_LICENSE("GPL");
-MODULE_INFO(livepatch, "Y");

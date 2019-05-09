@@ -46,6 +46,5 @@ static void test_klp_livepatch_exit(void)
 module_init(test_klp_livepatch_init);
 module_exit(test_klp_livepatch_exit);
 MODULE_LICENSE("GPL");
-MODULE_INFO(livepatch, "Y");
 MODULE_AUTHOR("Seth Jennings <sjenning@redhat.com>");
 MODULE_DESCRIPTION("Livepatch test: livepatch module");

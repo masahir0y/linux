@@ -52,6 +52,5 @@ static void test_klp_atomic_replace_exit(void)
 module_init(test_klp_atomic_replace_init);
 module_exit(test_klp_atomic_replace_exit);
 MODULE_LICENSE("GPL");
-MODULE_INFO(livepatch, "Y");
 MODULE_AUTHOR("Joe Lawrence <joe.lawrence@redhat.com>");
 MODULE_DESCRIPTION("Livepatch test: atomic replace");
