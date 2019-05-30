@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 menuconfig SAMPLES
 	bool "Sample kernel code"
-	depends on !UML
 	help
 	  You can build and test sample kernel code here.
 
@@ -95,7 +94,8 @@ config SAMPLE_CONFIGFS
 
 config SAMPLE_CONNECTOR
 	tristate "Build connector sample -- loadable modules only"
-	depends on CONNECTOR && m
+	depends on CONNECTOR && !UML && m
+	select HEADERS_INSTALL
 	help
 	  When enabled, this builds both a sample kernel module for
 	  the connector interface and a user space tool to communicate
@@ -104,13 +104,18 @@ config SAMPLE_CONNECTOR
 
 config SAMPLE_HIDRAW
 	bool "hidraw sample"
+	depends on !UML
+	select HEADERS_INSTALL
 
 config SAMPLE_PIDFD
 	bool "pidfd sample"
+	depends on !UML
+	select HEADERS_INSTALL
 
 config SAMPLE_SECCOMP
 	bool "Build seccomp sample code"
-	depends on SECCOMP_FILTER
+	depends on SECCOMP_FILTER && !UML
+	select HEADERS_INSTALL
 	help
 	  Build samples of seccomp filters using various methods of
 	  BPF filter construction.
@@ -162,6 +167,8 @@ config SAMPLE_ANDROID_BINDERFS
 
 config SAMPLE_VFS
 	bool "Build example programs that use new VFS system calls"
+	depends on !UML
+	select HEADERS_INSTALL
 	help
 	  Build example userspace programs that use new VFS system calls such
 	  as mount API and statx().  Note that this is restricted to the x86
