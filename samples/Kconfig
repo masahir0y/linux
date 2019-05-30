@@ -105,6 +105,9 @@ config SAMPLE_CONNECTOR
 config SAMPLE_HIDRAW
 	bool "hidraw sample"
 
+config SAMPLE_PIDFD
+	bool "pidfd sample"
+
 config SAMPLE_SECCOMP
 	bool "Build seccomp sample code"
 	depends on SECCOMP_FILTER
