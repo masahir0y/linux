@@ -1193,12 +1193,20 @@ headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
 
 quiet_cmd_headers_install = INSTALL $(INSTALL_HDR_PATH)/include
       cmd_headers_install = \
-	rsync -mrl --include='*/' --include='*\.h' --exclude='*' \
-	usr/include $(INSTALL_HDR_PATH)
+	mkdir -p $(install-hdr-path); \
+	cd usr/include; \
+	find -name '*.h' -exec cp --parents -u -t $(install-hdr-path) '{}' +
 
+# To expand "~", use $(shell realpath -m ...) instead of built-in functions.
+install-hdr-path := $(shell realpath -m $(INSTALL_HDR_PATH)/include)
+
+# Copy usr/include -> $(INSTALL_HDR_PATH)/include.
+# Skip this entirely if $(INSTALL_HDR_PATH) points to 'usr'.
 PHONY += headers_install
 headers_install: headers
+ifneq ($(install-hdr-path),$(CURDIR)/usr/include)
 	$(call cmd,headers_install)
+endif
 
 PHONY += headers_check
 headers_check: headers
