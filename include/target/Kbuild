@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= iscsi/iscsi_target_core.h
+header-test-y			+= target_core_backend.h
+header-test-y			+= target_core_base.h
+header-test-y			+= target_core_fabric.h

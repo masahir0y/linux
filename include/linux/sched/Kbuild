@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= autogroup.h
+header-test-y			+= clock.h
+header-test-y			+= coredump.h
+header-test-y			+= cpufreq.h
+header-test-y			+= cputime.h
+header-test-y			+= debug.h
+header-test-y			+= hotplug.h
+header-test-y			+= idle.h
+header-test-y			+= init.h
+header-test-y			+= isolation.h
+header-test-y			+= jobctl.h
+header-test-y			+= loadavg.h
+header-test-y			+= mm.h
+header-test-y			+= nohz.h
+header-test-y			+= numa_balancing.h
+header-test-y			+= prio.h
+header-test-y			+= rt.h
+header-test-y			+= signal.h
+header-test-y			+= stat.h
+header-test-y			+= task.h
+header-test-y			+= task_stack.h
+header-test-y			+= topology.h
+header-test-y			+= user.h
+header-test-y			+= wake_q.h
+header-test-y			+= xacct.h

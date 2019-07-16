@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= adc/stm32-dfsdm-adc.h
+header-test-y			+= buffer-dmaengine.h
+header-test-y			+= buffer.h
+header-test-y			+= common/cros_ec_sensors_core.h
+header-test-y			+= common/ssp_sensors.h
+header-test-y			+= configfs.h
+header-test-y			+= consumer.h
+header-test-y			+= driver.h
+header-test-y			+= events.h
+header-test-y			+= gyro/itg3200.h
+header-test-y			+= iio.h
+header-test-y			+= kfifo_buf.h
+header-test-y			+= machine.h
+header-test-y			+= magnetometer/ak8975.h
+header-test-y			+= sw_device.h
+header-test-y			+= sw_trigger.h
+header-test-y			+= timer/stm32-lptim-trigger.h
+header-test-y			+= trigger_consumer.h
+header-test-y			+= triggered_buffer.h
+header-test-y			+= types.h

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= ceph-type.h
+header-test-y			+= dns_resolver-type.h
+header-test-y			+= encrypted-type.h
+header-test-y			+= keyring-type.h
+header-test-y			+= rxrpc-type.h
+header-test-y			+= system_keyring.h
+header-test-y			+= trusted-type.h
+header-test-y			+= user-type.h

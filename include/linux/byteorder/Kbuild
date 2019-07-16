@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-$(CONFIG_CPU_BIG_ENDIAN)	+= big_endian.h
+header-test-$(CONFIG_CPU_LITTLE_ENDIAN)	+= little_endian.h

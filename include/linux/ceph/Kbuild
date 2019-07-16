@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= auth.h
+header-test-y			+= buffer.h
+header-test-y			+= ceph_debug.h
+header-test-y			+= ceph_hash.h
+header-test-y			+= cls_lock_client.h
+header-test-y			+= decode.h
+header-test-y			+= libceph.h
+header-test-y			+= mdsmap.h
+header-test-y			+= messenger.h
+header-test-y			+= mon_client.h
+header-test-y			+= msgpool.h
+header-test-y			+= osd_client.h
+header-test-y			+= osdmap.h
+header-test-y			+= pagelist.h
+header-test-y			+= string_table.h
+header-test-y			+= striper.h
+header-test-y			+= types.h

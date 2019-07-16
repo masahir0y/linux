@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= ab8500.h
+header-test-y			+= act8865.h
+header-test-y			+= arizona-ldo1.h
+header-test-y			+= arizona-micsupp.h
+header-test-y			+= consumer.h
+header-test-y			+= coupler.h
+header-test-y			+= da9211.h
+header-test-y			+= db8500-prcmu.h
+header-test-y			+= driver.h
+header-test-y			+= fan53555.h
+header-test-y			+= lp3971.h
+header-test-y			+= lp3972.h
+header-test-y			+= lp872x.h
+header-test-y			+= machine.h
+header-test-y			+= max1586.h
+header-test-y			+= max8649.h
+header-test-y			+= max8660.h
+header-test-y			+= max8952.h
+header-test-y			+= mt6311.h
+header-test-y			+= mt6323-regulator.h
+header-test-y			+= mt6380-regulator.h
+header-test-y			+= mt6397-regulator.h
+header-test-y			+= pfuze100.h

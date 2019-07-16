@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= op-1.h
+header-test-y			+= op-2.h
+header-test-y			+= op-4.h
+header-test-y			+= op-8.h

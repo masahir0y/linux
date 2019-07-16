@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= at91/at91sam9_ddrsdr.h
+header-test-y			+= at91/at91sam9_sdramc.h
+header-test-y			+= at91/atmel-secumod.h
+header-test-y			+= at91/atmel-sfr.h
+header-test-y			+= at91/atmel_tcb.h
+header-test-y			+= bcm2835/raspberrypi-firmware.h
+header-test-y			+= fsl/dpaa2-fd.h
+header-test-y			+= fsl/dpaa2-global.h
+header-test-y			+= fsl/dpaa2-io.h
+header-test-y			+= fsl/qe/immap_qe.h
+header-test-y			+= imx/cpuidle.h
+header-test-y			+= imx/revision.h
+header-test-y			+= imx/timer.h
+header-test-y			+= mediatek/smi.h
+header-test-y			+= mscc/ocelot_hsio.h
+header-test-$(CONFIG_ARC)	+= nps/mtm.h
+header-test-y			+= rockchip/rk3399_grf.h
+header-test-y			+= rockchip/rockchip_sip.h
+header-test-y			+= sa1100/pwer.h
+header-test-y			+= tegra/bpmp.h
+header-test-y			+= tegra/cpuidle.h
+header-test-y			+= tegra/emc.h
+header-test-y			+= tegra/pm.h
+header-test-y			+= tegra/pmc.h

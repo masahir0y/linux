@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= arm/hypervisor.h
+header-test-y			+= arm/interface.h
+header-test-y			+= hvc-console.h
+header-test-y			+= interface/elfnote.h
+header-test-y			+= interface/features.h
+header-test-y			+= interface/io/xenbus.h
+header-test-y			+= xenbus_dev.h

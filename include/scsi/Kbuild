@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= fc/fc_fcp.h
+header-test-y			+= fc/fc_ms.h
+header-test-y			+= fcoe_sysfs.h
+header-test-y			+= iscsi_if.h
+header-test-y			+= iscsi_proto.h
+header-test-y			+= libiscsi.h
+header-test-y			+= libiscsi_tcp.h
+header-test-y			+= sas.h
+header-test-y			+= scsi.h
+header-test-y			+= scsi_bsg_iscsi.h
+header-test-y			+= scsi_common.h
+header-test-y			+= scsi_devinfo.h
+header-test-y			+= scsi_driver.h
+header-test-y			+= scsi_proto.h
+header-test-y			+= scsi_transport_iscsi.h
+header-test-y			+= srp.h
+header-test-y			+= viosrp.h

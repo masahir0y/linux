@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= cxl.h
+header-test-y			+= ocxl-config.h
+header-test-y			+= ocxl.h

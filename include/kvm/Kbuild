@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-$(CONFIG_ARM)	+= arm_psci.h
+header-test-$(CONFIG_ARM64)	+= arm_psci.h
+header-test-y			+= iodev.h

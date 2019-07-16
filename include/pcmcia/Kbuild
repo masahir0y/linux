@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= ciscode.h
+header-test-y			+= cisreg.h
+header-test-y			+= device_id.h
+header-test-y			+= ss.h

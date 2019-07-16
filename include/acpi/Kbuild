@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= acconfig.h
+header-test-y			+= acexcep.h
+header-test-y			+= acnames.h
+header-test-y			+= acoutput.h
+header-test-y			+= acpi_numa.h
+header-test-y			+= acuuid.h
+header-test-y			+= apei.h
+header-test-y			+= button.h
+header-test-y			+= ghes.h
+header-test-y			+= hed.h
+header-test-y			+= pcc.h
+header-test-y			+= pdc_intel.h
+header-test-y			+= platform/acgcc.h
+header-test-y			+= platform/acgccex.h
+header-test-y			+= reboot.h
+header-test-y			+= video.h

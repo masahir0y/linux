@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= card.h
+header-test-y			+= core.h
+header-test-y			+= host.h
+header-test-y			+= mmc.h
+header-test-y			+= pm.h
+header-test-y			+= sd.h
+header-test-y			+= sdhci-pci-data.h
+header-test-y			+= sdio.h
+header-test-y			+= sdio_func.h
+header-test-y			+= sdio_ids.h
+header-test-y			+= sh_mmcif.h
+header-test-y			+= slot-gpio.h

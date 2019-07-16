@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= arm_arch_timer.h
+header-test-$(CONFIG_X86)	+= hyperv_timer.h
+header-test-y			+= pxa.h
+header-test-y			+= samsung_pwm.h
+header-test-y			+= timer-davinci.h
+header-test-y			+= timer-ti-dm.h

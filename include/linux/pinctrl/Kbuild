@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= consumer.h
+header-test-y			+= devinfo.h
+header-test-y			+= machine.h
+header-test-y			+= pinconf-generic.h
+header-test-y			+= pinconf.h
+header-test-y			+= pinctrl-state.h
+header-test-y			+= pinctrl.h
+header-test-y			+= pinmux.h

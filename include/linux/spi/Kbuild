@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+header-test-y			+= at73c213.h
+header-test-y			+= cc2520.h
+header-test-y			+= corgi_lcd.h
+header-test-y			+= eeprom.h
+header-test-y			+= flash.h
+header-test-y			+= ifx_modem.h
+header-test-y			+= l4f00242t03.h
+header-test-y			+= mc33880.h
+header-test-y			+= mmc_spi.h
+header-test-y			+= mxs-spi.h
+header-test-y			+= pxa2xx_spi.h
+header-test-y			+= sh_hspi.h
+header-test-y			+= spi-mem.h
+header-test-y			+= spi.h
+header-test-y			+= spi_oc_tiny.h
+header-test-y			+= tdo24m.h
