@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+
+#ifndef _LINUX_DEVICE_CGROUP_H
+#define _LINUX_DEVICE_CGROUP_H
+
 #include <linux/fs.h>
 #include <linux/bpf-cgroup.h>
 
@@ -77,3 +81,5 @@ static inline int devcgroup_inode_permission(struct inode *inode, int mask)
 static inline int devcgroup_inode_mknod(int mode, dev_t dev)
 { return 0; }
 #endif
+
+#endif /* _LINUX_DEVICE_CGROUP_H */
