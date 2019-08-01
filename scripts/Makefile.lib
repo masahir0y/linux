@@ -20,33 +20,48 @@ obj-m := $(filter-out $(obj-y),$(obj-m))
 # Filter out objects already built-in
 lib-y := $(filter-out $(obj-y), $(sort $(lib-y) $(lib-m)))
 
-# Subdirectories we need to descend into
-subdir-ym := $(sort $(subdir-y) $(subdir-m) $(patsubst %/,%, $(filter %/, $(obj-y) $(obj-m))))
-
 # Determine modorder.
 # Unfortunately, we don't have information about ordering between -y
 # and -m subdirs.  Just put -y's first.
 modorder	:= $(patsubst %/,%/modules.order, $(filter %/, $(obj-y)) $(obj-m:.o=.ko))
 
-# Handle objects in subdirs
-# When we encounter foo/ in $(obj-y), link foo/built-in.a into vmlinux,
-# but we do not do that for $(obj-m)
-obj-y		:= $(patsubst %/, %/built-in.a, $(obj-y))
-obj-m		:= $(filter-out %/, $(obj-m))
-
-# if $(foo-objs), $(foo-y), or $(foo-m) exists, foo.o is a composite object
-multi-used-y := $(sort $(foreach m,$(obj-y), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
-multi-used-m := $(sort $(foreach m,$(obj-m), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m))), $(m))))
-multi-used   := $(multi-used-y) $(multi-used-m)
-
-# $(subdir-obj-y) is the list of objects in $(obj-y) which uses dir/ to
-# tell kbuild to descend
-subdir-obj-y := $(filter %/built-in.a, $(obj-y))
 
 # Replace multi-part objects by their individual parts,
 # including built-in.a from subdirectories
-real-obj-y := $(foreach m, $(obj-y), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))),$($(m:.o=-objs)) $($(m:.o=-y)),$(m)))
-real-obj-m := $(foreach m, $(obj-m), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m))),$($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m)),$(m)))
+real-obj-y := $(foreach m, $(obj-y),$(if $(strip $($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-))), $($(m:.o=-objs)) $($(m:.o=-y)), $(m)))
+real-obj-y += $(foreach m, $(multi-used2-y),$(if $(strip $($(m)-objs) $($(m)-y) $($(m)-)),$($(m)-objs) $($(m)-y)))
+real-obj-m := $(foreach m, $(obj-m),$(if $(strip $($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m)) $($(m:.o=-))),$($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m)), $(m)))
+real-obj-m += $(foreach m, $(multi-used2-m),$(if $(strip $($(m)-objs) $($(m)-y) $($(m)-m) $($(m)-)), $($(m)-objs) $($(m)-y) $($(m)-m), $(m)))
+
+# all objects and thin archives combined into built-in.a in this directory
+
+# Subdirectories we need to descend into
+subdir-ym := $(sort $(subdir-y) $(subdir-m) $(patsubst %/,%,$(filter %/,$(real-obj-y) $(real-obj-m))))
+
+#
+real-obj-y := $(patsubst %/, %/built-in.a, $(real-obj-y))
+subdir-obj-y := $(filter %/built-in.a, $(real-obj-y))
+
+obj-m 	   := $(filter-out %/, $(obj-m))
+real-obj-m := $(filter-out %/, $(real-obj-m))
+
+# if $(foo-objs), $(foo-y), $(foo-m), or $(foo-) exists, foo is multi-used
+multi-used-y := $(sort $(foreach m, $(patsubst %.o,%,$(obj-y)), $(if $(strip $($(m)-objs) $($(m)-y) $($(m)-)), $(m))))
+multi-used-m := $(sort $(foreach m, $(patsubst %.o,%,$(obj-m)), $(if $(strip $($(m)-objs) $($(m)-y) $($(m)-m) $($(m)-)), $(m))))
+
+multi-modules := $(addsuffix .o, $(multi-used-m))
+ar-m          := $(addsuffix .a, $(multi-used2-m))
+
+multi-used-y += $(multi-used2-y)
+multi-used-m += $(multi-used2-m)
+
+multi-used   := $(multi-used-y) $(multi-used-m)
+
+subdir-multi-used-y := $(foreach m, $(multi-used-y), $(addsuffix $(m), $(filter %/, $($(m)-objs) $($(m)-y))))
+subdir-multi-used-m := $(foreach m, $(multi-used-m), $(addsuffix $(m), $(filter %/, $($(m)-objs) $($(m)-y) $($(m)-m))))
+
+$(foreach m, $(patsubst %.o,%,$(multi-used-m) $(multi-used2-m)), $(foreach s, -objs -y -m, \
+	$(eval $(m)$(s) := $(patsubst %/,%/$(m).a, $($(m)$(s))))))
 
 # DTB
 # If CONFIG_OF_ALL_DTBS is enabled, all DT blobs are built
@@ -83,14 +98,19 @@ lib-y		:= $(addprefix $(obj)/,$(lib-y))
 subdir-obj-y	:= $(addprefix $(obj)/,$(subdir-obj-y))
 real-obj-y	:= $(addprefix $(obj)/,$(real-obj-y))
 real-obj-m	:= $(addprefix $(obj)/,$(real-obj-m))
-multi-used-m	:= $(addprefix $(obj)/,$(multi-used-m))
+multi-modules	:= $(addprefix $(obj)/,$(multi-modules))
 subdir-ym	:= $(addprefix $(obj)/,$(subdir-ym))
+ar-m		:= $(addprefix $(obj)/,$(ar-m))
+subdir-multi-used-y := $(addprefix $(obj)/,$(subdir-multi-used-y))
+subdir-multi-used-m := $(addprefix $(obj)/,$(subdir-multi-used-m))
+
+subdir-ar-m := $(addsuffix .a, $(subdir-multi-used-m))
 
 # Finds the multi-part object the current object will be linked into.
 # If the object belongs to two or more multi-part objects, all of them are
 # concatenated with a colon separator.
 modname-multi = $(subst $(space),:,$(sort $(foreach m,$(multi-used),\
-		$(if $(filter $*.o, $($(m:.o=-objs)) $($(m:.o=-y)) $($(m:.o=-m))),$(m:.o=)))))
+		$(if $(filter $*.o, $($(m)-objs) $($(m)-y) $($(m)-m)),$(m)))))
 
 modname = $(if $(modname-multi),$(modname-multi),$(basetarget))
 
