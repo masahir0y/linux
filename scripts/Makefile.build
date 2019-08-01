@@ -59,7 +59,7 @@ lib-target := $(obj)/lib.a
 real-obj-y += $(obj)/lib-ksyms.o
 endif
 
-ifneq ($(strip $(real-obj-y) $(need-builtin)),)
+ifneq ($(strip $(built-in-objs) $(need-builtin)),)
 builtin-target := $(obj)/built-in.a
 endif
 
@@ -70,7 +70,7 @@ endif
 mod-targets := $(patsubst %.o, %.mod, $(obj-m))
 
 __build: $(if $(KBUILD_BUILTIN),$(builtin-target) $(lib-target) $(extra-y)) \
-	 $(if $(KBUILD_MODULES),$(obj-m) $(mod-targets) $(modorder-target)) \
+	 $(if $(KBUILD_MODULES),$(obj-m) $(ar-m) $(mod-targets) $(modorder-target)) \
 	 $(subdir-ym) $(always)
 	@:
 
@@ -374,7 +374,7 @@ endif
 $(obj)/%.o: $(src)/%.S $(objtool_dep) FORCE
 	$(call if_changed_rule,as_o_S)
 
-targets += $(filter-out $(subdir-obj-y), $(real-obj-y)) $(real-obj-m) $(lib-y)
+targets += $(real-obj-y) $(real-obj-m) $(lib-y)
 targets += $(extra-y) $(MAKECMDGOALS) $(always)
 
 # Linker scripts preprocessor (.lds.S -> .lds)
@@ -399,21 +399,21 @@ $(obj)/%.asn1.c $(obj)/%.asn1.h: $(src)/%.asn1 $(objtree)/scripts/asn1_compiler
 # ---------------------------------------------------------------------------
 
 # To build objects in subdirs, we need to descend into the directories
-$(sort $(subdir-obj-y)): $(subdir-ym) ;
+$(sort $(subdir-built-in) $(subdir-multi-used-m)): $(subdir-ym)
 
 #
 # Rule to compile a set of .o files into one .a file (without symbol table)
 #
-ifdef builtin-target
+quiet_cmd_ar_no_sym = AR $(quiet_modtag)  $@
+      cmd_ar_no_sym = rm -f $@; $(AR) cDPrST $@ $(real-prereqs)
 
-quiet_cmd_ar_builtin = AR      $@
-      cmd_ar_builtin = rm -f $@; $(AR) cDPrST $@ $(real-prereqs)
+$(obj)/%.a: FORCE
+	 $(call if_changed,ar_no_sym)
+$(call multi_depend, $(ar-m), .a, -objs -y -m)
 
-$(builtin-target): $(real-obj-y) FORCE
-	$(call if_changed,ar_builtin)
+$(ar-m): part-of-module := y
 
-targets += $(builtin-target)
-endif # builtin-target
+targets += $(builtin-target) $(ar-m)
 
 #
 # Rule to create modules.order file
@@ -458,7 +458,7 @@ endif
 # module is turned into a multi object module, $^ will contain header file
 # dependencies recorded in the .*.cmd file.
 quiet_cmd_link_multi-m = LD [M]  $@
-      cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ $(filter %.o,$^)
+      cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ --whole-archive $(filter %.o %a,$^) --no-whole-archive
 
 $(multi-used-m): FORCE
 	$(call if_changed,link_multi-m)
@@ -487,7 +487,10 @@ targets += $(call intermediate_targets, .asn1.o, .asn1.c .asn1.h) \
 
 PHONY += $(subdir-ym)
 $(subdir-ym):
-	$(Q)$(MAKE) $(build)=$@ need-builtin=$(if $(findstring $@,$(subdir-obj-y)),1)
+	$(Q)$(MAKE) $(build)=$@ \
+	need-builtin=$(if $(findstring $@,$(subdir-obj-y)),1) \
+	multi-used2-y="$(foreach m, $(subdir-multi-used-y), $(if $(filter $@/,$(dir $(m))),$(notdir $m)))" \
+	multi-used2-m="$(foreach m, $(subdir-multi-used-m), $(if $(filter $@/,$(dir $(m))),$(notdir $m)))"
 
 # Add FORCE to the prequisites of a target to force it to be always rebuilt.
 # ---------------------------------------------------------------------------
