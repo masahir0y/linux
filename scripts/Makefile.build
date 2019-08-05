@@ -460,11 +460,11 @@ endif
 quiet_cmd_link_multi-m = LD [M]  $@
       cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ $(filter %.o,$^)
 
-$(multi-used-m): FORCE
+$(modules-multi): FORCE
 	$(call if_changed,link_multi-m)
-$(call multi_depend, $(multi-used-m), .o, -objs -y -m)
+$(call multi_depend, $(modules-multi), .o, -objs -y -m)
 
-targets += $(multi-used-m)
+targets += $(modules-multi)
 targets := $(filter-out $(PHONY), $(targets))
 
 # Add intermediate targets:
