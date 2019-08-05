@@ -63,56 +63,16 @@ i915-y += \
 	i915_user_extensions.o
 
 i915-$(CONFIG_COMPAT)   += i915_ioc32.o
-i915-$(CONFIG_DEBUG_FS) += i915_debugfs.o display/intel_pipe_crc.o
+i915-$(CONFIG_DEBUG_FS) += i915_debugfs.o
 i915-$(CONFIG_PERF_EVENTS) += i915_pmu.o
 
 # "Graphics Technology" (aka we talk to the gpu)
-obj-y += gt/
-gt-y += \
-	gt/intel_breadcrumbs.o \
-	gt/intel_context.o \
-	gt/intel_engine_cs.o \
-	gt/intel_engine_pm.o \
-	gt/intel_gt_pm.o \
-	gt/intel_hangcheck.o \
-	gt/intel_lrc.o \
-	gt/intel_reset.o \
-	gt/intel_ringbuffer.o \
-	gt/intel_mocs.o \
-	gt/intel_sseu.o \
-	gt/intel_workarounds.o
-gt-$(CONFIG_DRM_I915_SELFTEST) += \
-	gt/mock_engine.o
-i915-y += $(gt-y)
+i915-y += gt/
 
 # GEM (Graphics Execution Management) code
-obj-y += gem/
-gem-y += \
-	gem/i915_gem_busy.o \
-	gem/i915_gem_clflush.o \
-	gem/i915_gem_client_blt.o \
-	gem/i915_gem_context.o \
-	gem/i915_gem_dmabuf.o \
-	gem/i915_gem_domain.o \
-	gem/i915_gem_execbuffer.o \
-	gem/i915_gem_fence.o \
-	gem/i915_gem_internal.o \
-	gem/i915_gem_object.o \
-	gem/i915_gem_object_blt.o \
-	gem/i915_gem_mman.o \
-	gem/i915_gem_pages.o \
-	gem/i915_gem_phys.o \
-	gem/i915_gem_pm.o \
-	gem/i915_gem_shmem.o \
-	gem/i915_gem_shrinker.o \
-	gem/i915_gem_stolen.o \
-	gem/i915_gem_throttle.o \
-	gem/i915_gem_tiling.o \
-	gem/i915_gem_userptr.o \
-	gem/i915_gem_wait.o \
-	gem/i915_gemfs.o
+i915-y += gem/
+
 i915-y += \
-	  $(gem-y) \
 	  i915_active.o \
 	  i915_cmd_parser.o \
 	  i915_gem_batch_pool.o \
@@ -148,78 +108,11 @@ i915-y += intel_renderstate_gen6.o \
 	  intel_renderstate_gen8.o \
 	  intel_renderstate_gen9.o
 
-# modesetting core code
-obj-y += display/
-i915-y += \
-	display/intel_atomic.o \
-	display/intel_atomic_plane.o \
-	display/intel_audio.o \
-	display/intel_bios.o \
-	display/intel_bw.o \
-	display/intel_cdclk.o \
-	display/intel_color.o \
-	display/intel_combo_phy.o \
-	display/intel_connector.o \
-	display/intel_display.o \
-	display/intel_display_power.o \
-	display/intel_dpio_phy.o \
-	display/intel_dpll_mgr.o \
-	display/intel_fbc.o \
-	display/intel_fifo_underrun.o \
-	display/intel_frontbuffer.o \
-	display/intel_hdcp.o \
-	display/intel_hotplug.o \
-	display/intel_lpe_audio.o \
-	display/intel_overlay.o \
-	display/intel_psr.o \
-	display/intel_quirks.o \
-	display/intel_sprite.o
-i915-$(CONFIG_ACPI) += \
-	display/intel_acpi.o \
-	display/intel_opregion.o
-i915-$(CONFIG_DRM_FBDEV_EMULATION) += \
-	display/intel_fbdev.o
-
-# modesetting output/encoder code
-i915-y += \
-	display/dvo_ch7017.o \
-	display/dvo_ch7xxx.o \
-	display/dvo_ivch.o \
-	display/dvo_ns2501.o \
-	display/dvo_sil164.o \
-	display/dvo_tfp410.o \
-	display/icl_dsi.o \
-	display/intel_crt.o \
-	display/intel_ddi.o \
-	display/intel_dp.o \
-	display/intel_dp_aux_backlight.o \
-	display/intel_dp_link_training.o \
-	display/intel_dp_mst.o \
-	display/intel_dsi.o \
-	display/intel_dsi_dcs_backlight.o \
-	display/intel_dsi_vbt.o \
-	display/intel_dvo.o \
-	display/intel_gmbus.o \
-	display/intel_hdmi.o \
-	display/intel_lspcon.o \
-	display/intel_lvds.o \
-	display/intel_panel.o \
-	display/intel_sdvo.o \
-	display/intel_tv.o \
-	display/intel_vdsc.o \
-	display/vlv_dsi.o \
-	display/vlv_dsi_pll.o
+i915-y += display/
 
 # Post-mortem debug and GPU hang state capture
 i915-$(CONFIG_DRM_I915_CAPTURE_ERROR) += i915_gpu_error.o
-i915-$(CONFIG_DRM_I915_SELFTEST) += \
-	gem/selftests/igt_gem_utils.o \
-	selftests/i915_random.o \
-	selftests/i915_selftest.o \
-	selftests/igt_flush_test.o \
-	selftests/igt_live_test.o \
-	selftests/igt_reset.o \
-	selftests/igt_spinner.o
+i915-$(CONFIG_DRM_I915_SELFTEST) += selftests/
 
 # virtual gpu code
 i915-y += i915_vgpu.o
@@ -241,10 +134,7 @@ i915-y += i915_perf.o \
 	  i915_oa_cnl.o \
 	  i915_oa_icl.o
 
-ifeq ($(CONFIG_DRM_I915_GVT),y)
-i915-y += intel_gvt.o
-include $(src)/gvt/Makefile
-endif
+i915-$(CONFIG_DRM_I915_GVT) += intel_gvt.o gvt/
 
 obj-$(CONFIG_DRM_I915) += i915.o
-obj-$(CONFIG_DRM_I915_GVT_KVMGT) += gvt/kvmgt.o
+obj-$(CONFIG_DRM_I915_GVT_KVMGT) += gvt/
