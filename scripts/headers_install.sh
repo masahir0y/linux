@@ -23,6 +23,12 @@ TMPFILE=$OUTFILE.tmp
 
 trap 'rm -f $OUTFILE $TMPFILE' EXIT
 
+# SPDX-License-Identifier with GPL variants must have "WITH Linux-syscall-note"
+if [ -n "$(sed -n -e "/SPDX-License-Identifier:.*GPL-/{/WITH Linux-syscall-note/!p}" $INFILE)" ]; then
+	echo "error: $INFILE: missing \"WITH Linux-syscall-note\" for SPDX-License-Identifier" >&2
+	exit 1
+fi
+
 sed -E -e '
 	s/([[:space:](])(__user|__force|__iomem)[[:space:]]/\1/g
 	s/__attribute_const__([[:space:]]|$)/\1/g
@@ -34,6 +40,34 @@ sed -E -e '
 
 scripts/unifdef -U__KERNEL__ -D__EXPORTED_HEADERS__ $TMPFILE > $OUTFILE
 [ $? -gt 1 ] && exit 1
+
+# Check leaked CONFIG options
+configs=$(sed -e '
+:comments
+	s:/\*[^*][^*]*:/*:
+	s:/\*\*\**\([^/]\):/*\1:
+	t comments
+	s:/\*\*/: :
+	t comments
+	/\/\*/! b check
+	N
+	b comments
+:print
+	P
+	D
+:check
+	s:^[^[:alnum:]_][^[:alnum:]_]*::
+	t check
+	s:^\(CONFIG_[[:alnum:]_]*\):\1\n:
+	t print
+	s:^[[:alnum:]_][[:alnum:]_]*::
+	t check
+	d
+' $OUTFILE | tr "\n" " ")
+
+if [ -n "$configs" ]; then
+	echo "warning: $INFILE: leaking CONFIG option to user-space: $configs" >&2
+fi
 
 rm -f $TMPFILE
 trap - EXIT
