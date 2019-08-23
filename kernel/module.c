@@ -3075,8 +3075,7 @@ static int setup_load_info(struct load_info *info, int flags)
 
 	info->index.mod = find_sec(info, ".gnu.linkonce.this_module");
 	if (!info->index.mod) {
-		pr_warn("%s: No module found in object\n",
-			info->name ?: "(missing .modinfo name field)");
+		pr_warn("%s: No module found in object\n", info->name);
 		return -ENOEXEC;
 	}
 	/* This is temporary: point mod into copy of data. */
