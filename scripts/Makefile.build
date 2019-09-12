@@ -63,6 +63,12 @@ ifndef obj
 $(warning kbuild: Makefile.build is included improperly)
 endif
 
+ifeq ($(need-builtin),)
+ifneq ($(real-obj-y),)
+$(warning '$(real-obj-y)' will not be linked to vmlinux even though obj-y is specified.)
+endif
+endif
+
 ifeq ($(need-modorder),)
 ifneq ($(obj-m),)
 $(warning $(patsubst %.o,'%.ko',$(obj-m)) will not be built even though obj-m is specified.)
