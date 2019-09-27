@@ -2195,7 +2195,7 @@ static int check_exports(struct module *mod)
 		else
 			basename = mod->name;
 
-		if (exp->namespace) {
+		if (exp->namespace && exp->namespace[0]) {
 			add_namespace(&mod->required_namespaces,
 				      exp->namespace);
 
@@ -2453,7 +2453,7 @@ static void read_dump(const char *fname, unsigned int kernel)
 			mod = new_module(modname);
 			mod->skip = 1;
 		}
-		s = sym_add_exported(symname, namespace, mod,
+		s = sym_add_exported(symname, NOFAIL(strdup(namespace)), mod,
 				     export_no(export));
 		s->kernel    = kernel;
 		s->preloaded = 1;
