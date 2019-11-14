@@ -2443,8 +2443,9 @@ static void read_dump(const char *fname)
 	pos = buf;
 
 	while ((line = get_line(&pos))) {
-		char *symname, *namespace, *modname, *d, *export;
+		char *symname, *namespace, *modname, *export, *end;
 		unsigned int crc;
+		int crc_valid;
 		struct module *mod;
 		struct symbol *s;
 
@@ -2454,15 +2455,18 @@ static void read_dump(const char *fname)
 		if (!(modname = strchr(symname, '\t')))
 			goto fail;
 		*modname++ = '\0';
-		if (!(export = strchr(modname, '\t')))
-			goto fail;
-		*export++ = '\0';
-		if (!(namespace = strchr(export, '\t')))
-			goto fail;
-		*namespace++ = '\0';
-
-		crc = strtoul(line, &d, 16);
-		if (*symname == '\0' || *modname == '\0' || *d != '\0')
+		if ((export = strchr(modname, '\t')) != NULL)
+			*export++ = '\0';
+		if (export && ((end = strchr(export, '\t')) != NULL))
+			*end = '\0';
+		crc_valid = strcmp(line, "[NO CRC]");
+		if (crc_valid) {
+			char *e;
+			crc = strtoul(line, &e, 16);
+			if (*e != '\0')
+				goto fail;
+		}
+		if (*symname == '\0' || *modname == '\0')
 			goto fail;
 		mod = find_module(modname);
 		if (!mod) {
@@ -2471,7 +2475,8 @@ static void read_dump(const char *fname)
 		}
 		s = sym_add_exported(symname, mod, export_no(export));
 		s->is_static = 0;
-		sym_set_crc(symname, crc);
+		if (crc_valid)
+			sym_set_crc(symname, crc);
 		sym_update_namespace(symname, namespace);
 	}
 	free(buf);
@@ -2505,9 +2510,14 @@ static void write_dump(const char *fname)
 		symbol = symbolhash[n];
 		while (symbol) {
 			if (dump_sym(symbol)) {
+				if (symbol->crc_valid)
+					buf_printf(&buf, "0x%08x", symbol->crc);
+				else
+					buf_printf(&buf, "[NO CRC]");
+
 				namespace = symbol->namespace;
-				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\t%s\n",
-					   symbol->crc, symbol->name,
+				buf_printf(&buf, "\t%s\t%s\t%s\t%s\n",
+					   symbol->name,
 					   symbol->module->name,
 					   export_str(symbol->export),
 					   namespace ? namespace : "");
