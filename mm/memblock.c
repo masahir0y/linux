@@ -1210,7 +1210,7 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
 
 		if (PFN_UP(r->base) >= PFN_DOWN(r->base + r->size))
 			continue;
-		if (nid == MAX_NUMNODES || nid == r_nid)
+		if (nid == NUMA_ANY_NODE || nid == r_nid)
 			break;
 	}
 	if (*idx >= type->cnt) {

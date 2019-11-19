@@ -10,7 +10,7 @@
 #endif
 
 #define MAX_NUMNODES    (1 << NODES_SHIFT)
-
+#define NUMA_ANY_NODE	MAX_NUMNODES
 #define	NUMA_NO_NODE	(-1)
 
 /* optionally keep NUMA memory info available post init */
