@@ -200,6 +200,9 @@ static int read_symbol(FILE *in, struct sym_entry *s)
 
 	check_symbol_range(sym, s->addr, text_ranges, ARRAY_SIZE(text_ranges));
 
+	/* Record if we've found __per_cpu_start/end. */
+	check_symbol_range(sym, s->addr, &percpu_range, 1);
+
 	/* include the type field in the symbol name, so that it gets
 	 * compressed together */
 	s->len = strlen(sym) + 1;
@@ -211,11 +214,7 @@ static int read_symbol(FILE *in, struct sym_entry *s)
 	}
 	strcpy(sym_name(s), sym);
 	s->sym[0] = stype;
-
 	s->percpu_absolute = 0;
-
-	/* Record if we've found __per_cpu_start/end. */
-	check_symbol_range(sym, s->addr, &percpu_range, 1);
 
 	return 0;
 }
