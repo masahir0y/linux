@@ -489,7 +489,8 @@ static void build_initial_tok_table(void)
 	table_cnt = pos;
 }
 
-static void *find_token(unsigned char *str, int len, unsigned char *token)
+static unsigned char *find_token(unsigned char *str, int len,
+				 unsigned char *token)
 {
 	int i;
 
