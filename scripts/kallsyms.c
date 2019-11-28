@@ -485,8 +485,8 @@ static void write_src(void)
 	for (i = 0; i < 256; i++) {
 		best_idx[i] = off;
 		expand_symbol(best_table[i], best_table_len[i], buf);
-		printf("\t.asciz\t\"%s\"\n", buf);
-		off += strlen(buf) + 1;
+		printf("\t.ascii\t\"%s\"\n", buf);
+		off += strlen(buf);
 	}
 	printf("\n");
 
