@@ -55,7 +55,8 @@ extern const unsigned int kallsyms_markers[] __weak;
  * given the offset to where the symbol is in the compressed stream.
  */
 static unsigned int kallsyms_expand_symbol(unsigned int off,
-					   char *result, size_t maxlen)
+					   char *result, size_t maxlen,
+					   char *type)
 {
 	int len, skipped_first = 0;
 	const char *tptr;
@@ -100,6 +101,12 @@ tail:
 
 	/* Return to offset to the next symbol. */
 	return off;
+}
+
+static unsigned int kallsyms_expand_symbol(unsigned int off,
+					   char *result, size_t maxlen)
+{
+	return kallsyms_expand_symbol_and_type(off, result, maxlen, NULL);
 }
 
 /*
@@ -511,10 +518,9 @@ static unsigned long get_ksymbol_core(struct kallsym_iter *iter)
 
 	iter->module_name[0] = '\0';
 	iter->value = kallsyms_sym_address(iter->pos);
-
-	iter->type = kallsyms_get_symbol_type(off);
-
-	off = kallsyms_expand_symbol(off, iter->name, ARRAY_SIZE(iter->name));
+	off = kallsyms_expand_symbol_and_type(off, iter->name,
+					      ARRAY_SIZE(iter->name),
+					      &iter->type);
 
 	return off - iter->nameoff;
 }
