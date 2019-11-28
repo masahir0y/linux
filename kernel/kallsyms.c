@@ -164,9 +164,10 @@ static unsigned long kallsyms_sym_address(int idx)
 unsigned long kallsyms_lookup_name(const char *name)
 {
 	char namebuf[KSYM_NAME_LEN];
-	unsigned int off, i;
+	unsigned int i;
+	unsigned int off = 0;
 
-	for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
+	for (i = 0; i < kallsyms_num_syms; i++) {
 		off = kallsyms_expand_symbol(off, namebuf, ARRAY_SIZE(namebuf));
 
 		if (strcmp(namebuf, name) == 0)
