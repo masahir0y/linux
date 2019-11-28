@@ -82,16 +82,17 @@ static unsigned int kallsyms_expand_symbol(unsigned int off,
 		data++;
 		len--;
 
-		while (*tptr) {
-			if (skipped_first) {
-				if (maxlen <= 1)
-					goto tail;
-				*result = *tptr;
-				result++;
-				maxlen--;
-			} else
-				skipped_first = 1;
+		if (!skipped_first) {
+			/* skip the symbol type */
 			tptr++;
+			skipped_first = 1;
+		}
+
+		while (*tptr) {
+			if (maxlen <= 1)
+				goto tail;
+			*result++ = *tptr++;
+			maxlen--;
 		}
 	}
 
