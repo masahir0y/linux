@@ -6,16 +6,14 @@ fb-y                              := fbmem.o fbmon.o fbcmap.o fbsysfs.o \
                                      modedb.o fbcvt.o
 fb-$(CONFIG_FB_DEFERRED_IO)       += fb_defio.o
 
+fb-$(CONFIG_FRAMEBUFFER_CONSOLE)  += fbcon.o bitblit.o softcursor.o
+
 ifeq ($(CONFIG_FRAMEBUFFER_CONSOLE),y)
-fb-y				  += fbcon.o bitblit.o softcursor.o
-ifeq ($(CONFIG_FB_TILEBLITTING),y)
-fb-y				  += tileblit.o
+fb-$(CONFIG_FB_TILEBLITTING)      += tileblit.o
 endif
-ifeq ($(CONFIG_FRAMEBUFFER_CONSOLE_ROTATION),y)
-fb-y				  += fbcon_rotate.o fbcon_cw.o fbcon_ud.o \
-				     fbcon_ccw.o
-endif
-endif
+
+fb-$(CONFIG_FRAMEBUFFER_CONSOLE_ROTATION) += fbcon_rotate.o fbcon_cw.o \
+					     fbcon_ud.o fbcon_ccw.o
 
 obj-$(CONFIG_FB_CFB_FILLRECT)  += cfbfillrect.o
 obj-$(CONFIG_FB_CFB_COPYAREA)  += cfbcopyarea.o
