@@ -366,15 +366,9 @@ int conf_read_simple(const char *name, int def)
 		if (in)
 			goto load;
 		sym_add_change_count(1);
-		if (!sym_defconfig_list)
-			return 1;
 
-		for_all_defaults(sym_defconfig_list, prop) {
-			if (expr_calc_value(prop->visible.expr) == no ||
-			    prop->expr->type != E_SYMBOL)
-				continue;
-			sym_calc_value(prop->expr->left.sym);
-			name = sym_get_string_value(prop->expr->left.sym);
+		env = getenv("KCONFIG_DEFCONFIG_LIST");
+		while (name = strtok(env, " ")) {
 			in = zconf_fopen(name);
 			if (in) {
 				conf_message("using defaults found in %s",

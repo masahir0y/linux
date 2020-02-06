@@ -399,6 +399,12 @@ export KCONFIG_CONFIG
 # Default file for 'make defconfig'. This may be overridden by arch-Makefile.
 export KBUILD_DEFCONFIG := defconfig
 
+export KCONFIG_DEFCONFIG_LIST := \
+	/lib/modules/$(shell uname -r)/.config		\
+	/etc/kernel-config				\
+	/boot/config-$(shell uname -r)			\
+	arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG)
+
 # SHELL used by kbuild
 CONFIG_SHELL := sh
 
