@@ -50,7 +50,7 @@ targets		+= $(setup-y)
 hostprogs	:= tools/build
 hostprogs	+= mkcpustr
 
-HOST_EXTRACFLAGS += -I$(srctree)/tools/include \
+hostccflags	+= -I$(srctree)/tools/include \
 		    -include include/generated/autoconf.h \
 	            -D__EXPORTED_HEADERS__
 

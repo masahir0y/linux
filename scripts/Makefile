@@ -12,18 +12,17 @@ hostprogs-always-$(CONFIG_MODULE_SIG_FORMAT)		+= sign-file
 hostprogs-always-$(CONFIG_SYSTEM_TRUSTED_KEYRING)	+= extract-cert
 hostprogs-always-$(CONFIG_SYSTEM_EXTRA_CERTIFICATE)	+= insert-sys-cert
 
-HOSTCFLAGS_sorttable.o = -I$(srctree)/tools/include
-HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
-HOSTLDLIBS_sign-file = -lcrypto
-HOSTLDLIBS_extract-cert = -lcrypto
+sorttable-ccflags	:= -I$(srctree)/tools/include
+asn1_compiler-ccflags	:= -I$(srctree)/include
+sign-file-ldlibs	:= -lcrypto
+extract-cert-ldlibs	:= -lcrypto
 
 ifdef CONFIG_UNWINDER_ORC
 ifeq ($(ARCH),x86_64)
 ARCH := x86
 endif
-HOSTCFLAGS_sorttable.o += -I$(srctree)/tools/arch/x86/include
-HOSTCFLAGS_sorttable.o += -DUNWINDER_ORC_ENABLED
-HOSTLDLIBS_sorttable = -lpthread
+sorttable-ccflags	+= -I$(srctree)/tools/arch/x86/include -DUNWINDER_ORC_ENABLED
+sorttable-ldlibs	:= -lpthread
 endif
 
 # The following programs are only built on demand

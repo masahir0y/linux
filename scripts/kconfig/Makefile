@@ -150,8 +150,8 @@ common-objs	:= confdata.o expr.o lexer.lex.o parser.tab.o preprocess.o \
 		   symbol.o util.o
 
 $(obj)/lexer.lex.o: $(obj)/parser.tab.h
-HOSTCFLAGS_lexer.lex.o	:= -I $(srctree)/$(src)
-HOSTCFLAGS_parser.tab.o	:= -I $(srctree)/$(src)
+lexer.lex-ccflags	:= -I $(srctree)/$(src)
+parser.tab-ccflags	:= -I $(srctree)/$(src)
 
 # conf: Used for defconfig, oldconfig and related targets
 hostprogs	+= conf
@@ -161,9 +161,9 @@ conf-objs	:= conf.o $(common-objs)
 hostprogs	+= nconf
 nconf-objs	:= nconf.o nconf.gui.o $(common-objs)
 
-HOSTLDLIBS_nconf	= $(shell . $(obj)/nconf-cfg && echo $$libs)
-HOSTCFLAGS_nconf.o	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
-HOSTCFLAGS_nconf.gui.o	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
+nconf-ldlibs	= $(shell . $(obj)/nconf-cfg && echo $$libs)
+nconf-ccflags	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
+nconf.gui-ccflags = $(shell . $(obj)/nconf-cfg && echo $$cflags)
 
 $(obj)/nconf.o $(obj)/nconf.gui.o: $(obj)/nconf-cfg
 
@@ -173,9 +173,9 @@ lxdialog	:= $(addprefix lxdialog/, \
 		     checklist.o inputbox.o menubox.o textbox.o util.o yesno.o)
 mconf-objs	:= mconf.o $(lxdialog) $(common-objs)
 
-HOSTLDLIBS_mconf = $(shell . $(obj)/mconf-cfg && echo $$libs)
+mconf-ldlibs	= $(shell . $(obj)/mconf-cfg && echo $$libs)
 $(foreach f, mconf.o $(lxdialog), \
-  $(eval HOSTCFLAGS_$f = $$(shell . $(obj)/mconf-cfg && echo $$$$cflags)))
+  $(eval $f-ccflags = $$(shell . $(obj)/mconf-cfg && echo $$$$cflags)))
 
 $(addprefix $(obj)/, mconf.o $(lxdialog)): $(obj)/mconf-cfg
 
@@ -184,9 +184,9 @@ hostprogs	+= qconf
 qconf-cxxobjs	:= qconf.o qconf-moc.o
 qconf-objs	:= images.o $(common-objs)
 
-HOSTLDLIBS_qconf	= $(shell . $(obj)/qconf-cfg && echo $$libs)
-HOSTCXXFLAGS_qconf.o	= $(shell . $(obj)/qconf-cfg && echo $$cflags)
-HOSTCXXFLAGS_qconf-moc.o = $(shell . $(obj)/qconf-cfg && echo $$cflags)
+qconf-ldlibs	= $(shell . $(obj)/qconf-cfg && echo $$libs)
+qconf-cxxflags	= $(shell . $(obj)/qconf-cfg && echo $$cflags)
+qconf-moc-cxxflags = $(shell . $(obj)/qconf-cfg && echo $$cflags)
 
 $(obj)/qconf.o: $(obj)/qconf-cfg
 
@@ -202,8 +202,8 @@ targets += qconf-moc.cc
 hostprogs	+= gconf
 gconf-objs	:= gconf.o images.o $(common-objs)
 
-HOSTLDLIBS_gconf    = $(shell . $(obj)/gconf-cfg && echo $$libs)
-HOSTCFLAGS_gconf.o  = $(shell . $(obj)/gconf-cfg && echo $$cflags)
+gconf-ldlibs	= $(shell . $(obj)/gconf-cfg && echo $$libs)
+gconf-ccflags	= $(shell . $(obj)/gconf-cfg && echo $$cflags)
 
 $(obj)/gconf.o: $(obj)/gconf-cfg
 
