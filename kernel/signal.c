@@ -1257,7 +1257,7 @@ static void print_fatal_signal(int signr)
 	struct pt_regs *regs = signal_pt_regs();
 	pr_info("potentially unexpected fatal signal %d.\n", signr);
 
-#if defined(__i386__) && !defined(__arch_um__)
+#if defined(CONFIG_X86) && defined(CONFIG_X86_32)
 	pr_info("code at %08lx: ", regs->ip);
 	{
 		int i;
