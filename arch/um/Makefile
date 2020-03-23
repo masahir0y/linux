@@ -62,7 +62,7 @@ KBUILD_CPPFLAGS += -I$(srctree)/$(HOST_DIR)/um
 #
 # These apply to USER_CFLAGS to.
 
-KBUILD_CFLAGS += $(CFLAGS) $(CFLAGS-y) -D__arch_um__ \
+KBUILD_CFLAGS += $(CFLAGS) $(CFLAGS-y) \
 	$(ARCH_INCLUDE) $(MODE_INCLUDE) -Dvmap=kernel_vmap	\
 	-Dlongjmp=kernel_longjmp -Dsetjmp=kernel_setjmp \
 	-Din6addr_loopback=kernel_in6addr_loopback \
