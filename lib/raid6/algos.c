@@ -30,32 +30,28 @@ EXPORT_SYMBOL_GPL(raid6_call);
 
 const struct raid6_calls * const raid6_algos[] = {
 #ifdef CONFIG_X86
-#if defined(CONFIG_X86_32)
 #ifdef CONFIG_AS_AVX512
+#if defined(CONFIG_X86_64)
+	&raid6_avx512x4,
+#endif
 	&raid6_avx512x2,
 	&raid6_avx512x1,
 #endif
+#ifdef CONFIG_X86_64
+	&raid6_avx2x4,
+#endif
 	&raid6_avx2x2,
 	&raid6_avx2x1,
+#ifdef CONFIG_X86_64
+	&raid6_sse2x4,
+#endif
 	&raid6_sse2x2,
 	&raid6_sse2x1,
 	&raid6_sse1x2,
+#ifdef CONFIG_X86_32
 	&raid6_sse1x1,
 	&raid6_mmxx2,
 	&raid6_mmxx1,
-#endif
-#if defined(CONFIG_X86_64)
-#ifdef CONFIG_AS_AVX512
-	&raid6_avx512x4,
-	&raid6_avx512x2,
-	&raid6_avx512x1,
-#endif
-	&raid6_avx2x4,
-	&raid6_avx2x2,
-	&raid6_avx2x1,
-	&raid6_sse2x4,
-	&raid6_sse2x2,
-	&raid6_sse2x1,
 #endif
 #endif /* CONFIG_X86 */
 #ifdef CONFIG_ALTIVEC
