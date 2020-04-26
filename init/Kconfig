@@ -30,7 +30,7 @@ config CC_IS_GCC
 
 config GCC_VERSION
 	int
-	default $(shell,$(srctree)/scripts/gcc-version.sh $(CC)) if CC_IS_GCC
+	default $(shell,$(srctree)/scripts/cc-version.sh $(CC)) if CC_IS_GCC
 	default 0
 
 config LD_VERSION
@@ -45,7 +45,8 @@ config LD_IS_LLD
 
 config CLANG_VERSION
 	int
-	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
+	default $(shell,$(srctree)/scripts/cc-version.sh $(CC)) if CC_IS_CLANG
+	default 0
 
 config CC_CAN_LINK
 	bool
