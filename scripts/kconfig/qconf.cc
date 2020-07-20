@@ -608,9 +608,7 @@ void ConfigList::updateMenuList(ConfigItem *parent, struct menu* menu)
 
 	if (!menu) {
 		while (parent->childCount() > 0)
-		{
 			delete parent->takeChild(0);
-		}
 
 		return;
 	}
@@ -673,9 +671,7 @@ void ConfigList::updateMenuList(struct menu *menu)
 
 	if (!menu) {
 		while (topLevelItemCount() > 0)
-		{
 			delete takeTopLevelItem(0);
-		}
 
 		return;
 	}
