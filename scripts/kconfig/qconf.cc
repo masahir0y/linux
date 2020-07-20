@@ -307,7 +307,7 @@ ConfigList::ConfigList(QWidget *parent, const char *name)
 	: QTreeWidget(parent),
 	  updateAll(false),
 	  showName(false), mode(singleMode), optMode(normalOpt),
-	  rootEntry(0), headerPopup(0)
+	  rootEntry(nullptr), headerPopup(nullptr)
 {
 	setObjectName(name);
 	setSortingEnabled(false);
@@ -422,7 +422,7 @@ void ConfigList::updateSelection(void)
 
 void ConfigList::updateList()
 {
-	ConfigItem* last = 0;
+	ConfigItem *last = nullptr;
 	ConfigItem *item;
 
 	if (!rootEntry) {
@@ -559,7 +559,7 @@ void ConfigList::setRootMenu(struct menu *menu)
 	type = menu && menu->prompt ? menu->prompt->type : P_UNKNOWN;
 	if (type != P_MENU)
 		return;
-	updateMenuList(0);
+	updateMenuList(nullptr);
 	rootEntry = menu;
 	updateListAll();
 	if (currentItem()) {
@@ -682,7 +682,7 @@ void ConfigList::updateMenuList(struct menu *menu)
 
 	last = (ConfigItem *)topLevelItem(0);
 	if (last && !last->goParent)
-		last = 0;
+		last = nullptr;
 	for (child = menu->list; child; child = child->next) {
 		item = last ? last->nextSibling() : (ConfigItem *)topLevelItem(0);
 		type = child->prompt ? child->prompt->type : P_UNKNOWN;
@@ -1314,7 +1314,7 @@ void ConfigSearchWindow::search(void)
  * Construct the complete config widget
  */
 ConfigMainWindow::ConfigMainWindow(void)
-	: searchWindow(0)
+	: searchWindow(nullptr)
 {
 	bool ok = true;
 	QVariant x, y;
@@ -1672,7 +1672,7 @@ void ConfigMainWindow::showSingleView(void)
 	backAction->setEnabled(true);
 
 	menuList->hide();
-	menuList->setRootMenu(0);
+	menuList->setRootMenu(nullptr);
 	configList->mode = singleMode;
 	if (configList->rootEntry == &rootmenu)
 		configList->updateListAll();
@@ -1718,7 +1718,7 @@ void ConfigMainWindow::showFullView(void)
 	backAction->setEnabled(false);
 
 	menuList->hide();
-	menuList->setRootMenu(0);
+	menuList->setRootMenu(nullptr);
 	configList->mode = fullMode;
 	if (configList->rootEntry == &rootmenu)
 		configList->updateListAll();
