@@ -645,17 +645,19 @@ void ConfigList::updateMenuList(ConfigItem *parent, struct menu* menu)
 			if (mode == fullMode || mode == menuMode || type != P_MENU)
 				updateMenuList(item, child);
 			else
-				updateMenuList(item, 0);
+				updateMenuList(item, nullptr);
 			last = item;
 			continue;
 		}
 hide:
 		if (item && item->menu == child) {
 			last = parent->firstChild();
-			if (last == item)
-				last = 0;
-			else while (last->nextSibling() != item)
-				last = last->nextSibling();
+			if (last == item) {
+				last = nullptr;
+			} else {
+				while (last->nextSibling() != item)
+					last = last->nextSibling();
+			}
 			delete item;
 		}
 	}
@@ -708,17 +710,19 @@ void ConfigList::updateMenuList(struct menu *menu)
 			if (mode == fullMode || mode == menuMode || type != P_MENU)
 				updateMenuList(item, child);
 			else
-				updateMenuList(item, 0);
+				updateMenuList(item, nullptr);
 			last = item;
 			continue;
 		}
 hide:
 		if (item && item->menu == child) {
 			last = (ConfigItem *)topLevelItem(0);
-			if (last == item)
-				last = 0;
-			else while (last->nextSibling() != item)
-				last = last->nextSibling();
+			if (last == item) {
+				last = nullptr;
+			} else {
+				while (last->nextSibling() != item)
+					last = last->nextSibling();
+			}
 			delete item;
 		}
 	}
