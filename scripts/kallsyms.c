@@ -44,13 +44,8 @@ struct addr_range {
 
 static unsigned long long _text;
 static unsigned long long relative_base;
-static struct addr_range text_ranges[] = {
-	{ "_stext",     "_etext"     },
-	{ "_sinittext", "_einittext" },
-};
-#define text_range_text     (&text_ranges[0])
-#define text_range_inittext (&text_ranges[1])
-
+static struct addr_range text_range = { "_stext", "_etext" };
+static struct addr_range inittext_range = { "_sinittext", "_einittext" };
 static struct addr_range percpu_range = {
 	"__per_cpu_start", "__per_cpu_end", -1ULL, 0
 };
@@ -155,23 +150,13 @@ static bool is_ignored_symbol(const char *name, char type)
 	return false;
 }
 
-static void check_symbol_range(const char *sym, unsigned long long addr,
-			       struct addr_range *ranges, int entries)
+static void set_symbol_range(const char *sym, unsigned long long addr,
+			       struct addr_range *range)
 {
-	size_t i;
-	struct addr_range *ar;
-
-	for (i = 0; i < entries; ++i) {
-		ar = &ranges[i];
-
-		if (strcmp(sym, ar->start_sym) == 0) {
-			ar->start = addr;
-			return;
-		} else if (strcmp(sym, ar->end_sym) == 0) {
-			ar->end = addr;
-			return;
-		}
-	}
+	if (!strcmp(sym, range->start_sym))
+		range->start = addr;
+	else if (!strcmp(sym, range->end_sym))
+		range->end = addr;
 }
 
 static struct sym_entry *read_symbol(FILE *in)
@@ -202,8 +187,9 @@ static struct sym_entry *read_symbol(FILE *in)
 	if (is_ignored_symbol(name, type))
 		return NULL;
 
-	check_symbol_range(name, addr, text_ranges, ARRAY_SIZE(text_ranges));
-	check_symbol_range(name, addr, &percpu_range, 1);
+	set_symbol_range(name, addr, &text_range);
+	set_symbol_range(name, addr, &inittext_range);
+	set_symbol_range(name, addr, &percpu_range);
 
 	/* include the type field in the symbol name, so that it gets
 	 * compressed together */
@@ -225,20 +211,10 @@ static struct sym_entry *read_symbol(FILE *in)
 	return sym;
 }
 
-static int symbol_in_range(const struct sym_entry *s,
-			   const struct addr_range *ranges, int entries)
+static bool symbol_in_range(const struct sym_entry *sym,
+			    const struct addr_range *range)
 {
-	size_t i;
-	const struct addr_range *ar;
-
-	for (i = 0; i < entries; ++i) {
-		ar = &ranges[i];
-
-		if (s->addr >= ar->start && s->addr <= ar->end)
-			return 1;
-	}
-
-	return 0;
+	return sym->addr >= range->start && sym->addr <= range->end;
 }
 
 static bool symbol_valid(const struct sym_entry *sym)
@@ -248,7 +224,8 @@ static bool symbol_valid(const struct sym_entry *sym)
 		return true;
 
 	/* Discard symbols outside the text and inittext sections. */
-	if (!symbol_in_range(sym, text_ranges, ARRAY_SIZE(text_ranges)))
+	if (!symbol_in_range(sym, &text_range) &&
+	    !symbol_in_range(sym, &inittext_range))
 		return false;
 
 	/*
@@ -257,12 +234,12 @@ static bool symbol_valid(const struct sym_entry *sym)
 	 * data are added. If these symbols move then they may get dropped in
 	 * pass 2, which breaks the kallsyms rules.
 	 */
-	if (sym->addr == text_range_text->end &&
-	    strcmp(sym_name(sym), text_range_text->end_sym))
+	if (sym->addr == text_range.end &&
+	    strcmp(sym_name(sym), text_range.end_sym))
 		return false;
 
-	if (sym->addr == text_range_inittext->end &&
-	    strcmp(sym_name(sym), text_range_inittext->end_sym))
+	if (sym->addr == inittext_range.end
+	    && strcmp(sym_name(sym), inittext_range.end_sym))
 		return false;
 
 	return true;
@@ -715,7 +692,7 @@ static void make_percpus_absolute(void)
 	unsigned int i;
 
 	for (i = 0; i < table_cnt; i++)
-		if (symbol_in_range(table[i], &percpu_range, 1)) {
+		if (symbol_in_range(table[i], &percpu_range)) {
 			/*
 			 * Keep the 'A' override for percpu symbols to
 			 * ensure consistent behavior compared to older
