@@ -241,30 +241,31 @@ static int symbol_in_range(const struct sym_entry *s,
 	return 0;
 }
 
-static int symbol_valid(const struct sym_entry *s)
+static bool symbol_valid(const struct sym_entry *sym)
 {
-	const char *name = sym_name(s);
+	/* Handle all symbols if --all-symbols is not specified. */
+	if (all_symbols)
+		return true;
 
-	/* if --all-symbols is not specified, then symbols outside the text
-	 * and inittext sections are discarded */
-	if (!all_symbols) {
-		if (symbol_in_range(s, text_ranges,
-				    ARRAY_SIZE(text_ranges)) == 0)
-			return 0;
-		/* Corner case.  Discard any symbols with the same value as
-		 * _etext _einittext; they can move between pass 1 and 2 when
-		 * the kallsyms data are added.  If these symbols move then
-		 * they may get dropped in pass 2, which breaks the kallsyms
-		 * rules.
-		 */
-		if ((s->addr == text_range_text->end &&
-		     strcmp(name, text_range_text->end_sym)) ||
-		    (s->addr == text_range_inittext->end &&
-		     strcmp(name, text_range_inittext->end_sym)))
-			return 0;
-	}
+	/* Discard symbols outside the text and inittext sections. */
+	if (!symbol_in_range(sym, text_ranges, ARRAY_SIZE(text_ranges)))
+		return false;
 
-	return 1;
+	/*
+	 * Corner case. Discard any symbols with the same value as _etext or
+	 * _einittext; they can move between pass 1 and 2 when the kallsyms
+	 * data are added. If these symbols move then they may get dropped in
+	 * pass 2, which breaks the kallsyms rules.
+	 */
+	if (sym->addr == text_range_text->end &&
+	    strcmp(sym_name(sym), text_range_text->end_sym))
+		return false;
+
+	if (sym->addr == text_range_inittext->end &&
+	    strcmp(sym_name(sym), text_range_inittext->end_sym))
+		return false;
+
+	return true;
 }
 
 /* remove all the invalid symbols from the table */
