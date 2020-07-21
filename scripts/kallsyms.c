@@ -159,6 +159,19 @@ static void set_symbol_range(const char *sym, unsigned long long addr,
 		range->end = addr;
 }
 
+static void check_unset_range(struct addr_range *range)
+{
+	if (!range->start) {
+		fprintf(stderr, "%s was not set\n", ranges->start_sym);
+		exit(EXIT_FAILURE);
+	}
+
+	if (!range->end) {
+		fprintf(stderr, "%s was not set\n", ranges->end_sym);
+		exit(EXIT_FAILURE);
+	}
+}
+
 static struct sym_entry *read_symbol(FILE *in)
 {
 	char name[500], type;
@@ -291,6 +304,9 @@ static void read_map(FILE *in)
 
 		table[table_cnt++] = sym;
 	}
+
+	check_unset_range(&text_range);
+	check_unset_range(&inittext_range);
 }
 
 static void output_label(const char *label)
