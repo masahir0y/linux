@@ -125,10 +125,21 @@ static int pinconf_group_set_config(struct pinctrl_dev *pctldev,
 	const struct pinconf_ops *ops;
 
 	ops = pctldev->desc->confops;
-	if (!ops || !ops->pin_config_group_set)
+	if (!ops)
 		return -ENOTSUPP;
 
-	return ops->pin_config_group_set(pctldev, selector, configs, nconfigs);
+	if (ops->pin_config_group_set)
+		return ops->pin_config_group_set(pctldev, selector,
+						 configs, nconfigs);
+
+	/*
+	 * If ->pin_config_group_set is not supported, ->pin_config_set should
+	 * be supported.  (pinconf_check_ops() requrires this.)
+	 * Try per-pin configuration.
+	 */
+
+	pctldev->desc->pctlops->get_group_pins(pctldev, selector, pins, num_pins);
+
 }
 
 int pinconf_map_to_setting(const struct pinctrl_map *map,
