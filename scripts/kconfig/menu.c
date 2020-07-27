@@ -897,3 +897,19 @@ void menu_get_ext_help(struct menu *menu, struct gstr *help)
 	if (sym)
 		get_symbol_str(help, sym, NULL);
 }
+
+void fixup_rootmenu(struct menu *menu)
+{
+	struct menu *child;
+	static int menu_cnt = 0;
+
+	menu->flags |= MENU_ROOT;
+	for (child = menu->list; child; child = child->next) {
+		if (child->prompt && child->prompt->type == P_MENU) {
+			menu_cnt++;
+			fixup_rootmenu(child);
+			menu_cnt--;
+		} else if (!menu_cnt)
+			fixup_rootmenu(child);
+	}
+}

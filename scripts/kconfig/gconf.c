@@ -1423,23 +1423,6 @@ static void display_list(void)
 	tree = tree2;
 }
 
-static void fixup_rootmenu(struct menu *menu)
-{
-	struct menu *child;
-	static int menu_cnt = 0;
-
-	menu->flags |= MENU_ROOT;
-	for (child = menu->list; child; child = child->next) {
-		if (child->prompt && child->prompt->type == P_MENU) {
-			menu_cnt++;
-			fixup_rootmenu(child);
-			menu_cnt--;
-		} else if (!menu_cnt)
-			fixup_rootmenu(child);
-	}
-}
-
-
 /* Main */
 int main(int ac, char *av[])
 {

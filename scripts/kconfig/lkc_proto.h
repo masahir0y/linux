@@ -25,6 +25,7 @@ bool menu_has_help(struct menu *menu);
 const char * menu_get_help(struct menu *menu);
 struct gstr get_relations_str(struct symbol **sym_arr, struct list_head *head);
 void menu_get_ext_help(struct menu *menu, struct gstr *help);
+void fixup_rootmenu(struct menu *menu);
 
 /* symbol.c */
 extern struct symbol * symbol_hash[SYMBOL_HASHSIZE];
