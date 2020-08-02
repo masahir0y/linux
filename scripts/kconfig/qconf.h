@@ -20,7 +20,6 @@
 class ConfigView;
 class ConfigList;
 class ConfigItem;
-class ConfigLineEdit;
 class ConfigMainWindow;
 
 class ConfigSettings : public QSettings {
@@ -188,22 +187,6 @@ public:
 			  const QModelIndex &index) const override;
 };
 
-class ConfigLineEdit : public QLineEdit {
-	Q_OBJECT
-	typedef class QLineEdit Parent;
-public:
-	ConfigLineEdit(ConfigView* parent);
-	ConfigView* parent(void) const
-	{
-		return (ConfigView*)Parent::parent();
-	}
-	void show(ConfigItem *i);
-	void keyPressEvent(QKeyEvent *e);
-
-public:
-	ConfigItem *item;
-};
-
 class ConfigView : public QWidget {
 	Q_OBJECT
 	typedef class QWidget Parent;
@@ -220,7 +203,6 @@ signals:
 	void showRangeChanged(bool);
 public:
 	ConfigList* list;
-	ConfigLineEdit* lineEdit;
 };
 
 class ConfigInfoView : public QTextBrowser {
