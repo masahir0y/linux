@@ -1,32 +1,33 @@
-# SPDX-License-Identifier: GPL-2.0
-#
-# For a description of the syntax of this configuration file,
-# see Documentation/kbuild/kconfig-language.rst.
-#
-mainmenu "Linux/$(ARCH) $(KERNELVERSION) Kernel Configuration"
+config MODULES
+       def_bool y
+       option modules
 
-source "scripts/Kconfig.include"
+config INT
+       int "test int"
 
-source "init/Kconfig"
+config STR
+       string "test string"
 
-source "kernel/Kconfig.freezer"
+config FOO
+       tristate "foo"
 
-source "fs/Kconfig.binfmt"
+choice
+	prompt "hoge"
 
-source "mm/Kconfig"
+config AAA
+       tristate "aaa"
 
-source "net/Kconfig"
+config BBB
+       tristate "bbb"
 
-source "drivers/Kconfig"
+endchoice
 
-source "fs/Kconfig"
+menuconfig GGG
+	   bool "ggg"
 
-source "security/Kconfig"
+if GGG
 
-source "crypto/Kconfig"
+config CCC
+       tristate "ccc"
 
-source "lib/Kconfig"
-
-source "lib/Kconfig.debug"
-
-source "Documentation/Kconfig"
+endif
