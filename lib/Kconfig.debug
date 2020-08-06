@@ -288,6 +288,14 @@ config GDB_SCRIPTS
 	  instance. See Documentation/dev-tools/gdb-kernel-debugging.rst
 	  for further details.
 
+config COMPILATION_DATABASE
+	bool "Generate a compilation database"
+	depends on CC_IS_CLANG
+	default y
+	help
+	  This creates a JSON Compilation Database (compile_commands.json)
+	  that is used by the clang tooling (clang-tidy, clang-check, etc).
+
 config ENABLE_MUST_CHECK
 	bool "Enable __must_check logic"
 	default y

@@ -162,6 +162,10 @@ _c_flags += $(if $(patsubst n%,, \
 	$(CFLAGS_KCSAN))
 endif
 
+ifeq ($(CONFIG_COMPILATION_DATABASE),y)
+_c_flags += -MJ $(dot-target).json
+endif
+
 # $(srctree)/$(src) for including checkin headers from generated source files
 # $(objtree)/$(obj) for including generated headers from checkin source files
 ifeq ($(KBUILD_EXTMOD),)

@@ -1666,6 +1666,35 @@ ifdef CONFIG_GDB_SCRIPTS
 all: scripts_gdb
 endif
 
+ifdef CONFIG_COMPILATION_DATABASE
+
+all: compile_commands.json
+
+quiet_cmd_gen_compile_commands = GEN     $@
+      cmd_gen_compile_commands = {		\
+	echo "[";				\
+	for f in $(real-prereqs);		\
+	do					\
+		case $$f in			\
+		*.o)				\
+			echo $$f;;		\
+		*.a)				\
+			$(AR) -t $$f;;		\
+		*.order)			\
+			sed 's/ko$$/mod/' $$f | xargs -n 1 -- head -n 1  | tr ' ' '\n';; \
+		*)				\
+			echo 'Error' >&2;;	\
+		esac				\
+	done;					\
+	echo "]";				\
+} > $@
+
+endif
+
+compile_commands.json: $(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS) \
+	$(if $(CONFIG_MODULES), $(MODORDER)) FORCE
+	$(call if_changed,gen_compile_commands)
+
 else # KBUILD_EXTMOD
 
 ###
