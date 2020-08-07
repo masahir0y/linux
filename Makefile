@@ -1671,11 +1671,11 @@ ifdef CONFIG_COMPILATION_DATABASE
 all: compile_commands.json
 
 quiet_cmd_gen_compile_commands = GEN     $@
-      cmd_gen_compile_commands = $(CONFIG_SHELL) $(real-prereqs) > $@
+      cmd_gen_compile_commands = $(PYTHON3) $< -o $@ $(filter-out $<, $(real-prereqs))
 
 endif
 
-compile_commands.json: scripts/gen_compile_commands.sh \
+compile_commands.json: scripts/clang-tools/gen_compile_commands.py \
 	$(if $(KBUILD_EXTMOD),,$(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS)) \
 	$(if $(CONFIG_MODULES), $(MODORDER)) FORCE
 	$(call if_changed,gen_compile_commands)
