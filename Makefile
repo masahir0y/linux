@@ -1678,7 +1678,7 @@ endif
 compile_commands.json: scripts/clang-tools/gen_compile_commands.py \
 	$(if $(KBUILD_EXTMOD),,$(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS)) \
 	$(if $(CONFIG_MODULES), $(MODORDER)) FORCE
-	$(call if_changed,gen_compile_commands)
+	time $(PYTHON3) $< -o $@ $(filter-out $<, $(real-prereqs))
 
 else # KBUILD_EXTMOD
 

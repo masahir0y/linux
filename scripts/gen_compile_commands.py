@@ -37,10 +37,6 @@ def parse_arguments():
     usage = 'Creates a compile_commands.json database from kernel .cmd files'
     parser = argparse.ArgumentParser(description=usage)
 
-    directory_help = ('Path to the kernel source directory to search '
-                      '(defaults to the working directory)')
-    parser.add_argument('-d', '--directory', type=str, help=directory_help)
-
     output_help = ('The location to write compile_commands.json (defaults to '
                    'compile_commands.json in the search directory)')
     parser.add_argument('-o', '--output', type=str, help=output_help)
@@ -60,9 +56,9 @@ def parse_arguments():
 
     directory = args.directory or os.getcwd()
     output = args.output or os.path.join(directory, _DEFAULT_OUTPUT)
-    directory = os.path.abspath(directory)
+    files = args.files
 
-    return log_level, directory, output
+    return log_level, output, files
 
 
 def process_line(root_directory, file_directory, command_prefix, relative_path):
@@ -107,7 +103,53 @@ def process_line(root_directory, file_directory, command_prefix, relative_path):
     }
 
 
+def append_compile_commands(compile_commands, objects):
+    for object in objects:
+        dir, notdir = os.path.split(object)
+        if not notdir.endswith(".o"):
+            sys.exit("{}: object path must end with .o".format(object))
+        cmd_file = os.path.join(dir, "." + notdir + ".cmd")
+        with open(cmd_file, 'rt') as f:
+            for line in f:
+                result = line_matcher.match(line)
+                if not result:
+                    continue
+
+                    try:
+                        entry = process_line(directory, dirpath,
+                                             result.group(1), result.group(2))
+                        compile_commands.append(entry)
+                    except ValueError as err:
+                        logging.info('Could not add line from %s: %s',
+                                     filepath, err)
+
+
 def main():
+
+    output, files = parse_arguments()
+
+    objects = []
+
+    for file in files:
+        if file.endswith(".o"):
+            objects.append(file)
+        elif file.endswith(".a"):
+            objects += subprocess.check_output(['ar', '-t', file]).decode().split())
+        elif file.endswith(".order"):
+            for line in open(f):
+                ko = line.rstrip()
+                base, ext = os.path.splitext(ko)
+                if ext != ".ko":
+                    sys.exit("{}: mobule path must end with .ko".format(ko))
+                mod = base + ".mod"
+                with open(mod) as f:
+                    objects += f.readline().split()
+
+    with open(args.output, 'wt') as dst:
+
+
+
+
     """Walks through the directory and finds and parses .cmd files."""
     log_level, directory, output = parse_arguments()
 
