@@ -132,11 +132,9 @@ def main():
             sys.exit("{}: object path must end with .o".format(object))
         cmd_file = os.path.join(dir, "." + notdir + ".cmd")
         with open(cmd_file, 'rt') as f:
-            for line in f:
-                result = line_matcher.match(line)
-                if not result:
-                    continue
-
+            line = f.readline()
+            result = line_matcher.match(line)
+            if result:
                 try:
                     entry = process_line(directory, result.group(1), result.group(2))
                     compile_commands.append(entry)
