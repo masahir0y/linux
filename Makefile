@@ -1675,7 +1675,7 @@ quiet_cmd_gen_compile_commands = GEN     $@
 
 endif
 
-compile_commands.json: scripts/clang-tools/gen_compile_commands.py \
+compile_commands.json: scripts/gen_compile_commands.py \
 	$(if $(KBUILD_EXTMOD),,$(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS)) \
 	$(if $(CONFIG_MODULES), $(MODORDER)) FORCE
 	time $(PYTHON3) $< -o $@ $(filter-out $<, $(real-prereqs))

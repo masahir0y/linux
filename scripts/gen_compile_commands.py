@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 
 _DEFAULT_OUTPUT = 'compile_commands.json'
 _DEFAULT_LOG_LEVEL = 'WARNING'
@@ -48,20 +49,21 @@ def parse_arguments():
         '--log_level', type=str, default=_DEFAULT_LOG_LEVEL,
         help=log_level_help)
 
+    parser.add_argument('files', nargs='*', help="")
+
     args = parser.parse_args()
 
     log_level = args.log_level
     if log_level not in _VALID_LOG_LEVELS:
         raise ValueError('%s is not a valid log level' % log_level)
 
-    directory = args.directory or os.getcwd()
     output = args.output or os.path.join(directory, _DEFAULT_OUTPUT)
     files = args.files
 
     return log_level, output, files
 
 
-def process_line(root_directory, file_directory, command_prefix, relative_path):
+def process_line(root_directory, command_prefix, relative_path):
     """Extracts information from a .cmd line and creates an entry from it.
 
     Args:
@@ -89,21 +91,41 @@ def process_line(root_directory, file_directory, command_prefix, relative_path):
     cur_dir = root_directory
     expected_path = os.path.join(cur_dir, relative_path)
     if not os.path.exists(expected_path):
-        # Try using file_directory instead. Some of the tools have a different
-        # style of .cmd file than the kernel.
-        cur_dir = file_directory
-        expected_path = os.path.join(cur_dir, relative_path)
-        if not os.path.exists(expected_path):
-            raise ValueError('File %s not in %s or %s' %
-                             (relative_path, root_directory, file_directory))
+        raise ValueError('expectiveFile %s not in %s or %s' %
+                         (relative_path, root_directory, file_directory))
     return {
         'directory': cur_dir,
         'file': relative_path,
         'command': prefix + relative_path,
     }
 
+def main():
 
-def append_compile_commands(compile_commands, objects):
+    log_level, output, files = parse_arguments()
+
+    level = getattr(logging, log_level)
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=level)
+
+    line_matcher = re.compile(_LINE_PATTERN)
+
+    objects = []
+    for file in files:
+        if file.endswith(".o"):
+            objects.append(file)
+        elif file.endswith(".a"):
+            objects += subprocess.check_output(['ar', '-t', file]).decode().split()
+        elif file.endswith(".order"):
+            for line in open(file):
+                ko = line.rstrip()
+                base, ext = os.path.splitext(ko)
+                if ext != ".ko":
+                    sys.exit("{}: mobule path must end with .ko".format(ko))
+                mod = base + ".mod"
+                with open(mod) as f:
+                    objects += f.readline().split()
+
+    compile_commands = []
+    directory = os.getcwd()
     for object in objects:
         dir, notdir = os.path.split(object)
         if not notdir.endswith(".o"):
@@ -115,79 +137,17 @@ def append_compile_commands(compile_commands, objects):
                 if not result:
                     continue
 
-                    try:
-                        entry = process_line(directory, dirpath,
-                                             result.group(1), result.group(2))
-                        compile_commands.append(entry)
-                    except ValueError as err:
-                        logging.info('Could not add line from %s: %s',
-                                     filepath, err)
+                try:
+                    entry = process_line(directory, result.group(1), result.group(2))
+                    compile_commands.append(entry)
+                except ValueError as err:
+                    logging.info('Could not add line from %s: %s',
+                                 filepath, err)
 
-
-def main():
-
-    output, files = parse_arguments()
-
-    objects = []
-
-    for file in files:
-        if file.endswith(".o"):
-            objects.append(file)
-        elif file.endswith(".a"):
-            objects += subprocess.check_output(['ar', '-t', file]).decode().split())
-        elif file.endswith(".order"):
-            for line in open(f):
-                ko = line.rstrip()
-                base, ext = os.path.splitext(ko)
-                if ext != ".ko":
-                    sys.exit("{}: mobule path must end with .ko".format(ko))
-                mod = base + ".mod"
-                with open(mod) as f:
-                    objects += f.readline().split()
-
-    with open(args.output, 'wt') as dst:
-
-
-
-
-    """Walks through the directory and finds and parses .cmd files."""
-    log_level, directory, output = parse_arguments()
-
-    level = getattr(logging, log_level)
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=level)
-
-    filename_matcher = re.compile(_FILENAME_PATTERN)
     line_matcher = re.compile(_LINE_PATTERN)
-
-    compile_commands = []
-    for dirpath, _, filenames in os.walk(directory):
-        for filename in filenames:
-            if not filename_matcher.match(filename):
-                continue
-            filepath = os.path.join(dirpath, filename)
-
-            with open(filepath, 'rt') as f:
-                for line in f:
-                    result = line_matcher.match(line)
-                    if not result:
-                        continue
-
-                    try:
-                        entry = process_line(directory, dirpath,
-                                             result.group(1), result.group(2))
-                        compile_commands.append(entry)
-                    except ValueError as err:
-                        logging.info('Could not add line from %s: %s',
-                                     filepath, err)
 
     with open(output, 'wt') as f:
         json.dump(compile_commands, f, indent=2, sort_keys=True)
-
-    count = len(compile_commands)
-    if count < _LOW_COUNT_THRESHOLD:
-        logging.warning(
-            'Found %s entries. Have you compiled the kernel?', count)
-
 
 if __name__ == '__main__':
     main()
