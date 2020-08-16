@@ -318,15 +318,16 @@ ConfigList::ConfigList(QWidget *parent, const char *name)
 
 	setHeaderLabels(QStringList() << "Option" << "Name" << "Value");
 
-	connect(this, SIGNAL(itemSelectionChanged(void)),
-		SLOT(updateSelection(void)));
+	connect(this, &ConfigList::itemSelectionChanged,
+		this, &ConfigList::updateSelection);
 
 	if (name) {
 		configSettings->beginGroup(name);
 		showName = configSettings->value("/showName", false).toBool();
 		optMode = (enum optionMode)configSettings->value("/optionMode", 0).toInt();
 		configSettings->endGroup();
-		connect(configApp, SIGNAL(aboutToQuit()), SLOT(saveSettings()));
+		connect(configApp, &QApplication::aboutToQuit,
+			this, &ConfigList::saveSettings);
 	}
 
 	showColumn(promptColIdx);
@@ -896,10 +897,10 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
 		headerPopup = new QMenu(this);
 		action = new QAction("Show Name", this);
 		action->setCheckable(true);
-		connect(action, SIGNAL(toggled(bool)),
-			SLOT(setShowName(bool)));
-		connect(this, SIGNAL(showNameChanged(bool)),
-			action, SLOT(setChecked(bool)));
+		connect(action, &QAction::toggled,
+			this, &ConfigList::setShowName);
+		connect(this, &ConfigList::showNameChanged,
+			action, &QAction::setChecked);
 		action->setChecked(showName);
 		headerPopup->addAction(action);
 	}
@@ -944,7 +945,8 @@ ConfigInfoView::ConfigInfoView(QWidget* parent, const char *name)
 		configSettings->beginGroup(objectName());
 		setShowDebug(configSettings->value("/showDebug", false).toBool());
 		configSettings->endGroup();
-		connect(configApp, SIGNAL(aboutToQuit()), SLOT(saveSettings()));
+		connect(configApp, &QApplication::aboutToQuit,
+			this, &ConfigInfoView::saveSettings);
 	}
 }
 
